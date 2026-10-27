@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>География физическая и общественная — 2611-0251.1</title>
 
-    <!-- Иконка сайта: синий круг с белым глобусом (SVG, data URI) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
 
     <style>
@@ -211,16 +210,98 @@
         }
         .schedule-link:hover { background: #0066ff; color: #fff; }
 
+        /* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
         @media (max-width: 700px) {
-            h1 { font-size: 1.5rem; }
-            .group-code { position: static; display: inline-flex; height: auto; margin-top: 10px; padding: 6px 14px; }
-            .card-block { margin: 0 32px; width: calc(100% - 64px); }
-            .card-19x6 { height: 260px; }
-            .card-caption { font-size: 1.3rem; }
-            .divider { margin: 24px 32px; width: calc(100% - 64px); }
-            .feed-title { font-size: 1.6rem; margin: 0 0 18px; }
-            .card-19x6.filled .cal-icon svg { width: 56px; height: 56px; }
-            .card-19x6.filled .dist-text { font-size: 1.05rem; }
+            header {
+                padding: 20px 14px 14px;
+            }
+            h1 {
+                font-size: 1.15rem;
+                letter-spacing: 0.5px;
+                line-height: 1.25;
+            }
+            .group-code {
+                position: static;
+                display: inline-flex;
+                height: auto;
+                margin-top: 10px;
+                padding: 4px 10px;
+                font-size: 0.8rem;
+                border-width: 1.5px;
+            }
+            header { text-align: center; }
+
+            .tabs {
+                gap: 6px;
+                padding: 10px 12px;
+            }
+            .tab-btn {
+                padding: 6px 14px;
+                font-size: 0.82rem;
+                border-radius: 6px;
+                flex: 1 1 auto;
+                text-align: center;
+            }
+
+            .tab-content {
+                padding: 18px 12px 40px;
+            }
+
+            .feed-title {
+                font-size: 1.35rem;
+                letter-spacing: 1px;
+                margin: 0 0 14px;
+            }
+
+            .card-block {
+                margin: 0;
+                width: 100%;
+            }
+            .card-user { gap: 8px; margin-bottom: 8px; }
+            .user-avatar { width: 30px; height: 30px; }
+            .user-avatar svg { width: 18px; height: 18px; }
+            .user-name { font-size: 0.85rem; }
+
+            .card-19x6 {
+                height: 200px;
+                border-radius: 10px;
+            }
+            .card-19x6.filled { gap: 10px; }
+            .card-19x6.filled .cal-icon svg { width: 48px; height: 48px; }
+            .card-19x6.filled .dist-text { font-size: 0.95rem; letter-spacing: 0.5px; padding: 0 10px; }
+
+            .post-footer { margin-top: 8px; }
+            .post-date { font-size: 0.75rem; }
+            .heart-btn svg { width: 22px; height: 28px; }
+
+            .card-caption {
+                font-size: 1.05rem;
+                line-height: 1.3;
+            }
+
+            .divider {
+                margin: 20px 0;
+                width: 100%;
+            }
+
+            .tab-content h2 { font-size: 1.3rem; }
+            .tab-content p { font-size: 1rem; }
+
+            .btn-disciplines {
+                display: block;
+                width: 100%;
+                text-align: center;
+                padding: 14px 20px;
+                font-size: 1.1rem;
+                letter-spacing: 1px;
+            }
+            .schedule-link {
+                display: block;
+                width: 100%;
+                text-align: center;
+                padding: 14px 20px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
