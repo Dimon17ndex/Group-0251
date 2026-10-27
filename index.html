@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group 0251</title>
+    <title>География физическая и общественная — 2611-0251.1</title>
     <style>
         * {
             margin: 0;
@@ -21,18 +21,73 @@
         }
 
         header {
-            padding: 40px 20px;
-            text-align: center;
+            padding: 40px 20px 20px;
+            position: relative;
         }
 
+        /* Заголовок по центру */
         h1 {
-            font-size: 3rem;
+            font-size: 2.2rem;
             font-weight: 700;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        h1 span {
+        /* Номер группы: у правого края, чуть ниже уровня заголовка */
+        .group-code {
+            position: absolute;
+            right: 60px;
+            top: 52px;
+            height: 2.2rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #000000;
+            letter-spacing: 0.5px;
+            padding: 0 14px;
+            border: 2px solid #000000;
+            border-radius: 12px;
+            background: transparent;
+            white-space: nowrap;
+        }
+
+        /* --- Панель вкладок с линиями сверху и снизу --- */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 14px 20px;              /* отступы сверху и снизу */
+            border-top: 1px solid #eeeeee;   /* линия сверху */
+            border-bottom: 1px solid #eeeeee;/* линия снизу */
+        }
+
+        .tab-btn {
+            padding: 7px 22px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: #555555;
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            line-height: 1.1;
+        }
+
+        .tab-btn:hover {
+            background: #eef4ff;
             color: #0066ff;
+        }
+
+        .tab-btn.active {
+            background: #0066ff;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
         }
 
         main {
@@ -41,13 +96,34 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 40px 20px;
             text-align: center;
         }
 
-        /* --- Кнопка "ДИСЦИПЛИНЫ" --- */
+        .tab-content {
+            display: none;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h2 {
+            font-size: 1.6rem;
+            margin-bottom: 16px;
+        }
+
+        .tab-content p {
+            font-size: 1.1rem;
+            color: #555555;
+            line-height: 1.6;
+        }
+
         .btn-disciplines {
             display: inline-block;
+            margin-top: 10px;
             padding: 18px 48px;
             font-size: 1.4rem;
             font-weight: 600;
@@ -68,59 +144,36 @@
             transform: translateY(-2px);
         }
 
-        .btn-disciplines:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(0, 102, 255, 0.2);
-        }
-
-        /* --- Окно расписания справа --- */
-        .schedule-widget {
-            position: fixed;
-            right: 24px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 380px;
-            max-width: 90vw;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-            overflow: hidden;
-            background: #fff;
-            z-index: 100;
-            border: 1px solid #eeeeee;
-        }
-
-        .schedule-widget iframe {
-            width: 100%;
-            height: 420px;
-            border: none;
-            display: block;
-        }
-
-        /* Резервная кнопка под iframe */
-        .schedule-fallback {
-            display: block;
-            padding: 12px;
-            text-align: center;
-            font-size: 0.9rem;
-            color: #0066ff;
+        .schedule-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
             text-decoration: none;
-            border-top: 1px solid #eeeeee;
-            background: #fafafa;
-            transition: background 0.2s;
+            color: #0066ff;
+            border: 2px solid #0066ff;
+            border-radius: 10px;
+            transition: all 0.2s ease;
         }
 
-        .schedule-fallback:hover {
-            background: #f0f6ff;
+        .schedule-link:hover {
+            background: #0066ff;
+            color: #ffffff;
         }
 
-        /* На мобильных устройствах окно не фиксируется, а встаёт в поток */
-        @media (max-width: 768px) {
-            .schedule-widget {
+        /* На узких экранах номер группы встаёт под заголовком */
+        @media (max-width: 700px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .group-code {
                 position: static;
-                transform: none;
-                width: 100%;
-                margin-top: 30px;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                display: inline-flex;
+                height: auto;
+                margin-top: 10px;
+                padding: 6px 14px;
             }
         }
 
@@ -135,30 +188,60 @@
 </head>
 <body>
     <header>
-        <h1>Group <span>0251</span></h1>
+        <h1>ГЕОГРАФИЯ ФИЗИЧЕСКАЯ И ОБЩЕСТВЕННАЯ</h1>
+        <div class="group-code">2611-0251.1</div>
     </header>
 
-    <main>
-        <a href="disciplines.html" class="btn-disciplines">ДИСЦИПЛИНЫ</a>
+    <!-- Панель вкладок -->
+    <nav class="tabs">
+        <button class="tab-btn active" data-tab="home">Главная</button>
+        <button class="tab-btn" data-tab="disciplines">Дисциплины</button>
+        <button class="tab-btn" data-tab="schedule">Расписание</button>
+    </nav>
 
-        <!-- Окно расписания справа -->
-        <div class="schedule-widget">
-            <iframe 
-                src="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1"
-                title="Расписание группы 0251"
-                loading="lazy">
-            </iframe>
-            <a class="schedule-fallback" 
-               href="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1" 
-               target="_blank" 
+    <main>
+        <section class="tab-content active" id="tab-home">
+            <h2>Добро пожаловать!</h2>
+            <p>Это сайт группы 2611-0251.1. Выберите нужный раздел в панели выше.</p>
+        </section>
+
+        <section class="tab-content" id="tab-disciplines">
+            <h2>Дисциплины</h2>
+            <p>Здесь будет список предметов и конспектов группы.</p>
+            <a href="disciplines.html" class="btn-disciplines">ДИСЦИПЛИНЫ</a>
+        </section>
+
+        <section class="tab-content" id="tab-schedule">
+            <h2>Расписание</h2>
+            <p>Актуальное расписание занятий группы 2611-0251.1.</p>
+            <a class="schedule-link"
+               href="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1"
+               target="_blank"
                rel="noopener">
-                Открыть расписание в новой вкладке ↗
+                Открыть расписание ↗
             </a>
-        </div>
+        </section>
     </main>
 
     <footer>
         &copy; 2026 Group 0251. Все права защищены.
     </footer>
+
+    <script>
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.dataset.tab;
+
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                btn.classList.add('active');
+                document.getElementById('tab-' + target).classList.add('active');
+            });
+        });
+    </script>
 </body>
 </html>
