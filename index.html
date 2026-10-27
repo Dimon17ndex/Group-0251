@@ -45,11 +45,83 @@
             text-align: center;
         }
 
-        p {
-            font-size: 1.2rem;
-            color: #555555;
-            max-width: 600px;
-            line-height: 1.6;
+        /* --- Кнопка "ДИСЦИПЛИНЫ" --- */
+        .btn-disciplines {
+            display: inline-block;
+            padding: 18px 48px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-decoration: none;
+            color: #ffffff;
+            background-color: #0066ff;
+            border: 2px solid #0066ff;
+            border-radius: 10px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(0, 102, 255, 0.25);
+        }
+
+        .btn-disciplines:hover {
+            background-color: #ffffff;
+            color: #0066ff;
+            box-shadow: 0 6px 20px rgba(0, 102, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .btn-disciplines:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 102, 255, 0.2);
+        }
+
+        /* --- Окно расписания справа --- */
+        .schedule-widget {
+            position: fixed;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 380px;
+            max-width: 90vw;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            background: #fff;
+            z-index: 100;
+            border: 1px solid #eeeeee;
+        }
+
+        .schedule-widget iframe {
+            width: 100%;
+            height: 420px;
+            border: none;
+            display: block;
+        }
+
+        /* Резервная кнопка под iframe */
+        .schedule-fallback {
+            display: block;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #0066ff;
+            text-decoration: none;
+            border-top: 1px solid #eeeeee;
+            background: #fafafa;
+            transition: background 0.2s;
+        }
+
+        .schedule-fallback:hover {
+            background: #f0f6ff;
+        }
+
+        /* На мобильных устройствах окно не фиксируется, а встаёт в поток */
+        @media (max-width: 768px) {
+            .schedule-widget {
+                position: static;
+                transform: none;
+                width: 100%;
+                margin-top: 30px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            }
         }
 
         footer {
@@ -67,7 +139,22 @@
     </header>
 
     <main>
-        <p>Добро пожаловать на наш сайт! Здесь будет основная информация о группе 0251.</p>
+        <a href="disciplines.html" class="btn-disciplines">ДИСЦИПЛИНЫ</a>
+
+        <!-- Окно расписания справа -->
+        <div class="schedule-widget">
+            <iframe 
+                src="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1"
+                title="Расписание группы 0251"
+                loading="lazy">
+            </iframe>
+            <a class="schedule-fallback" 
+               href="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1" 
+               target="_blank" 
+               rel="noopener">
+                Открыть расписание в новой вкладке ↗
+            </a>
+        </div>
     </main>
 
     <footer>
