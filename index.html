@@ -54,7 +54,15 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         header { padding: 40px 20px 20px; position: relative; flex-shrink: 0; }
-        h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1.5px; text-align: center; max-width: 900px; margin: 0 auto; }
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+            white-space: nowrap;
+        }
         .group-code {
             position: absolute; right: 60px; top: 52px; height: 2.2rem;
             display: flex; align-items: center; font-size: 1.1rem; font-weight: 600;
@@ -213,23 +221,29 @@
         /* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
         @media (max-width: 700px) {
             header {
-                padding: 20px 14px 14px;
+                padding: 16px 10px 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
             }
-            h1 {
-                font-size: 1.15rem;
-                letter-spacing: 0.5px;
-                line-height: 1.25;
-            }
+            /* Номер группы — выше заголовка, чуть правее, но рамка не выходит за левый край h1 */
             .group-code {
                 position: static;
+                order: -1;
                 display: inline-flex;
                 height: auto;
-                margin-top: 10px;
-                padding: 4px 10px;
-                font-size: 0.8rem;
+                margin: 0 0 6px 6px;        /* сдвиг вправо на 6px */
+                padding: 3px 8px;
+                font-size: 0.72rem;
                 border-width: 1.5px;
             }
-            header { text-align: center; }
+            h1 {
+                font-size: 0.95rem;
+                letter-spacing: 0.2px;
+                line-height: 1.2;
+                white-space: nowrap;
+                text-align: left;
+            }
 
             .tabs {
                 gap: 6px;
