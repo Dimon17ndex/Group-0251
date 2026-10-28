@@ -270,6 +270,85 @@
             transform: rotate(180deg);
         }
 
+        /* === Плашка «Плохой интернет» === */
+        .net-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            overflow: hidden;
+            background: #e53935;
+            color: #fff;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 16px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: height 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+                        opacity 0.35s ease;
+            opacity: 0;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+
+        .net-banner.visible {
+            height: 44px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .net-banner-center {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .net-banner-text {
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        .net-banner-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        /* Сдвиг страницы вниз, когда плашка видна (кнопка MAX не сдвигается) */
+        body.net-offline header,
+        body.net-offline .tabs,
+        body.net-offline main {
+            transform: translateY(44px);
+            transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        header, .tabs, main {
+            transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        /* «Челка» — красная полоска сверху, пока плашка видна */
+        body.net-offline::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: env(safe-area-inset-top, 0px);
+            background: #e53935;
+            z-index: 10002;
+            transition: opacity 0.35s ease;
+        }
+
         @media (hover: hover) and (pointer: fine) {
             .tab-btn:hover { background: #eef4ff; color: #0066ff; }
             .btn-disciplines:hover { background-color: #fff; color: #0066ff; box-shadow: none; transform: translateY(-2px); }
@@ -320,6 +399,13 @@
             .schedule-toggle-btn { font-size: 0.9rem; padding: 10px 12px; }
             .schedule-error-text { font-size: 0.9rem; }
             .schedule-refresh-btn { padding: 10px 22px; font-size: 0.95rem; }
+            .net-banner { font-size: 0.85rem; }
+            .net-banner.visible { height: 40px; }
+            body.net-offline header,
+            body.net-offline .tabs,
+            body.net-offline main {
+                transform: translateY(40px);
+            }
         }
 
         /* === Модальные окна === */
@@ -551,6 +637,14 @@
     </style>
 </head>
 <body>
+    <!-- Плашка «Плохой интернет» -->
+    <div class="net-banner" id="netBanner" role="status" aria-live="polite">
+        <span class="net-banner-center">
+            <span class="net-banner-text">Плохой интернет</span>
+            <span class="net-banner-spinner"></span>
+        </span>
+    </div>
+
     <div id="loader"><div class="spinner"></div></div>
 
     <header>
@@ -779,6 +873,67 @@
 
         initSupabase();
         window.addEventListener('load', initSupabase);
+
+        // === Плашка «Плохой интернет» ===
+        const netBanner = document.getElementById('netBanner');
+        let netOfflineTimer = null;
+        let netOnlineTimer = null;
+
+        function showNetBanner() {
+            if (!netBanner) return;
+            netBanner.classList.add('visible');
+            document.body.classList.add('net-offline');
+        }
+
+        function hideNetBanner() {
+            if (!netBanner) return;
+            netBanner.classList.remove('visible');
+            document.body.classList.remove('net-offline');
+        }
+
+        // Проверка доступности Supabase (ping через реальный запрос к БД)
+        async function checkSupabaseConnection() {
+            if (!supabaseClient) return false;
+            try {
+                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+                const req = supabaseClient.from('likes').select('id').limit(1);
+                const result = await Promise.race([req, timeout]);
+                if (result && result.error) {
+                    const msg = (result.error.message || '').toLowerCase();
+                    if (msg.includes('fetch') || msg.includes('network') || msg.includes('failed to')) {
+                        return false;
+                    }
+                }
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function monitorConnection() {
+            if (!supabaseClient) {
+                showNetBanner();
+                return;
+            }
+            const ok = await checkSupabaseConnection();
+            if (ok) {
+                if (netBanner && netBanner.classList.contains('visible')) {
+                    hideNetBanner();
+                }
+            } else {
+                showNetBanner();
+            }
+        }
+
+        setTimeout(monitorConnection, 1500);
+        netOnlineTimer = setInterval(monitorConnection, 10000);
+
+        window.addEventListener('offline', () => {
+            showNetBanner();
+        });
+        window.addEventListener('online', () => {
+            monitorConnection();
+        });
 
         // ==========================================
         // 3. ЛОГИКА ЛАЙКОВ
@@ -1182,12 +1337,10 @@
         function reloadSchedule() {
             if (!scheduleIframe) return;
             showScheduleLoader();
-            // перезагружаем iframe, чтобы сработал load заново
             scheduleIframe.src = scheduleIframe.src;
 
             clearTimeout(scheduleLoadTimeout);
             scheduleLoadTimeout = setTimeout(() => {
-                // если за 12 секунд не загрузилось — показываем ошибку
                 showScheduleError();
             }, 12000);
         }
@@ -1195,15 +1348,11 @@
         if (scheduleIframe && scheduleLoader) {
             scheduleIframe.addEventListener('load', () => {
                 clearTimeout(scheduleLoadTimeout);
-                // проверяем, действительно ли загрузилось (грубая эвристика)
                 let ok = false;
                 try {
-                    // для same-origin можно проверить contentDocument;
-                    // для кросс-доменного будет исключение — тогда считаем, что загрузилось
                     const doc = scheduleIframe.contentDocument || scheduleIframe.contentWindow.document;
                     if (doc && doc.body && doc.body.innerHTML.trim() !== '') ok = true;
                 } catch (e) {
-                    // кросс-доменный доступ — считаем, что загрузилось
                     ok = true;
                 }
                 if (ok) {
@@ -1219,7 +1368,6 @@
                 showScheduleError();
             });
 
-            // страховка на случай, если load вообще не сработал
             scheduleLoadTimeout = setTimeout(() => {
                 showScheduleError();
             }, 12000);
