@@ -22,7 +22,8 @@
 <body>
     <div class="auth-box">
         <h2 id="formTitle">Регистрация</h2>
-        <input type="email" id="email" placeholder="Email" required>
+        <!-- Поле для Имени (Username) -->
+        <input type="text" id="username" placeholder="Ваше имя (никнейм)" required>
         <input type="password" id="password" placeholder="Пароль" required>
         <button id="submitBtn" onclick="handleAuth()">Зарегистрироваться</button>
         <span class="toggle-link" id="toggleLink" onclick="toggleMode()">Уже есть аккаунт? Войти</span>
@@ -44,46 +45,81 @@
             document.getElementById('submitBtn').textContent = isLoginMode ? 'Войти' : 'Зарегистрироваться';
             document.getElementById('toggleLink').textContent = isLoginMode ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти';
             document.getElementById('message').textContent = '';
+            // Скрываем поле имени при входе (вход только по паролю и имени, поэтому имя нужно)
+            // На самом деле для входа нам тоже нужно имя, чтобы сгенерировать email.
         }
 
         async function handleAuth() {
-            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const msg = document.getElementById('message');
             msg.textContent = 'Загрузка...';
             msg.className = 'message';
 
-            if (!email || !password) {
+            if (!username || !password) {
                 msg.textContent = 'Заполните все поля';
                 msg.classList.add('error');
                 return;
             }
 
-            let result;
+            // Генерируем фейковый email из имени
+            const fakeEmail = `${username.toLowerCase()}@example.com`;
+
             if (isLoginMode) {
-                result = await supabase.auth.signInWithPassword({ email, password });
+                // ВХОД
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: fakeEmail,
+                    password: password,
+                });
+
+                if (error) {
+                    msg.textContent = 'Неверное имя или пароль';
+                    msg.classList.add('error');
+                } else {
+                    msg.textContent = 'Вход выполнен!';
+                    msg.classList.add('success');
+                    // Перенаправляем на главную (по желанию)
+                    // setTimeout(() => window.location.href = 'index.html', 1000);
+                }
             } else {
-                // Регистрация с подтверждением почты (по умолчанию)
-                result = await supabase.auth.signUp({ 
-                    email, 
-                    password,
+                // РЕГИСТРАЦИЯ
+                // 1. Создаем пользователя в Auth
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: fakeEmail,
+                    password: password,
                     options: {
-                        emailRedirectTo: window.location.origin + '/index.html' // Куда вернуть после подтверждения
+                        data: {
+                            username: username // Сохраняем имя в метаданных
+                        }
                     }
                 });
-            }
 
-            if (result.error) {
-                msg.textContent = result.error.message;
-                msg.classList.add('error');
-            } else {
-                if (isLoginMode) {
-                    msg.textContent = 'Вход выполнен! Перенаправление...';
-                    msg.classList.add('success');
-                    setTimeout(() => window.location.href = 'index.html', 1000);
-                } else {
-                    msg.textContent = 'Проверьте почту для подтверждения регистрации!';
-                    msg.classList.add('success');
+                if (authError) {
+                    if (authError.message.includes('already registered')) {
+                        msg.textContent = 'Это имя уже занято';
+                    } else {
+                        msg.textContent = authError.message;
+                    }
+                    msg.classList.add('error');
+                    return;
+                }
+
+                // 2. Создаем запись в таблице profiles
+                if (authData.user) {
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .insert([
+                            { id: authData.user.id, username: username }
+                        ]);
+
+                    if (profileError) {
+                        console.error('Ошибка создания профиля:', profileError);
+                        msg.textContent = 'Ошибка при создании профиля. Попробуйте другое имя.';
+                        msg.classList.add('error');
+                    } else {
+                        msg.textContent = 'Регистрация успешна! Теперь вы можете войти.';
+                        msg.classList.add('success');
+                    }
                 }
             }
         }
