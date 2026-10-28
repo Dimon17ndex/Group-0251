@@ -27,6 +27,7 @@
         button, a, .tab-btn, .heart-btn, .btn-disciplines, .schedule-link {
             -webkit-tap-highlight-color: transparent;
             outline: none;
+            box-shadow: none;
         }
 
         header, .tabs, main {
@@ -89,6 +90,7 @@
             padding: 14px 20px;
             border-top: 1px solid #eee; border-bottom: 1px solid #eee;
             flex-shrink: 0; position: relative; z-index: 5;
+            box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.12);
         }
         .tab-btn {
             padding: 7px 22px; font-size: 0.95rem; font-weight: 600;
@@ -96,9 +98,18 @@
             color: #555; background: #f5f5f5;
             border: 2px solid transparent; border-radius: 8px;
             cursor: pointer; transition: all 0.2s ease; line-height: 1.1;
+            box-shadow: none;
         }
-        .tab-btn:hover { background: #eef4ff; color: #0066ff; }
-        .tab-btn.active { background: #0066ff; color: #fff; box-shadow: 0 4px 12px rgba(0,102,255,0.25); }
+        .tab-btn.active {
+            background: #0066ff;
+            color: #fff;
+            box-shadow: none;
+        }
+        .tab-btn:focus,
+        .tab-btn:focus-visible {
+            outline: none;
+            box-shadow: none;
+        }
 
         main {
             position: relative;
@@ -125,10 +136,9 @@
             overscroll-behavior: contain;
         }
 
-        /* Плавное скрытие ползунка скролла во время перелистывания */
         .tabs-track.animating .tab-content {
-            scrollbar-width: none;            /* Firefox */
-            -ms-overflow-style: none;         /* IE/Edge */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
         .tabs-track.animating .tab-content::-webkit-scrollbar {
             width: 0;
@@ -222,8 +232,8 @@
             margin: 0; background: transparent; border: none; cursor: pointer;
             padding: 0; display: flex; align-items: center;
             transition: transform 0.15s ease;
+            box-shadow: none;
         }
-        .heart-btn:hover { transform: scale(1.1); }
         .heart-btn svg { width: 26px; height: 34px; display: block; }
         .heart-btn svg path {
             fill: transparent; stroke: #000000; stroke-width: 1.2;
@@ -250,16 +260,27 @@
             background-color: #0066ff; border: 2px solid #0066ff;
             border-radius: 10px;
             transition: all 0.25s ease;
-            box-shadow: 0 4px 14px rgba(0, 102, 255, 0.25);
+            box-shadow: none;
         }
-        .btn-disciplines:hover { background-color: #fff; color: #0066ff; box-shadow: 0 6px 20px rgba(0, 102, 255, 0.35); transform: translateY(-2px); }
         .schedule-link {
             display: inline-block; margin-top: 10px; padding: 16px 32px;
             font-size: 1.1rem; font-weight: 600; text-decoration: none;
             color: #0066ff; border: 2px solid #0066ff;
             border-radius: 10px; transition: all 0.2s ease;
+            box-shadow: none;
         }
-        .schedule-link:hover { background: #0066ff; color: #fff; }
+
+        /* Hover — только для устройств с мышью (ПК), не для тач */
+        @media (hover: hover) and (pointer: fine) {
+            .tab-btn:hover { background: #eef4ff; color: #0066ff; }
+            .btn-disciplines:hover {
+                background-color: #fff; color: #0066ff;
+                box-shadow: none;
+                transform: translateY(-2px);
+            }
+            .schedule-link:hover { background: #0066ff; color: #fff; }
+            .heart-btn:hover { transform: scale(1.1); }
+        }
 
         /* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
         @media (max-width: 700px) {
@@ -590,14 +611,12 @@
 
             currentIndex = index;
 
-            // Плавно скрываем ползунок скролла на время анимации
             track.classList.add('animating');
 
             track.style.transform = `translateX(-${index * (100 / totalTabs)}%)`;
             tabButtons.forEach((b, i) => b.classList.toggle('active', i === index));
             if (index !== 0) resetPull();
 
-            // После окончания анимации возвращаем скроллбар
             const onEnd = () => {
                 track.classList.remove('animating');
                 track.removeEventListener('transitionend', onEnd);
