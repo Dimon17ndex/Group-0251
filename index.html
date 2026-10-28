@@ -98,14 +98,7 @@
         .heart-btn svg path { fill: transparent; stroke: #000000; stroke-width: 1.2; stroke-linejoin: round; transition: fill 0.2s ease, stroke 0.2s ease; }
         .heart-btn.liked svg path { fill: #e53935; stroke: none; }
 
-        /* Счетчик лайков */
-        .like-count {
-            font-size: 0.95rem;
-            color: #e53935;
-            font-weight: 600;
-            display: none; /* Скрыт по умолчанию */
-            margin-left: -4px; /* Чуть ближе к сердечку */
-        }
+        .like-count { font-size: 0.95rem; color: #e53935; font-weight: 600; display: none; margin-left: -4px; }
 
         .card-caption { margin-top: 6px; font-size: 1.6rem; font-weight: 700; color: #000; text-align: left; line-height: 1.2; }
 
@@ -162,7 +155,7 @@
             .schedule-link { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1rem; }
         }
 
-        /* === Стили для модальных окон (выезд из-под низа экрана) === */
+        /* === Модальные окна === */
         .auth-modal {
             display: flex; visibility: hidden; position: fixed; z-index: 10000;
             left: 0; top: 0; width: 100%; height: 100%;
@@ -195,6 +188,200 @@
         .auth-message { margin-top: 15px; font-size: 0.9rem; }
         .auth-message.error { color: #e53935; }
         .auth-message.success { color: #43a047; }
+
+        /* === Плашка для MAX === */
+        .max-sheet {
+            display: flex; visibility: hidden; position: fixed; z-index: 10000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+            align-items: flex-end; justify-content: center;
+            transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, visibility 0.3s ease;
+        }
+
+        .max-sheet.active {
+            visibility: visible; background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+        }
+
+        .max-sheet-content {
+            background-color: #fff; padding: 15px 30px 40px; border-radius: 16px 16px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.1); width: 100%; max-width: 480px;
+            position: relative; text-align: center; margin-bottom: 0;
+            transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+            min-height: 400px;
+            display: flex; flex-direction: column;
+        }
+
+        .max-sheet.active .max-sheet-content { transform: translateY(0); }
+
+        .max-sheet-handle {
+            width: 40px; height: 4px; background: #ddd; border-radius: 2px;
+            margin: 0 auto 20px auto; cursor: grab; flex-shrink: 0;
+        }
+        
+        .max-sheet-handle:active { cursor: grabbing; }
+
+        /* Контент внутри плашки */
+        .max-sheet-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .max-sheet-text {
+            font-size: 1rem;
+            color: #555;
+            line-height: 1.6;
+            text-align: left;
+            margin-bottom: 24px;
+            flex-shrink: 0;
+        }
+
+        .max-sheet-icon {
+            position: relative;
+            margin: 0 auto 24px auto;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+                /* Иконка MAX — базовая (скрыта до старта анимации) */
+        .max-sheet-icon > svg {
+            width: 100%;
+            height: 100%;
+            fill: #aaa;
+            opacity: 0;
+            transform: scale(0);
+            transition: fill 0.6s ease;
+        }
+
+        /* Логотип-планета */
+        .max-sheet-logo {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #0066ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            border: 4px solid #ffffff;
+            box-sizing: content-box;
+            /* начальное состояние — невидим, маленький, в центре */
+            opacity: 0;
+            transform: scale(0);
+            transform-origin: center center;
+        }
+
+        .max-sheet-logo svg {
+            width: 42px;
+            height: 42px;
+            display: block;
+        }
+
+        .max-sheet-open-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #0066ff;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+
+        .max-sheet-open-btn:hover {
+            background: #0052cc;
+        }
+
+        /* ============================================================
+           АНИМАЦИЯ ПОЯВЛЕНИЯ ИКОНКИ MAX И ЛОГОТИПА
+           ============================================================ */
+
+        /* 1. Иконка MAX: появление в градиенте → пауза 0.3с → уменьшение и перекраска */
+                        @keyframes maxIconAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0) translate(0, 0);
+                fill: #9B59D6;
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.35) translate(0, 0); /* пик прыжка — большой, в градиенте */
+                fill: #6C5CE7;
+            }
+            55% {
+                /* пауза ~0.3с — MAX стоит большим в градиенте */
+                opacity: 1;
+                transform: scale(1.35) translate(0, 0);
+                fill: #6C5CE7;
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translate(-10px, 10px); /* уменьшилась и сдвинулась ниже-левее */
+                fill: #aaa;
+            }
+        }
+
+        /* 2. Логотип-планета выпрыгивает из центра */
+        @keyframes logoAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.15);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+                        /* Запускаем анимации при открытии плашки */
+        .max-sheet.active .max-sheet-icon > svg {
+            animation: maxIconAppear 2.1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+        }
+
+        .max-sheet.active .max-sheet-logo {
+            animation: logoAppear 1s cubic-bezier(0.34, 1.56, 0.64, 1) 1.4s both;
+        }
+
+        /* === Кнопка MAX в правом нижнем углу === */
+        .max-fab {
+            position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px;
+            border-radius: 50%; background: linear-gradient(135deg, #4A90E2 0%, #9B59D6 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center;
+            z-index: 999; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none; border: none;
+        }
+
+        .max-fab:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); }
+
+        .max-fab svg { width: 32px; height: 32px; fill: #ffffff; }
+
+        @media (max-width: 700px) {
+            .max-fab { width: 48px; height: 48px; bottom: 16px; right: 16px; }
+            .max-fab svg { width: 26px; height: 26px; }
+            .max-sheet-title { font-size: 1.4rem; }
+            .max-sheet-text { font-size: 0.95rem; }
+        }
     </style>
 </head>
 <body>
@@ -255,9 +442,7 @@
                             <div class="post-body">
                                 <div class="post-footer">
                                     <div style="display: flex; align-items: center; gap: 6px;">
-                                        <!-- Добавили data-post-id="post-1" -->
                                         <button class="heart-btn" data-post-id="post-1" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
-                                        <!-- Счетчик лайков -->
                                         <span class="like-count" id="count-post-1">0</span>
                                     </div>
                                     <div class="post-date">19:47 27.10.2026</div>
@@ -312,16 +497,53 @@
         <div class="auth-modal-content" style="padding: 40px 30px;">
             <span class="auth-close" onclick="closeProfileModal()">&times;</span>
             <h2 style="margin-bottom: 10px; font-size: 1.2rem; color: #888; font-weight: 500;">Вы вошли как:</h2>
-            <div id="profileUsername" style="font-size: 2rem; font-weight: 700; color: #0066ff; margin-bottom: 30px; word-break: break-word;">
-                Имя
-            </div>
+            <div id="profileUsername" style="font-size: 2rem; font-weight: 700; color: #0066ff; margin-bottom: 30px; word-break: break-word;">Имя</div>
             <button onclick="handleLogout()" style="background: #f5f5f5; color: #e53935; border: 1px solid #e53935; width: 100%; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">Выйти из аккаунта</button>
         </div>
     </div>
 
+    <!-- Плашка MAX -->
+    <div id="maxSheet" class="max-sheet" onclick="handleMaxSheetBackdropClick(event)">
+        <div class="max-sheet-content" id="maxSheetContent" onclick="event.stopPropagation()">
+            <div class="max-sheet-handle" id="maxSheetHandle"></div>
+            
+            <!-- Контент плашки -->
+            <div class="max-sheet-title">MAX-КАНАЛ</div>
+            <div class="max-sheet-text">
+                У нашего проекта есть MAX-канал, переходи, чтобы узнать о всех новинках и обновлениях сервиса ГЕОГРАФИЯ 0251
+            </div>
+            
+            <div class="max-sheet-icon">
+                <!-- Иконка MAX (серая, анимируется при открытии) -->
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.06L2 22l4.94-1.38C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.54 0-3-.4-4.28-1.1l-.32-.18-3.1.86.86-3.1-.18-.32C4.4 15 4 13.54 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
+                </svg>
+                <!-- Наш логотип-планета поверх, чуть выше и правее -->
+                <div class="max-sheet-logo">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"/>
+                        <ellipse cx="12" cy="12" rx="4" ry="9"/>
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
+                        <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
+                    </svg>
+                </div>
+            </div>
+
+            <button onclick="openMaxLink()" class="max-sheet-open-btn">Открыть</button>
+        </div>
+    </div>
+
+    <!-- Кнопка MAX -->
+    <button onclick="openMaxSheet()" class="max-fab" aria-label="Открыть меню MAX">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.06L2 22l4.94-1.38C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.54 0-3-.4-4.28-1.1l-.32-.18-3.1.86.86-3.1-.18-.32C4.4 15 4 13.54 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
+        </svg>
+    </button>
+
     <script>
         // ==========================================
-        // 1. ЛОАДЕР
+        // 1. ЛОАДЕР И ЛАЙКИ
         // ==========================================
         window.addEventListener('load', () => {
             setTimeout(() => {
@@ -332,8 +554,6 @@
                     if(loader) loader.style.display = 'none';
                     const feedTitle = document.getElementById('feedTitle');
                     if(feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
-                    
-                    // Запускаем лайки
                     initLikes();
                 }, 300);
             }, 500);
@@ -344,12 +564,9 @@
         // ==========================================
         const SUPABASE_URL = 'https://zonhvkjgxmawhavhyljg.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_hB20gq52pt_ijPlJVB0zYA_7QmNExNV';
-        
         let supabaseClient = null;
         if (typeof supabase !== 'undefined' && supabase !== null) {
-            try {
-                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } catch (e) { console.error(e); }
+            try { supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) { console.error(e); }
         }
 
         // ==========================================
@@ -357,21 +574,16 @@
         // ==========================================
         async function initLikes() {
             if (!supabaseClient) return;
-
             const { data: { session } } = await supabaseClient.auth.getSession();
             const userId = session ? session.user.id : null;
-
             const { data: allLikes, error } = await supabaseClient.from('likes').select('*');
             if (error) { console.error('Ошибка загрузки лайков:', error); return; }
 
             const heartButtons = document.querySelectorAll('.heart-btn');
-
             heartButtons.forEach(btn => {
                 const postId = btn.getAttribute('data-post-id');
                 if (!postId) return;
-                
                 const countSpan = document.getElementById('count-' + postId);
-
                 const updateCounter = () => {
                     const count = allLikes.filter(like => like.post_id === postId).length;
                     if (countSpan) {
@@ -379,39 +591,28 @@
                         countSpan.style.display = count > 0 ? 'inline-block' : 'none';
                     }
                 };
-
                 if (userId) {
                     const isLiked = allLikes.some(like => like.post_id === postId && like.user_id === userId);
                     if (isLiked) btn.classList.add('liked');
                 }
                 updateCounter();
-
                 btn.addEventListener('click', async () => {
-                    if (!userId) {
-                        alert('Пожалуйста, войдите в аккаунт (нажмите на 2611-0251.1), чтобы ставить лайки!');
-                        return;
-                    }
-
+                    if (!userId) { alert('Пожалуйста, войдите в аккаунт (нажмите на 2611-0251.1), чтобы ставить лайки!'); return; }
                     const isCurrentlyLiked = btn.classList.contains('liked');
                     btn.classList.toggle('liked');
-
                     if (isCurrentlyLiked) {
                         const { error } = await supabaseClient.from('likes').delete().match({ user_id: userId, post_id: postId });
                         if (!error) {
                             const index = allLikes.findIndex(l => l.user_id === userId && l.post_id === postId);
                             if (index !== -1) allLikes.splice(index, 1);
                             updateCounter();
-                        } else {
-                            btn.classList.add('liked'); // Откат
-                        }
+                        } else { btn.classList.add('liked'); }
                     } else {
                         const { data, error } = await supabaseClient.from('likes').insert([{ user_id: userId, post_id: postId }]).select();
                         if (!error && data) {
                             allLikes.push(data[0]);
                             updateCounter();
-                        } else {
-                            btn.classList.remove('liked'); // Откат
-                        }
+                        } else { btn.classList.remove('liked'); }
                     }
                 });
             });
@@ -421,15 +622,9 @@
         // 4. ЛОГИКА ОКОН (АВТОРИЗАЦИЯ И ПРОФИЛЬ)
         // ==========================================
         let isLoginMode = false;
-
         async function openAuthModal() {
-            if (!supabaseClient) {
-                alert('Ошибка: библиотека Supabase не загрузилась.');
-                return;
-            }
-            
+            if (!supabaseClient) { alert('Ошибка: библиотека Supabase не загрузилась.'); return; }
             const { data: { session } } = await supabaseClient.auth.getSession();
-            
             if (session) {
                 const username = session.user.user_metadata.username || 'Пользователь';
                 document.getElementById('profileUsername').textContent = username;
@@ -439,10 +634,8 @@
                 document.getElementById('authMessage').textContent = '';
             }
         }
-
         function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
         function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
-
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
             document.getElementById('authTitle').textContent = isLoginMode ? 'Вход' : 'Регистрация';
@@ -450,74 +643,39 @@
             document.getElementById('authToggle').textContent = isLoginMode ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти';
             document.getElementById('authMessage').textContent = '';
         }
-
         async function handleLogout() {
             await supabaseClient.auth.signOut();
             closeProfileModal();
             window.location.reload();
         }
-
         async function handleAuth() {
             if (!supabaseClient) return;
-
             const username = document.getElementById('authUsername').value.trim();
             const password = document.getElementById('authPassword').value;
             const msg = document.getElementById('authMessage');
-            
-            msg.textContent = 'Загрузка...';
-            msg.className = 'auth-message';
-
-            if (!username || !password) {
-                msg.textContent = 'Заполните все поля';
-                msg.classList.add('error');
-                return;
-            }
-
+            msg.textContent = 'Загрузка...'; msg.className = 'auth-message';
+            if (!username || !password) { msg.textContent = 'Заполните все поля'; msg.classList.add('error'); return; }
             const safeUsername = username.toLowerCase().replace(/[^a-z0-9]/g, '');
             const fakeEmail = `${safeUsername}@example.com`;
-
             if (isLoginMode) {
                 const { error } = await supabaseClient.auth.signInWithPassword({ email: fakeEmail, password: password });
-                if (error) {
-                    msg.textContent = 'Неверное имя или пароль';
-                    msg.classList.add('error');
-                } else {
-                    msg.textContent = 'Вход выполнен!';
-                    msg.classList.add('success');
-                    setTimeout(() => { 
-                        closeAuthModal(); 
-                        window.location.reload(); 
-                    }, 1000);
+                if (error) { msg.textContent = 'Неверное имя или пароль'; msg.classList.add('error'); }
+                else {
+                    msg.textContent = 'Вход выполнен!'; msg.classList.add('success');
+                    setTimeout(() => { closeAuthModal(); window.location.reload(); }, 1000);
                 }
             } else {
-                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-                    email: fakeEmail,
-                    password: password,
-                    options: { data: { username: username } }
-                });
-
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email: fakeEmail, password: password, options: { data: { username: username } } });
                 if (authError) {
-                    if (authError.message.includes('already registered')) {
-                        msg.textContent = 'Это имя уже занято';
-                    } else {
-                        msg.textContent = authError.message;
-                    }
-                    msg.classList.add('error');
-                    return;
+                    if (authError.message.includes('already registered')) { msg.textContent = 'Это имя уже занято'; }
+                    else { msg.textContent = authError.message; }
+                    msg.classList.add('error'); return;
                 }
-
                 if (authData.user) {
-                    const { error: profileError } = await supabaseClient
-                        .from('profiles')
-                        .insert([{ id: authData.user.id, username: username }]);
-
-                    if (profileError) {
-                        console.error(profileError);
-                        msg.textContent = 'Ошибка при создании профиля.';
-                        msg.classList.add('error');
-                    } else {
-                        msg.textContent = 'Регистрация успешна! Теперь вы можете войти.';
-                        msg.classList.add('success');
+                    const { error: profileError } = await supabaseClient.from('profiles').insert([{ id: authData.user.id, username: username }]);
+                    if (profileError) { console.error(profileError); msg.textContent = 'Ошибка при создании профиля.'; msg.classList.add('error'); }
+                    else {
+                        msg.textContent = 'Регистрация успешна! Теперь вы можете войти.'; msg.classList.add('success');
                         setTimeout(() => { toggleAuthMode(); msg.textContent = ''; }, 2000);
                     }
                 }
@@ -525,7 +683,90 @@
         }
 
         // ==========================================
-        // 5. ЛОГИКА САЙТА (Вкладки, Скролл, Свайпы)
+        // 5. ПЛАШКА MAX (BOTTOM SHEET) И СВАЙП
+        // ==========================================
+        const maxSheet = document.getElementById('maxSheet');
+        const maxSheetContent = document.getElementById('maxSheetContent');
+        const maxSheetHandle = document.getElementById('maxSheetHandle');
+
+        function openMaxSheet() {
+            maxSheet.classList.add('active');
+            maxSheetContent.style.transform = 'translateY(0)';
+        }
+
+        function closeMaxSheet() {
+            maxSheet.classList.remove('active');
+            maxSheetContent.style.transform = 'translateY(100%)';
+        }
+
+        function openMaxLink() {
+            closeMaxSheet();
+            setTimeout(() => {
+                window.open('https://max.ru/join/fWtDGxMWIn-9Q9K2fMGUEFI8wmJ3FsHGLyrE9pyYViM', '_blank');
+            }, 300);
+        }
+
+        function handleMaxSheetBackdropClick(event) {
+            if (event.target === maxSheet) {
+                closeMaxSheet();
+            }
+        }
+
+        let startYSheet = 0;
+        let currentYSheet = 0;
+        let isDraggingSheet = false;
+
+        function startDrag(e) {
+            isDraggingSheet = true;
+            startYSheet = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            currentYSheet = startYSheet;
+            maxSheetContent.style.transition = 'none';
+        }
+
+        function onDrag(e) {
+            if (!isDraggingSheet) return;
+            currentYSheet = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            const deltaY = currentYSheet - startYSheet;
+            
+            if (deltaY > 0) {
+                maxSheetContent.style.transform = `translateY(${deltaY}px)`;
+                maxSheet.style.backgroundColor = `rgba(0, 0, 0, ${0.4 - (deltaY / 300) * 0.4})`;
+                maxSheet.style.backdropFilter = `blur(${3 - (deltaY / 300) * 3}px)`;
+                maxSheet.style.webkitBackdropFilter = `blur(${3 - (deltaY / 300) * 3}px)`;
+            }
+        }
+
+        function endDrag() {
+            if (!isDraggingSheet) return;
+            isDraggingSheet = false;
+            maxSheetContent.style.transition = 'transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)';
+            
+            const deltaY = currentYSheet - startYSheet;
+            if (deltaY > 100) {
+                closeMaxSheet();
+                maxSheet.style.backgroundColor = '';
+                maxSheet.style.backdropFilter = '';
+                maxSheet.style.webkitBackdropFilter = '';
+            } else {
+                maxSheetContent.style.transform = 'translateY(0)';
+                maxSheet.style.backgroundColor = '';
+                maxSheet.style.backdropFilter = '';
+                maxSheet.style.webkitBackdropFilter = '';
+            }
+        }
+
+        maxSheetHandle.addEventListener('mousedown', startDrag);
+        maxSheetContent.addEventListener('mousedown', startDrag);
+        window.addEventListener('mousemove', onDrag);
+        window.addEventListener('mouseup', endDrag);
+
+        maxSheetHandle.addEventListener('touchstart', startDrag, { passive: true });
+        maxSheetContent.addEventListener('touchstart', startDrag, { passive: true });
+        window.addEventListener('touchmove', onDrag, { passive: false });
+        window.addEventListener('touchend', endDrag);
+
+        // ==========================================
+        // 6. ЛОГИКА САЙТА (Вкладки, Скролл, Свайпы)
         // ==========================================
         document.addEventListener('touchstart', function initVibrate() {
             if (navigator.vibrate) { try { navigator.vibrate(1); } catch (e) {} }
@@ -537,7 +778,6 @@
         const tabContents = document.querySelectorAll('.tab-content');
         const main = document.querySelector('main');
         const totalTabs = tabContents.length;
-
         let currentIndex = 0;
 
         function goToTab(index) {
@@ -556,16 +796,12 @@
             track.addEventListener('transitionend', onEnd);
         }
 
-        tabButtons.forEach((btn, i) => {
-            btn.addEventListener('click', () => goToTab(i));
-        });
+        tabButtons.forEach((btn, i) => { btn.addEventListener('click', () => goToTab(i)); });
 
         let tStartX = 0, tStartY = 0, tDeltaX = 0, tDeltaY = 0, swipeMode = null;
-
         main.addEventListener('touchstart', (e) => {
             if (e.touches.length !== 1) return;
-            tStartX = e.touches[0].clientX;
-            tStartY = e.touches[0].clientY;
+            tStartX = e.touches[0].clientX; tStartY = e.touches[0].clientY;
             tDeltaX = 0; tDeltaY = 0; swipeMode = null;
         }, { passive: true });
 
@@ -598,7 +834,6 @@
         const pullBg = document.getElementById('pullBg');
         const homeTab = document.getElementById('tab-home');
         const MAX_PULL = 120;
-
         let startY = 0, pulling = false, currentPull = 0, pullDecided = false, vibrated = false;
 
         function setPull(value) {
@@ -611,9 +846,7 @@
                 pullBg.classList.add('pulling');
                 pullBg.classList.add('show-dots');
                 pullBg.style.height = currentPull + 'px';
-                if (currentPull >= MAX_PULL && !vibrated && navigator.vibrate) {
-                    navigator.vibrate(30); vibrated = true;
-                }
+                if (currentPull >= MAX_PULL && !vibrated && navigator.vibrate) { navigator.vibrate(30); vibrated = true; }
             } else { resetPull(); }
         }
 
@@ -640,25 +873,13 @@
             if (currentIndex !== 0) return;
             if (swipeMode === 'h') return;
             const delta = e.touches[0].clientY - startY;
-            if (delta < -5) {
-                pulling = false; pullDecided = true; resetPull(); return;
-            }
-            if (homeTab.scrollTop > 0) {
-                if (pulling) { pulling = false; resetPull(); }
-                return;
-            }
-            if (!pullDecided && delta > 12) {
-                pullDecided = true; pulling = true;
-            }
-            if (pulling) {
-                setPull(delta * 0.6);
-                if (delta > 10) e.preventDefault();
-            }
+            if (delta < -5) { pulling = false; pullDecided = true; resetPull(); return; }
+            if (homeTab.scrollTop > 0) { if (pulling) { pulling = false; resetPull(); } return; }
+            if (!pullDecided && delta > 12) { pullDecided = true; pulling = true; }
+            if (pulling) { setPull(delta * 0.6); if (delta > 10) e.preventDefault(); }
         }, { passive: false });
 
-        homeTab.addEventListener('touchend', () => {
-            if (pulling) { pulling = false; resetPull(); }
-        });
+        homeTab.addEventListener('touchend', () => { if (pulling) { pulling = false; resetPull(); } });
 
         const customScrollbar = document.getElementById('customScrollbar');
         const customThumb = document.getElementById('customScrollbarThumb');
@@ -669,9 +890,7 @@
             if (!activeScrollEl) return;
             const scrollHeight = activeScrollEl.scrollHeight;
             const clientHeight = activeScrollEl.clientHeight;
-            if (scrollHeight <= clientHeight + 1) {
-                customScrollbar.classList.remove('visible'); return;
-            }
+            if (scrollHeight <= clientHeight + 1) { customScrollbar.classList.remove('visible'); return; }
             customScrollbar.classList.add('visible');
             const trackHeight = customScrollbar.clientHeight;
             const ratio = clientHeight / scrollHeight;
@@ -685,16 +904,13 @@
         }
 
         tabContents.forEach(tab => {
-            tab.addEventListener('scroll', () => {
-                if (tab === tabContents[currentIndex]) updateCustomScrollbar();
-            }, { passive: true });
+            tab.addEventListener('scroll', () => { if (tab === tabContents[currentIndex]) updateCustomScrollbar(); }, { passive: true });
         });
 
         setTimeout(updateCustomScrollbar, 600);
         window.addEventListener('resize', updateCustomScrollbar);
 
         let thumbDrag = false, thumbStartY = 0, thumbStartScroll = 0;
-
         customThumb.addEventListener('mousedown', (e) => {
             e.preventDefault();
             if (!activeScrollEl) return;
@@ -714,9 +930,7 @@
             activeScrollEl.scrollTop = thumbStartScroll + deltaY * scrollRatio;
         });
 
-        document.addEventListener('mouseup', () => {
-            if (thumbDrag) { thumbDrag = false; document.body.style.userSelect = ''; }
-        });
+        document.addEventListener('mouseup', () => { if (thumbDrag) { thumbDrag = false; document.body.style.userSelect = ''; } });
     </script>
 </body>
 </html>
