@@ -349,6 +349,81 @@
             transition: opacity 0.35s ease;
         }
 
+        /* === Карточка лайкнувших === */
+        .likes-popover {
+            position: fixed;
+            z-index: 10005;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+            padding: 10px 12px;
+            min-width: 160px;
+            max-width: 260px;
+            max-height: 240px;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateY(6px) scale(0.97);
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            font-size: 0.9rem;
+            color: #222;
+        }
+
+        .likes-popover.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .likes-popover-empty {
+            color: #888;
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 4px 0;
+        }
+
+        .likes-popover-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 5px 6px;
+            white-space: nowrap;
+            border-radius: 6px;
+            transition: background 0.15s ease;
+            cursor: default;
+        }
+
+        .likes-popover-row:hover {
+            background: #f2f2f2;
+        }
+
+        .likes-popover-row + .likes-popover-row {
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .likes-popover-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 170px;
+        }
+
+        .likes-popover-heart {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .likes-popover-heart svg {
+            width: 100%;
+            height: 100%;
+            fill: #e53935;
+            display: block;
+        }
+
         @media (hover: hover) and (pointer: fine) {
             .tab-btn:hover { background: #eef4ff; color: #0066ff; }
             .btn-disciplines:hover { background-color: #fff; color: #0066ff; box-shadow: none; transform: translateY(-2px); }
@@ -406,6 +481,13 @@
             body.net-offline main {
                 transform: translateY(40px);
             }
+            .likes-popover {
+                min-width: 140px;
+                max-width: 220px;
+                font-size: 0.85rem;
+                padding: 8px 10px;
+            }
+            .likes-popover-name { max-width: 140px; }
         }
 
         /* === Модальные окна === */
@@ -831,6 +913,9 @@
             <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.06L2 22l4.94-1.38C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.54 0-3-.4-4.28-1.1l-.32-.18-3.1.86.86-3.1-.18-.32C4.4 15 4 13.54 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
         </svg>
     </button>
+
+    <!-- Карточка лайкнувших -->
+    <div class="likes-popover" id="likesPopover"></div>
 
     <script>
         // ==========================================
@@ -1376,6 +1461,216 @@
         if (scheduleRefreshBtn) {
             scheduleRefreshBtn.addEventListener('click', reloadSchedule);
         }
+
+        // ==========================================
+        // 9. КАРТОЧКА ЛАЙКНУВШИХ
+        // ==========================================
+        const likesPopover = document.getElementById('likesPopover');
+        let likesHideTimer = null;
+        let likesShowTimer = null;
+        let currentHoverBtn = null;
+        let longPressTimer = null;
+        let longPressTriggered = false;
+
+        // Возвращает массив никнеймов, поставивших лайк на пост
+        async function getLikersForPost(postId) {
+            if (!supabaseClient) return [];
+            // берём лайки для поста
+            const { data: likes, error } = await supabaseClient
+                .from('likes')
+                .select('user_id')
+                .eq('post_id', postId);
+            if (error) { console.error('Ошибка загрузки лайкнувших:', error); return []; }
+            if (!likes || likes.length === 0) return [];
+
+            const userIds = [...new Set(likes.map(l => l.user_id))];
+            // берём профили по id
+            const { data: profiles, error: pErr } = await supabaseClient
+                .from('profiles')
+                .select('id, username')
+                .in('id', userIds);
+            if (pErr) {
+                console.error('Ошибка загрузки профилей:', pErr);
+                // если профилей нет — вернём user_id как fallback
+                return userIds.map(id => ({ id, username: 'Пользователь' }));
+            }
+            const map = {};
+            (profiles || []).forEach(p => { map[p.id] = p.username; });
+            return userIds.map(id => ({ id, username: map[id] || 'Пользователь' }));
+        }
+
+        function renderLikesPopover(likers) {
+            if (!likesPopover) return;
+            likesPopover.innerHTML = '';
+            if (!likers || likers.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'likes-popover-empty';
+                empty.textContent = 'Пока никто не лайкнул';
+                likesPopover.appendChild(empty);
+                return;
+            }
+            likers.forEach(u => {
+                const row = document.createElement('div');
+                row.className = 'likes-popover-row';
+
+                const name = document.createElement('span');
+                name.className = 'likes-popover-name';
+                name.textContent = u.username;
+
+                const heart = document.createElement('span');
+                heart.className = 'likes-popover-heart';
+                heart.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg>';
+
+                row.appendChild(name);
+                row.appendChild(heart);
+                likesPopover.appendChild(row);
+            });
+        }
+
+        function positionLikesPopover(btn) {
+            if (!btn || !likesPopover) return;
+            const rect = btn.getBoundingClientRect();
+            // сбрасываем видимость, чтобы измерить реальный размер
+            likesPopover.style.visibility = 'hidden';
+            likesPopover.classList.add('visible');
+            const popRect = likesPopover.getBoundingClientRect();
+            const gap = 8;
+            let top = rect.bottom + gap;
+            let left = rect.left;
+            // если не влезает снизу — показываем сверху
+            if (top + popRect.height > window.innerHeight - 8) {
+                top = rect.top - popRect.height - gap;
+            }
+            // если не влезает справа — прижимаем к правому краю
+            if (left + popRect.width > window.innerWidth - 8) {
+                left = window.innerWidth - popRect.width - 8;
+            }
+            if (left < 8) left = 8;
+            if (top < 8) top = 8;
+            likesPopover.style.top = top + 'px';
+            likesPopover.style.left = left + 'px';
+            likesPopover.style.visibility = '';
+        }
+
+        async function showLikesPopover(btn) {
+            const postId = btn.getAttribute('data-post-id');
+            if (!postId) return;
+            // заглушка, пока грузится
+            if (likesPopover) {
+                likesPopover.innerHTML = '<div class="likes-popover-empty">Загрузка…</div>';
+                positionLikesPopover(btn);
+            }
+            const likers = await getLikersForPost(postId);
+            // проверяем, что всё ещё наводим на ту же кнопку
+            if (currentHoverBtn !== btn) return;
+            renderLikesPopover(likers);
+            positionLikesPopover(btn);
+        }
+
+        function hideLikesPopover() {
+            if (!likesPopover) return;
+            likesPopover.classList.remove('visible');
+        }
+
+        function clearLikesTimers() {
+            if (likesShowTimer) { clearTimeout(likesShowTimer); likesShowTimer = null; }
+            if (likesHideTimer) { clearTimeout(likesHideTimer); likesHideTimer = null; }
+        }
+
+        // Навешиваем обработчики на все сердечки
+        document.querySelectorAll('.heart-btn').forEach(btn => {
+            // === ПК: наведение (через 0.2с) ===
+            btn.addEventListener('mouseenter', () => {
+                if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                    clearLikesTimers();
+                    currentHoverBtn = btn;
+                    likesShowTimer = setTimeout(() => showLikesPopover(btn), 200);
+                }
+            });
+            btn.addEventListener('mouseleave', () => {
+                if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                    clearLikesTimers();
+                    if (currentHoverBtn === btn) {
+                        currentHoverBtn = null;
+                        // закрываем с задержкой — даём курсору дойти до карточки
+                        likesHideTimer = setTimeout(() => {
+                            if (!likesPopover || !likesPopover.matches(':hover')) {
+                                hideLikesPopover();
+                            }
+                        }, 200);
+                    }
+                }
+            });
+
+            // === ПК: правая кнопка мыши ===
+            btn.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                clearLikesTimers();
+                currentHoverBtn = btn;
+                showLikesPopover(btn);
+            });
+
+            // === Мобильные: долгое зажатие ===
+            btn.addEventListener('touchstart', (e) => {
+                clearLikesTimers();
+                longPressTriggered = false;
+                currentHoverBtn = btn;
+                longPressTimer = setTimeout(() => {
+                    longPressTriggered = true;
+                    showLikesPopover(btn);
+                }, 500);
+            }, { passive: true });
+
+            btn.addEventListener('touchmove', () => {
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+            }, { passive: true });
+
+            btn.addEventListener('touchend', () => {
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+                if (longPressTriggered) {
+                    setTimeout(() => { longPressTriggered = false; }, 50);
+                }
+            });
+
+            btn.addEventListener('touchcancel', () => {
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+            });
+        });
+
+        // === Карточка: не закрываем, пока курсор на ней ===
+        if (likesPopover) {
+            likesPopover.addEventListener('mouseenter', () => {
+                clearLikesTimers();
+            });
+            likesPopover.addEventListener('mouseleave', () => {
+                clearLikesTimers();
+                hideLikesPopover();
+            });
+        }
+
+        // Клик по сердечку после долгого зажатия — игнорируем лайк
+        document.querySelectorAll('.heart-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (longPressTriggered) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    longPressTriggered = false;
+                }
+            }, true);
+        });
+
+        // Скрываем карточку по клику вне её
+        document.addEventListener('click', (e) => {
+            if (!likesPopover) return;
+            if (!likesPopover.contains(e.target) && !e.target.closest('.heart-btn')) {
+                hideLikesPopover();
+            }
+        });
+
+        // И по скроллу
+        document.querySelectorAll('.tab-content').forEach(tc => {
+            tc.addEventListener('scroll', () => { hideLikesPopover(); }, { passive: true });
+        });
     </script>
 </body>
 </html>
