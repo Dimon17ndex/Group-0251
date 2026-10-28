@@ -125,6 +125,16 @@
             overscroll-behavior: contain;
         }
 
+        /* Плавное скрытие ползунка скролла во время перелистывания */
+        .tabs-track.animating .tab-content {
+            scrollbar-width: none;            /* Firefox */
+            -ms-overflow-style: none;         /* IE/Edge */
+        }
+        .tabs-track.animating .tab-content::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
         .tab-content > * {
             max-width: 900px;
             margin-left: auto;
@@ -557,6 +567,14 @@
             btn.addEventListener('click', () => btn.classList.toggle('liked'));
         });
 
+        // «Разбудить» Vibration API на первом касании
+        document.addEventListener('touchstart', function initVibrate() {
+            if (navigator.vibrate) {
+                try { navigator.vibrate(1); } catch (e) {}
+            }
+            document.removeEventListener('touchstart', initVibrate);
+        }, { once: true });
+
         // ===== Вкладки =====
         const tabButtons = document.querySelectorAll('.tab-btn');
         const track = document.getElementById('tabsTrack');
@@ -568,10 +586,23 @@
 
         function goToTab(index) {
             index = Math.max(0, Math.min(index, totalTabs - 1));
+            if (index === currentIndex) return;
+
             currentIndex = index;
+
+            // Плавно скрываем ползунок скролла на время анимации
+            track.classList.add('animating');
+
             track.style.transform = `translateX(-${index * (100 / totalTabs)}%)`;
             tabButtons.forEach((b, i) => b.classList.toggle('active', i === index));
             if (index !== 0) resetPull();
+
+            // После окончания анимации возвращаем скроллбар
+            const onEnd = () => {
+                track.classList.remove('animating');
+                track.removeEventListener('transitionend', onEnd);
+            };
+            track.addEventListener('transitionend', onEnd);
         }
 
         tabButtons.forEach((btn, i) => {
@@ -627,7 +658,7 @@
             tDeltaY = 0;
         });
 
-                // ===== Оверскролл «НОВОСТИ ГРУППЫ» (только Главная) =====
+        // ===== Оверскролл «НОВОСТИ ГРУППЫ» (только Главная) =====
         const feedTitle = document.getElementById('feedTitle');
         const tabInner = document.getElementById('tabInnerHome');
         const pullBg = document.getElementById('pullBg');
@@ -638,7 +669,7 @@
         let pulling = false;
         let currentPull = 0;
         let pullDecided = false;
-        let vibrated = false;             // вибрация уже была за этот жест
+        let vibrated = false;
 
         function setPull(value) {
             currentPull = Math.max(0, Math.min(value, MAX_PULL));
@@ -652,7 +683,6 @@
                 pullBg.classList.add('show-dots');
                 pullBg.style.height = currentPull + 'px';
 
-                // Вибрация — только в момент ПОЛНОГО раскрытия (достигли MAX_PULL)
                 if (currentPull >= MAX_PULL && !vibrated && navigator.vibrate) {
                     navigator.vibrate(30);
                     vibrated = true;
@@ -679,7 +709,11 @@
             startY = e.touches[0].clientY;
             pulling = false;
             pullDecided = false;
-            vibrated = false;             // сбрасываем — за новый жест вибрация возможна
+            vibrated = false;
+
+            if (navigator.vibrate) {
+                try { navigator.vibrate(1); } catch (e) {}
+            }
         }, { passive: true });
 
         homeTab.addEventListener('touchmove', (e) => {
