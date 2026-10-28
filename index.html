@@ -8,7 +8,12 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;   /* убираем сине-зелёное выделение */
+        }
         html, body { height: 100%; }
         body {
             background: #fff;
@@ -17,6 +22,17 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+        }
+
+        /* На всякий случай — для интерактивных элементов */
+        button,
+        a,
+        .tab-btn,
+        .heart-btn,
+        .btn-disciplines,
+        .schedule-link {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
         }
 
         header, .tabs, main {
@@ -39,13 +55,9 @@
             z-index: 9999;
             transition: opacity 0.4s ease;
         }
-        #loader.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
+        #loader.hidden { opacity: 0; pointer-events: none; }
         .spinner {
-            width: 48px;
-            height: 48px;
+            width: 48px; height: 48px;
             border: 4px solid #eeeeee;
             border-top-color: #000000;
             border-radius: 50%;
@@ -53,7 +65,28 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        header { padding: 40px 20px 20px; position: relative; flex-shrink: 0; }
+        header {
+            padding: 40px 20px 20px;
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .site-logo {
+            position: absolute;
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: #0066ff;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .site-logo svg { width: 32px; height: 32px; display: block; }
+
         h1 {
             font-size: 2.2rem;
             font-weight: 700;
@@ -89,46 +122,26 @@
             overscroll-behavior: none;
         }
 
-        /* Серая подложка при оттягивании */
         .pull-bg {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 0;
-            background: #f0f0f0;
-            z-index: 1;
-            pointer-events: none;
-            transition: height 0.25s ease;
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 0; background: #f0f0f0; z-index: 1;
+            pointer-events: none; transition: height 0.25s ease;
         }
-        .pull-bg.pulling {
-            transition: none;
-        }
-
-        /* Три синие точки-лоадер */
+        .pull-bg.pulling { transition: none; }
         .pull-bg .dots {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            opacity: 0;
-            transition: opacity 0.2s ease;
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            opacity: 0; transition: opacity 0.2s ease;
         }
-        .pull-bg.show-dots .dots {
-            opacity: 1;
-        }
+        .pull-bg.show-dots .dots { opacity: 1; }
         .pull-bg .dots span {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #0066ff;
-            display: block;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #0066ff; display: block;
             animation: dotJump 1s infinite ease-in-out;
         }
         .pull-bg .dots span:nth-child(1) { animation-delay: 0s; }
         .pull-bg .dots span:nth-child(2) { animation-delay: 0.15s; }
         .pull-bg .dots span:nth-child(3) { animation-delay: 0.3s; }
-
         @keyframes dotJump {
             0%, 80%, 100% { transform: translateY(0); }
             40% { transform: translateY(-10px); }
@@ -137,66 +150,44 @@
         .tab-content { position: relative; z-index: 2; display: none; width: 100%; max-width: 900px; padding: 30px 20px 60px; }
         .tab-content.active { display: block; }
 
-        /* ===== Надпись "НОВОСТИ ГРУППЫ" ===== */
         .feed-title {
-            font-size: 2.4rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            color: #000;
-            text-align: center;
-            margin: 0 0 24px;
-            width: 100%;
+            font-size: 2.4rem; font-weight: 800; letter-spacing: 2px;
+            color: #000; text-align: center; margin: 0 0 24px; width: 100%;
             overflow: hidden;
             transition: max-height 0.6s ease, margin 0.6s ease, opacity 0.6s ease;
-            max-height: 120px;
-            opacity: 1;
+            max-height: 120px; opacity: 1;
         }
         .feed-title.hidden { max-height: 0; margin: 0; opacity: 0; }
         .feed-title.pulled { max-height: 120px; margin: 0 0 24px; opacity: 1; }
 
         .tab-inner {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: transform 0.25s ease;
-            will-change: transform;
+            width: 100%; display: flex; flex-direction: column; align-items: center;
+            transition: transform 0.25s ease; will-change: transform;
         }
         .tab-inner.pulling { transition: none; }
 
         .card-block {
             display: flex; flex-direction: column; align-items: flex-start;
-            margin: 0 140px;
-            width: calc(100% - 280px);
+            margin: 0 140px; width: calc(100% - 280px);
         }
         .card-user { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
         .user-avatar {
             width: 36px; height: 36px; border-radius: 50%;
-            background: #0066ff;
-            border: none;
-            flex-shrink: 0;
+            background: #0066ff; border: none; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
         }
         .user-avatar svg { width: 22px; height: 22px; }
         .user-name { font-size: 0.9rem; color: #000000; }
 
         .card-19x6 {
-            width: 620px;
-            max-width: 100%;
-            height: 420px;
-            background: #f5f5f5;
-            border: 1px solid #ccc;
-            border-radius: 14px;
-            overflow: hidden;
+            width: 620px; max-width: 100%; height: 420px;
+            background: #f5f5f5; border: 1px solid #ccc;
+            border-radius: 14px; overflow: hidden;
         }
         .card-19x6.filled {
             background: #e53935;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 14px;
-            color: #ffffff;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 14px; color: #ffffff;
         }
         .card-19x6.filled .cal-icon svg { width: 72px; height: 72px; display: block; }
         .card-19x6.filled .dist-text {
@@ -253,16 +244,66 @@
         /* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
         @media (max-width: 700px) {
             header {
-                padding: 16px 10px 12px;
-                display: flex; flex-direction: column; align-items: flex-start;
+                padding: 12px 10px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                width: 100%;
+                box-sizing: border-box;
+                overflow: hidden;
             }
-            .group-code {
-                position: static; order: -1; display: inline-flex; height: auto;
-                margin: 0 0 6px 12px; padding: 3px 8px; font-size: 0.72rem; border-width: 1.5px;
+
+            .site-logo {
+                position: static;
+                transform: none;
+                width: 36px; height: 36px;
+                margin: 0;
+                flex-shrink: 0;
+            }
+            .site-logo svg { width: 22px; height: 22px; }
+
+            .header-text {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                flex: 1 1 auto;
+                min-width: 0;
+                overflow: hidden;
             }
             h1 {
-                font-size: 0.95rem; letter-spacing: 0.2px; line-height: 1.2;
-                white-space: nowrap; text-align: left;
+                font-size: 0.95rem;
+                letter-spacing: 0.2px;
+                line-height: 1.2;
+                white-space: nowrap;
+                text-align: left;
+                color: transparent;
+                position: relative;
+                max-width: 100%;
+            }
+            h1::before {
+                content: "ГЕОГРАФИЯ";
+                color: #222;
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                white-space: nowrap;
+                max-width: 100%;
+                overflow: hidden;
+            }
+
+            .group-code {
+                position: static;
+                display: inline-flex;
+                height: auto;
+                margin: 0;
+                padding: 3px 8px;
+                font-size: 0.72rem;
+                border-width: 1.5px;
+                white-space: nowrap;
+                flex-shrink: 0;
             }
 
             .tabs { gap: 6px; padding: 10px 12px; }
@@ -316,7 +357,20 @@
     </div>
 
     <header>
-        <h1>ГЕОГРАФИЯ ФИЗИЧЕСКАЯ И ОБЩЕСТВЕННАЯ</h1>
+        <div class="site-logo">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <ellipse cx="12" cy="12" rx="4" ry="9"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
+                <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
+            </svg>
+        </div>
+
+        <div class="header-text">
+            <h1>ГЕОГРАФИЯ ФИЗИЧЕСКАЯ И ОБЩЕСТВЕННАЯ</h1>
+        </div>
+
         <div class="group-code">2611-0251.1</div>
     </header>
 
@@ -329,9 +383,7 @@
     <main>
         <div class="pull-bg" id="pullBg">
             <div class="dots">
-                <span></span>
-                <span></span>
-                <span></span>
+                <span></span><span></span><span></span>
             </div>
         </div>
 
@@ -558,7 +610,7 @@
             });
         });
 
-        // ===== ОВЕРСКРОЛЛ (только для тач-устройств) =====
+        // ===== ОВЕРСКРОЛЛ (только тач) =====
         const feedTitle = document.getElementById('feedTitle');
         const tabInner = document.getElementById('tabInnerHome');
         const pullBg = document.getElementById('pullBg');
@@ -597,7 +649,6 @@
             currentPull = 0;
         }
 
-        // Тач-события (мобилки/планшеты). На ПК их нет — эффект не работает.
         main.addEventListener('touchstart', (e) => {
             if (!document.getElementById('tab-home').classList.contains('active')) return;
             if (main.scrollTop > 0) return;
