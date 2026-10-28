@@ -7,6 +7,9 @@
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
 
+    <!-- Подключаем Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         * {
             margin: 0;
@@ -89,6 +92,11 @@
             border: 2px solid #000; border-radius: 12px;
             white-space: nowrap;
             flex-shrink: 0;
+            cursor: pointer; /* Добавлено: курсор-рука */
+            transition: background 0.2s ease;
+        }
+        .group-code:hover {
+            background: #f0f0f0;
         }
 
         .tabs {
@@ -333,7 +341,6 @@
             color: #000; text-align: left; line-height: 1.2;
         }
 
-        /* Серая надпись «Это пока все посты» */
         .posts-end {
             text-align: center;
             color: #888;
@@ -408,6 +415,7 @@
                 position: static; display: inline-flex; height: auto;
                 margin: 0; padding: 3px 8px; font-size: 0.72rem;
                 border-width: 1.5px; white-space: nowrap; flex-shrink: 0;
+                cursor: pointer;
             }
 
             .tabs { gap: 6px; padding: 10px 12px; }
@@ -465,6 +473,87 @@
                 padding: 14px 20px; font-size: 1rem;
             }
         }
+
+        /* === Стили для модального окна авторизации === */
+        .auth-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-modal.active {
+            display: flex;
+        }
+        .auth-modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 380px;
+            position: relative;
+            text-align: center;
+        }
+        .auth-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .auth-close:hover {
+            color: #000;
+        }
+        .auth-modal-content h2 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .auth-modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        .auth-modal-content button {
+            width: 100%;
+            padding: 12px;
+            background: #0066ff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .auth-modal-content button:hover {
+            background: #0052cc;
+        }
+        .auth-toggle {
+            display: block;
+            margin-top: 15px;
+            color: #0066ff;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .auth-message {
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        .auth-message.error { color: #e53935; }
+        .auth-message.success { color: #43a047; }
     </style>
 </head>
 <body>
@@ -483,7 +572,8 @@
         <div class="header-text">
             <h1>ГЕОГРАФИЯ</h1>
         </div>
-        <div class="group-code">2611-0251.1</div>
+        <!-- Бейдж теперь кликабельный -->
+        <div class="group-code" onclick="openAuthModal()">2611-0251.1</div>
     </header>
 
     <nav class="tabs">
@@ -580,7 +670,131 @@
         </div>
     </main>
 
+    <!-- Модальное окно авторизации -->
+    <div id="authModal" class="auth-modal">
+        <div class="auth-modal-content">
+            <span class="auth-close" onclick="closeAuthModal()">&times;</span>
+            <h2 id="authTitle">Регистрация</h2>
+            <input type="text" id="authUsername" placeholder="Ваше имя (никнейм)" required>
+            <input type="password" id="authPassword" placeholder="Пароль" required>
+            <button id="authSubmitBtn" onclick="handleAuth()">Зарегистрироваться</button>
+            <div class="auth-toggle" id="authToggle" onclick="toggleAuthMode()">Уже есть аккаунт? Войти</div>
+            <div class="auth-message" id="authMessage"></div>
+        </div>
+    </div>
+
     <script>
+        // ==========================================
+        // 1. ИНИЦИАЛИЗАЦИЯ SUPABASE
+        // ==========================================
+        // ВАШИ КЛЮЧИ (не забудьте заменить на свои)
+        const SUPABASE_URL = 'ВАШ_PROJECT_URL';
+        const SUPABASE_ANON_KEY = 'ВАШ_ANON_KEY';
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ==========================================
+        // 2. ЛОГИКА МОДАЛЬНОГО ОКНА
+        // ==========================================
+        let isLoginMode = false;
+
+        function openAuthModal() {
+            document.getElementById('authModal').classList.add('active');
+            document.getElementById('authMessage').textContent = '';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').textContent = isLoginMode ? 'Вход' : 'Регистрация';
+            document.getElementById('authSubmitBtn').textContent = isLoginMode ? 'Войти' : 'Зарегистрироваться';
+            document.getElementById('authToggle').textContent = isLoginMode ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти';
+            document.getElementById('authMessage').textContent = '';
+        }
+
+        async function handleAuth() {
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const msg = document.getElementById('authMessage');
+            
+            msg.textContent = 'Загрузка...';
+            msg.className = 'auth-message';
+
+            if (!username || !password) {
+                msg.textContent = 'Заполните все поля';
+                msg.classList.add('error');
+                return;
+            }
+
+            // Генерируем фейковый email
+            const fakeEmail = `${username.toLowerCase()}@example.com`;
+
+            if (isLoginMode) {
+                // ВХОД
+                const { error } = await supabase.auth.signInWithPassword({
+                    email: fakeEmail,
+                    password: password,
+                });
+
+                if (error) {
+                    msg.textContent = 'Неверное имя или пароль';
+                    msg.classList.add('error');
+                } else {
+                    msg.textContent = 'Вход выполнен!';
+                    msg.classList.add('success');
+                    setTimeout(() => {
+                        closeAuthModal();
+                        window.location.reload(); 
+                    }, 1000);
+                }
+            } else {
+                // РЕГИСТРАЦИЯ
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: fakeEmail,
+                    password: password,
+                    options: {
+                        data: { username: username }
+                    }
+                });
+
+                if (authError) {
+                    if (authError.message.includes('already registered')) {
+                        msg.textContent = 'Это имя уже занято';
+                    } else {
+                        msg.textContent = authError.message;
+                    }
+                    msg.classList.add('error');
+                    return;
+                }
+
+                if (authData.user) {
+                    // Создаем запись в таблице profiles
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .insert([{ id: authData.user.id, username: username }]);
+
+                    if (profileError) {
+                        console.error(profileError);
+                        msg.textContent = 'Ошибка при создании профиля.';
+                        msg.classList.add('error');
+                    } else {
+                        msg.textContent = 'Регистрация успешна! Теперь вы можете войти.';
+                        msg.classList.add('success');
+                        setTimeout(() => {
+                            toggleAuthMode();
+                            msg.textContent = '';
+                        }, 2000);
+                    }
+                }
+            }
+        }
+
+        // ==========================================
+        // 3. ЛОГИКА САЙТА (Загрузка, Лоадер, Вкладки, Скролл)
+        // ==========================================
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const loader = document.getElementById('loader');
