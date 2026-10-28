@@ -119,8 +119,11 @@
         .user-avatar svg { width: 22px; height: 22px; }
         .user-name { font-size: 0.9rem; color: #000000; }
 
+        /* Прямоугольник: фиксированные размеры, не растягивается */
         .card-19x6 {
-            width: 100%; height: 420px;
+            width: 620px;
+            max-width: 100%;
+            height: 420px;
             background: #f5f5f5;
             border: 1px solid #ccc;
             border-radius: 14px;
@@ -226,13 +229,12 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
-            /* Номер группы — выше заголовка, чуть правее, но рамка не выходит за левый край h1 */
             .group-code {
                 position: static;
                 order: -1;
                 display: inline-flex;
                 height: auto;
-                margin: 0 0 6px 6px;        /* сдвиг вправо на 6px */
+                margin: 0 0 6px 12px;
                 padding: 3px 8px;
                 font-size: 0.72rem;
                 border-width: 1.5px;
@@ -276,7 +278,9 @@
             .user-avatar svg { width: 18px; height: 18px; }
             .user-name { font-size: 0.85rem; }
 
+            /* На мобильных — ширина 100%, высота 200px */
             .card-19x6 {
+                width: 100%;
                 height: 200px;
                 border-radius: 10px;
             }
