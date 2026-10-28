@@ -7,8 +7,8 @@
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
 
-    <!-- Подключаем Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Подключаем Supabase SDK (используем unpkg для надежности) -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <style>
         * {
@@ -92,7 +92,7 @@
             border: 2px solid #000; border-radius: 12px;
             white-space: nowrap;
             flex-shrink: 0;
-            cursor: pointer; /* Добавлено: курсор-рука */
+            cursor: pointer;
             transition: background 0.2s ease;
         }
         .group-code:hover {
@@ -380,7 +380,6 @@
             .post-menu-btn:hover { background: #f0f0f0; }
         }
 
-        /* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
         @media (max-width: 700px) {
             header {
                 padding: 12px 10px;
@@ -685,20 +684,55 @@
 
     <script>
         // ==========================================
-        // 1. ИНИЦИАЛИЗАЦИЯ SUPABASE
+        // 1. ЛОАДЕР И ПРОЯВЛЕНИЕ СТРАНИЦЫ
         // ==========================================
-        // ВАШИ КЛЮЧИ (не забудьте заменить на свои)
+        // Этот блок выполняется первым и не зависит ни от чего.
+        // Даже если Supabase упадет, сайт откроется.
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                if(loader) loader.classList.add('hidden');
+                
+                setTimeout(() => {
+                    document.body.classList.add('loaded');
+                    if(loader) loader.style.display = 'none';
+                    
+                    const feedTitle = document.getElementById('feedTitle');
+                    if(feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
+                }, 300);
+            }, 500);
+        });
+
+        // ==========================================
+        // 2. ИНИЦИАЛИЗАЦИЯ SUPABASE
+        // ==========================================
+        // ВАЖНО: Замените эти строки на ваши реальные ключи из Supabase!
         const SUPABASE_URL = 'ВАШ_PROJECT_URL';
         const SUPABASE_ANON_KEY = 'ВАШ_ANON_KEY';
         
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabaseClient = null;
+
+        // Проверяем, загрузилась ли библиотека и введены ли ключи
+        if (typeof supabase !== 'undefined' && supabase !== null && SUPABASE_URL !== 'ВАШ_PROJECT_URL') {
+            try {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } catch (e) {
+                console.error('Ошибка инициализации Supabase:', e);
+            }
+        } else {
+            console.warn('Supabase не инициализирован: библиотека не загружена или ключи не заменены.');
+        }
 
         // ==========================================
-        // 2. ЛОГИКА МОДАЛЬНОГО ОКНА
+        // 3. ЛОГИКА МОДАЛЬНОГО ОКНА
         // ==========================================
         let isLoginMode = false;
 
         function openAuthModal() {
+            if (!supabaseClient) {
+                alert('Пожалуйста, настройте ключи Supabase в коде (SUPABASE_URL и SUPABASE_ANON_KEY).');
+                return;
+            }
             document.getElementById('authModal').classList.add('active');
             document.getElementById('authMessage').textContent = '';
         }
@@ -716,6 +750,8 @@
         }
 
         async function handleAuth() {
+            if (!supabaseClient) return;
+
             const username = document.getElementById('authUsername').value.trim();
             const password = document.getElementById('authPassword').value;
             const msg = document.getElementById('authMessage');
@@ -729,12 +765,10 @@
                 return;
             }
 
-            // Генерируем фейковый email
             const fakeEmail = `${username.toLowerCase()}@example.com`;
 
             if (isLoginMode) {
-                // ВХОД
-                const { error } = await supabase.auth.signInWithPassword({
+                const { error } = await supabaseClient.auth.signInWithPassword({
                     email: fakeEmail,
                     password: password,
                 });
@@ -751,8 +785,7 @@
                     }, 1000);
                 }
             } else {
-                // РЕГИСТРАЦИЯ
-                const { data: authData, error: authError } = await supabase.auth.signUp({
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
                     email: fakeEmail,
                     password: password,
                     options: {
@@ -771,8 +804,7 @@
                 }
 
                 if (authData.user) {
-                    // Создаем запись в таблице profiles
-                    const { error: profileError } = await supabase
+                    const { error: profileError } = await supabaseClient
                         .from('profiles')
                         .insert([{ id: authData.user.id, username: username }]);
 
@@ -793,21 +825,8 @@
         }
 
         // ==========================================
-        // 3. ЛОГИКА САЙТА (Загрузка, Лоадер, Вкладки, Скролл)
+        // 4. ЛОГИКА САЙТА (Вкладки, Скролл, Свайпы)
         // ==========================================
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const loader = document.getElementById('loader');
-                loader.classList.add('hidden');
-                setTimeout(() => {
-                    document.body.classList.add('loaded');
-                    loader.style.display = 'none';
-                    const feedTitle = document.getElementById('feedTitle');
-                    setTimeout(() => feedTitle.classList.add('hidden'), 1000);
-                }, 300);
-            }, 500);
-        });
-
         document.querySelectorAll('.heart-btn').forEach(btn => {
             btn.addEventListener('click', () => btn.classList.toggle('liked'));
         });
