@@ -181,21 +181,19 @@
         .auth-modal-content {
             background-color: #fff;
             padding: 30px;
-            border-radius: 16px 16px 0 0; /* Скругляем только верхние углы */
+            border-radius: 16px 16px 0 0;
             box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 480px;
             position: relative;
             text-align: center;
             margin-bottom: 0;
-            
-            /* Анимация выезда */
-            transform: translateY(100%); /* Изначально полностью скрыто внизу */
+            transform: translateY(100%);
             transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
         }
 
         .auth-modal.active .auth-modal-content {
-            transform: translateY(0); /* Выезжает на свое место */
+            transform: translateY(0);
         }
 
         .auth-close { position: absolute; top: 15px; right: 15px; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1; }
@@ -267,7 +265,8 @@
                             </div>
                             <div class="post-body">
                                 <div class="post-footer">
-                                    <button class="heart-btn" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
+                                    <!-- Добавили data-post-id="post-1" -->
+                                    <button class="heart-btn" data-post-id="post-1" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
                                     <div class="post-date">19:47 27.10.2026</div>
                                 </div>
                                 <div class="card-caption">В Мелитопольском государственном университете дистанционное обучение</div>
@@ -340,6 +339,9 @@
                     if(loader) loader.style.display = 'none';
                     const feedTitle = document.getElementById('feedTitle');
                     if(feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
+                    
+                    // Инициализируем лайки после загрузки
+                    initLikes();
                 }, 300);
             }, 500);
         });
@@ -358,7 +360,56 @@
         }
 
         // ==========================================
-        // 3. ЛОГИКА ОКОН (АВТОРИЗАЦИЯ И ПРОФИЛЬ)
+        // 3. ЛОГИКА ЛАЙКОВ (СЕРДЕЧЕК)
+        // ==========================================
+        async function initLikes() {
+            if (!supabaseClient) return;
+
+            // Получаем текущего пользователя
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            const userId = session ? session.user.id : null;
+
+            // Получаем все лайки из базы
+            const { data: allLikes, error } = await supabaseClient.from('likes').select('*');
+            if (error) { console.error('Ошибка загрузки лайков:', error); return; }
+
+            const heartButtons = document.querySelectorAll('.heart-btn');
+
+            heartButtons.forEach(btn => {
+                const postId = btn.getAttribute('data-post-id');
+                if (!postId) return;
+
+                // Если пользователь вошел и уже лайкал этот пост — красим
+                if (userId) {
+                    const isLiked = allLikes.some(like => like.post_id === postId && like.user_id === userId);
+                    if (isLiked) btn.classList.add('liked');
+                }
+
+                // Обработчик клика
+                btn.addEventListener('click', async () => {
+                    if (!userId) {
+                        alert('Пожалуйста, войдите в аккаунт (нажмите на 2611-0251.1), чтобы ставить лайки!');
+                        return;
+                    }
+
+                    const isCurrentlyLiked = btn.classList.contains('liked');
+                    btn.classList.toggle('liked'); // Мгновенный визуальный отклик
+
+                    if (isCurrentlyLiked) {
+                        // Удаляем лайк
+                        const { error } = await supabaseClient.from('likes').delete().match({ user_id: userId, post_id: postId });
+                        if (error) { console.error(error); btn.classList.add('liked'); } // Откат при ошибке
+                    } else {
+                        // Добавляем лайк
+                        const { error } = await supabaseClient.from('likes').insert([{ user_id: userId, post_id: postId }]);
+                        if (error) { console.error(error); btn.classList.remove('liked'); } // Откат при ошибке
+                    }
+                });
+            });
+        }
+
+        // ==========================================
+        // 4. ЛОГИКА ОКОН (АВТОРИЗАЦИЯ И ПРОФИЛЬ)
         // ==========================================
         let isLoginMode = false;
 
@@ -380,13 +431,8 @@
             }
         }
 
-        function closeAuthModal() {
-            document.getElementById('authModal').classList.remove('active');
-        }
-
-        function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('active');
-        }
+        function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
+        function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
 
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
@@ -429,7 +475,10 @@
                 } else {
                     msg.textContent = 'Вход выполнен!';
                     msg.classList.add('success');
-                    setTimeout(() => { closeAuthModal(); }, 1000);
+                    setTimeout(() => { 
+                        closeAuthModal(); 
+                        window.location.reload(); // Перезагружаем, чтобы подгрузить лайки
+                    }, 1000);
                 }
             } else {
                 const { data: authData, error: authError } = await supabaseClient.auth.signUp({
@@ -467,12 +516,8 @@
         }
 
         // ==========================================
-        // 4. ЛОГИКА САЙТА (Вкладки, Скролл, Свайпы)
+        // 5. ЛОГИКА САЙТА (Вкладки, Скролл, Свайпы)
         // ==========================================
-        document.querySelectorAll('.heart-btn').forEach(btn => {
-            btn.addEventListener('click', () => btn.classList.toggle('liked'));
-        });
-
         document.addEventListener('touchstart', function initVibrate() {
             if (navigator.vibrate) { try { navigator.vibrate(1); } catch (e) {} }
             document.removeEventListener('touchstart', initVibrate);
@@ -506,19 +551,13 @@
             btn.addEventListener('click', () => goToTab(i));
         });
 
-        let tStartX = 0;
-        let tStartY = 0;
-        let tDeltaX = 0;
-        let tDeltaY = 0;
-        let swipeMode = null;
+        let tStartX = 0, tStartY = 0, tDeltaX = 0, tDeltaY = 0, swipeMode = null;
 
         main.addEventListener('touchstart', (e) => {
             if (e.touches.length !== 1) return;
             tStartX = e.touches[0].clientX;
             tStartY = e.touches[0].clientY;
-            tDeltaX = 0;
-            tDeltaY = 0;
-            swipeMode = null;
+            tDeltaX = 0; tDeltaY = 0; swipeMode = null;
         }, { passive: true });
 
         main.addEventListener('touchmove', (e) => {
@@ -539,15 +578,10 @@
         main.addEventListener('touchend', () => {
             if (swipeMode === 'h') {
                 const threshold = Math.max(50, main.clientWidth * 0.15);
-                if (tDeltaX > threshold && currentIndex > 0) {
-                    goToTab(currentIndex - 1);
-                } else if (tDeltaX < -threshold && currentIndex < totalTabs - 1) {
-                    goToTab(currentIndex + 1);
-                }
+                if (tDeltaX > threshold && currentIndex > 0) goToTab(currentIndex - 1);
+                else if (tDeltaX < -threshold && currentIndex < totalTabs - 1) goToTab(currentIndex + 1);
             }
-            swipeMode = null;
-            tDeltaX = 0;
-            tDeltaY = 0;
+            swipeMode = null; tDeltaX = 0; tDeltaY = 0;
         });
 
         const feedTitle = document.getElementById('feedTitle');
@@ -556,11 +590,7 @@
         const homeTab = document.getElementById('tab-home');
         const MAX_PULL = 120;
 
-        let startY = 0;
-        let pulling = false;
-        let currentPull = 0;
-        let pullDecided = false;
-        let vibrated = false;
+        let startY = 0, pulling = false, currentPull = 0, pullDecided = false, vibrated = false;
 
         function setPull(value) {
             currentPull = Math.max(0, Math.min(value, MAX_PULL));
@@ -573,12 +603,9 @@
                 pullBg.classList.add('show-dots');
                 pullBg.style.height = currentPull + 'px';
                 if (currentPull >= MAX_PULL && !vibrated && navigator.vibrate) {
-                    navigator.vibrate(30);
-                    vibrated = true;
+                    navigator.vibrate(30); vibrated = true;
                 }
-            } else {
-                resetPull();
-            }
+            } else { resetPull(); }
         }
 
         function resetPull() {
@@ -596,9 +623,7 @@
             if (currentIndex !== 0) return;
             if (homeTab.scrollTop > 0) return;
             startY = e.touches[0].clientY;
-            pulling = false;
-            pullDecided = false;
-            vibrated = false;
+            pulling = false; pullDecided = false; vibrated = false;
             if (navigator.vibrate) { try { navigator.vibrate(1); } catch (e) {} }
         }, { passive: true });
 
@@ -607,18 +632,14 @@
             if (swipeMode === 'h') return;
             const delta = e.touches[0].clientY - startY;
             if (delta < -5) {
-                pulling = false;
-                pullDecided = true;
-                resetPull();
-                return;
+                pulling = false; pullDecided = true; resetPull(); return;
             }
             if (homeTab.scrollTop > 0) {
                 if (pulling) { pulling = false; resetPull(); }
                 return;
             }
             if (!pullDecided && delta > 12) {
-                pullDecided = true;
-                pulling = true;
+                pullDecided = true; pulling = true;
             }
             if (pulling) {
                 setPull(delta * 0.6);
@@ -627,10 +648,7 @@
         }, { passive: false });
 
         homeTab.addEventListener('touchend', () => {
-            if (pulling) {
-                pulling = false;
-                resetPull();
-            }
+            if (pulling) { pulling = false; resetPull(); }
         });
 
         const customScrollbar = document.getElementById('customScrollbar');
@@ -643,8 +661,7 @@
             const scrollHeight = activeScrollEl.scrollHeight;
             const clientHeight = activeScrollEl.clientHeight;
             if (scrollHeight <= clientHeight + 1) {
-                customScrollbar.classList.remove('visible');
-                return;
+                customScrollbar.classList.remove('visible'); return;
             }
             customScrollbar.classList.add('visible');
             const trackHeight = customScrollbar.clientHeight;
@@ -667,9 +684,7 @@
         setTimeout(updateCustomScrollbar, 600);
         window.addEventListener('resize', updateCustomScrollbar);
 
-        let thumbDrag = false;
-        let thumbStartY = 0;
-        let thumbStartScroll = 0;
+        let thumbDrag = false, thumbStartY = 0, thumbStartScroll = 0;
 
         customThumb.addEventListener('mousedown', (e) => {
             e.preventDefault();
@@ -691,10 +706,7 @@
         });
 
         document.addEventListener('mouseup', () => {
-            if (thumbDrag) {
-                thumbDrag = false;
-                document.body.style.userSelect = '';
-            }
+            if (thumbDrag) { thumbDrag = false; document.body.style.userSelect = ''; }
         });
     </script>
 </body>
