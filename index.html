@@ -7,7 +7,7 @@
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
 
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2" defer></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -24,7 +24,14 @@
         .spinner { width: 48px; height: 48px; border: 4px solid #eeeeee; border-top-color: #000000; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        header { padding: 40px 40px 20px 40px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; width: 100%; }
+        header {
+            padding: 14px 32px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+        }
         .site-logo { width: 52px; height: 52px; border-radius: 50%; background: #0066ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .site-logo svg { width: 32px; height: 32px; display: block; }
         h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1.5px; white-space: nowrap; margin: 0; text-align: left; }
@@ -112,21 +119,155 @@
         /* === Встроенное расписание (iframe) === */
         .schedule-iframe-wrap {
             width: 100%;
-            max-width: 100%;
+            max-width: 900px;
             margin: 10px auto 0;
             border: 2px solid #0066ff;
             border-radius: 10px;
             overflow: hidden;
             background: #fff;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .schedule-iframe-body {
+            position: relative;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+            max-height: 70vh;
+        }
+
+        .schedule-iframe-wrap.collapsed .schedule-iframe-body {
+            max-height: 0;
         }
 
         .schedule-iframe {
             display: block;
             width: 100%;
-            height: 70vh;
-            min-height: 500px;
+            height: 60vh;
+            min-height: 420px;
             border: 0;
+        }
+
+        /* Лоадер поверх iframe */
+        .schedule-loader {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            z-index: 2;
+            transition: opacity 0.35s ease;
+        }
+
+        .schedule-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .schedule-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e3e8ff;
+            border-top-color: #0066ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Ошибка загрузки расписания */
+        .schedule-error {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 24px;
+            background: #fff;
+            z-index: 3;
+            text-align: center;
+        }
+
+        .schedule-error.visible {
+            display: flex;
+        }
+
+        .schedule-error-text {
+            color: #0066ff;
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.4;
+            max-width: 420px;
+        }
+
+        .schedule-refresh-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: #0066ff;
+            color: #fff;
+            border: 2px solid #0066ff;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .schedule-refresh-btn:hover {
+            background: #fff;
+            color: #0066ff;
+        }
+
+        .schedule-refresh-btn svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
+
+        .schedule-toggle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 16px;
+            background: #f5f7ff;
+            color: #0066ff;
+            border: none;
+            border-top: 1px solid #e3e8ff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .schedule-toggle-btn:hover { background: #e9efff; }
+
+        .schedule-toggle-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .schedule-toggle-arrow svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .schedule-iframe-wrap.collapsed .schedule-toggle-arrow {
+            transform: rotate(180deg);
         }
 
         @media (hover: hover) and (pointer: fine) {
@@ -173,7 +314,12 @@
             .tab-content p { font-size: 1rem; }
             .btn-disciplines { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1.1rem; letter-spacing: 1px; }
             .schedule-link { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1rem; }
+            .schedule-iframe-wrap { max-width: 100%; }
+            .schedule-iframe-body { max-height: 75vh; }
             .schedule-iframe { height: 65vh; min-height: 420px; }
+            .schedule-toggle-btn { font-size: 0.9rem; padding: 10px 12px; }
+            .schedule-error-text { font-size: 0.9rem; }
+            .schedule-refresh-btn { padding: 10px 22px; font-size: 0.95rem; }
         }
 
         /* === Модальные окна === */
@@ -255,7 +401,7 @@
         .max-sheet-text {
             font-size: 1rem;
             color: #555;
-            line-height: 1.6;
+            line-height: 1.35;
             text-align: left;
             margin-bottom: 24px;
             flex-shrink: 0;
@@ -338,23 +484,23 @@
             0% {
                 opacity: 0;
                 transform: scale(0) translate(0, 0);
-                fill: #9B59D6;
+                fill: #9B59D6; /* фиолетовый старт */
             }
             30% {
                 opacity: 1;
-                transform: scale(1.35) translate(0, 0); /* пик прыжка — большой, в градиенте */
-                fill: #6C5CE7;
+                transform: scale(1.35) translate(0, 0); /* пик прыжка — большой */
+                fill: #1E5BFF; /* насыщенный синий */
             }
             55% {
-                /* пауза ~0.3с — MAX стоит большим в градиенте */
+                /* пауза ~0.3с — MAX стоит большим в синем */
                 opacity: 1;
                 transform: scale(1.35) translate(0, 0);
-                fill: #6C5CE7;
+                fill: #1E5BFF;
             }
             100% {
                 opacity: 1;
                 transform: scale(1) translate(-10px, 10px); /* уменьшилась и сдвинулась ниже-левее */
-                fill: #aaa;
+                fill: #aaa; /* серый */
             }
         }
 
@@ -376,11 +522,11 @@
 
         /* Запускаем анимации при открытии плашки */
         .max-sheet.active .max-sheet-icon > svg {
-            animation: maxIconAppear 2.1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+            animation: maxIconAppear 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
         }
 
         .max-sheet.active .max-sheet-logo {
-            animation: logoAppear 1s cubic-bezier(0.34, 1.56, 0.64, 1) 1.4s both;
+            animation: logoAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.95s both;
         }
 
         /* === Кнопка MAX в правом нижнем углу === */
@@ -489,13 +635,37 @@
                 <div class="tab-platform">
                     <h2 style="text-align: center;">Расписание занятий от МелГУ</h2>
                     <div class="schedule-iframe-wrap">
-                        <iframe
-                            class="schedule-iframe"
-                            src="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1"
-                            title="Расписание занятий группы 2611-0251.1"
-                            loading="lazy"
-                            referrerpolicy="no-referrer"
-                        ></iframe>
+                        <div class="schedule-iframe-body">
+                            <div class="schedule-loader" id="scheduleLoader">
+                                <div class="schedule-spinner"></div>
+                            </div>
+                            <div class="schedule-error" id="scheduleError">
+                                <div class="schedule-error-text">Похоже расписание МелГУ не загрузилось, проверьте интернет-соединение и обновите расписание</div>
+                                <button type="button" class="schedule-refresh-btn" id="scheduleRefreshBtn">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="23 4 23 10 17 10"></polyline>
+                                        <polyline points="1 20 1 14 7 14"></polyline>
+                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                    </svg>
+                                    Обновить
+                                </button>
+                            </div>
+                            <iframe
+                                class="schedule-iframe"
+                                src="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1"
+                                title="Расписание занятий группы 2611-0251.1"
+                                loading="lazy"
+                                referrerpolicy="no-referrer"
+                            ></iframe>
+                        </div>
+                        <button type="button" class="schedule-toggle-btn" id="scheduleToggleBtn" aria-expanded="true">
+                            <span class="schedule-toggle-label">Свернуть расписание</span>
+                            <span class="schedule-toggle-arrow">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </span>
+                        </button>
                     </div>
                 </div>
             </section>
@@ -572,19 +742,24 @@
         // ==========================================
         // 1. ЛОАДЕР И ЛАЙКИ
         // ==========================================
-        window.addEventListener('load', () => {
+        function hideLoaderAndShowSite() {
+            const loader = document.getElementById('loader');
+            if(loader) loader.classList.add('hidden');
             setTimeout(() => {
-                const loader = document.getElementById('loader');
-                if(loader) loader.classList.add('hidden');
-                setTimeout(() => {
-                    document.body.classList.add('loaded');
-                    if(loader) loader.style.display = 'none';
-                    const feedTitle = document.getElementById('feedTitle');
-                    if(feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
-                    initLikes();
-                }, 300);
-            }, 500);
-        });
+                document.body.classList.add('loaded');
+                if(loader) loader.style.display = 'none';
+                const feedTitle = document.getElementById('feedTitle');
+                if(feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
+            }, 150);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(hideLoaderAndShowSite, 250);
+            });
+        } else {
+            setTimeout(hideLoaderAndShowSite, 250);
+        }
 
         // ==========================================
         // 2. SUPABASE
@@ -592,9 +767,18 @@
         const SUPABASE_URL = 'https://zonhvkjgxmawhavhyljg.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_hB20gq52pt_ijPlJVB0zYA_7QmNExNV';
         let supabaseClient = null;
-        if (typeof supabase !== 'undefined' && supabase !== null) {
-            try { supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) { console.error(e); }
+
+        function initSupabase() {
+            if (typeof supabase !== 'undefined' && supabase !== null && !supabaseClient) {
+                try {
+                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    initLikes();
+                } catch (e) { console.error(e); }
+            }
         }
+
+        initSupabase();
+        window.addEventListener('load', initSupabase);
 
         // ==========================================
         // 3. ЛОГИКА ЛАЙКОВ
@@ -958,6 +1142,92 @@
         });
 
         document.addEventListener('mouseup', () => { if (thumbDrag) { thumbDrag = false; document.body.style.userSelect = ''; } });
+
+        // ==========================================
+        // 7. СВОРАЧИВАНИЕ РАСПИСАНИЯ
+        // ==========================================
+        const scheduleToggleBtn = document.getElementById('scheduleToggleBtn');
+        const scheduleWrap = document.querySelector('.schedule-iframe-wrap');
+        if (scheduleToggleBtn && scheduleWrap) {
+            scheduleToggleBtn.addEventListener('click', () => {
+                const collapsed = scheduleWrap.classList.toggle('collapsed');
+                scheduleToggleBtn.setAttribute('aria-expanded', String(!collapsed));
+                const label = scheduleToggleBtn.querySelector('.schedule-toggle-label');
+                if (label) {
+                    label.textContent = collapsed ? 'Развернуть расписание' : 'Свернуть расписание';
+                }
+            });
+        }
+
+        // ==========================================
+        // 8. ЛОАДЕР И ОШИБКА ЗАГРУЗКИ РАСПИСАНИЯ
+        // ==========================================
+        const scheduleIframe = document.querySelector('.schedule-iframe');
+        const scheduleLoader = document.getElementById('scheduleLoader');
+        const scheduleError = document.getElementById('scheduleError');
+        const scheduleRefreshBtn = document.getElementById('scheduleRefreshBtn');
+
+        let scheduleLoadTimeout = null;
+
+        function showScheduleError() {
+            if (scheduleLoader) scheduleLoader.classList.add('hidden');
+            if (scheduleError) scheduleError.classList.add('visible');
+        }
+
+        function showScheduleLoader() {
+            if (scheduleError) scheduleError.classList.remove('visible');
+            if (scheduleLoader) scheduleLoader.classList.remove('hidden');
+        }
+
+        function reloadSchedule() {
+            if (!scheduleIframe) return;
+            showScheduleLoader();
+            // перезагружаем iframe, чтобы сработал load заново
+            scheduleIframe.src = scheduleIframe.src;
+
+            clearTimeout(scheduleLoadTimeout);
+            scheduleLoadTimeout = setTimeout(() => {
+                // если за 12 секунд не загрузилось — показываем ошибку
+                showScheduleError();
+            }, 12000);
+        }
+
+        if (scheduleIframe && scheduleLoader) {
+            scheduleIframe.addEventListener('load', () => {
+                clearTimeout(scheduleLoadTimeout);
+                // проверяем, действительно ли загрузилось (грубая эвристика)
+                let ok = false;
+                try {
+                    // для same-origin можно проверить contentDocument;
+                    // для кросс-доменного будет исключение — тогда считаем, что загрузилось
+                    const doc = scheduleIframe.contentDocument || scheduleIframe.contentWindow.document;
+                    if (doc && doc.body && doc.body.innerHTML.trim() !== '') ok = true;
+                } catch (e) {
+                    // кросс-доменный доступ — считаем, что загрузилось
+                    ok = true;
+                }
+                if (ok) {
+                    scheduleLoader.classList.add('hidden');
+                    if (scheduleError) scheduleError.classList.remove('visible');
+                } else {
+                    showScheduleError();
+                }
+            });
+
+            scheduleIframe.addEventListener('error', () => {
+                clearTimeout(scheduleLoadTimeout);
+                showScheduleError();
+            });
+
+            // страховка на случай, если load вообще не сработал
+            scheduleLoadTimeout = setTimeout(() => {
+                showScheduleError();
+            }, 12000);
+        }
+
+        if (scheduleRefreshBtn) {
+            scheduleRefreshBtn.addEventListener('click', reloadSchedule);
+        }
     </script>
 </body>
 </html>
