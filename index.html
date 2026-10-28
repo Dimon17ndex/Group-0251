@@ -408,6 +408,11 @@
             max-width: 170px;
         }
 
+        .likes-popover-you {
+            color: #0066ff;
+            font-weight: 600;
+        }
+
         .likes-popover-heart {
             width: 14px;
             height: 14px;
@@ -946,6 +951,7 @@
         const SUPABASE_URL = 'https://zonhvkjgxmawhavhyljg.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_hB20gq52pt_ijPlJVB0zYA_7QmNExNV';
         let supabaseClient = null;
+        let currentUserId = null;
 
         function initSupabase() {
             if (typeof supabase !== 'undefined' && supabase !== null && !supabaseClient) {
@@ -1027,6 +1033,7 @@
             if (!supabaseClient) return;
             const { data: { session } } = await supabaseClient.auth.getSession();
             const userId = session ? session.user.id : null;
+            currentUserId = userId;
             const { data: allLikes, error } = await supabaseClient.from('likes').select('*');
             if (error) { console.error('Ошибка загрузки лайков:', error); return; }
 
@@ -1496,7 +1503,20 @@
             }
             const map = {};
             (profiles || []).forEach(p => { map[p.id] = p.username; });
-            return userIds.map(id => ({ id, username: map[id] || 'Пользователь' }));
+
+            // Определяем текущего пользователя (на случай, если currentUserId ещё не установлен)
+            let myId = currentUserId;
+            if (!myId) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                myId = session ? session.user.id : null;
+                currentUserId = myId;
+            }
+
+            return userIds.map(id => {
+                const baseName = map[id] || 'Пользователь';
+                const isMe = myId && id === myId;
+                return { id, username: baseName, isMe };
+            });
         }
 
         function renderLikesPopover(likers) {
@@ -1516,6 +1536,12 @@
                 const name = document.createElement('span');
                 name.className = 'likes-popover-name';
                 name.textContent = u.username;
+                if (u.isMe) {
+                    const you = document.createElement('span');
+                    you.className = 'likes-popover-you';
+                    you.textContent = ' (Вы)';
+                    name.appendChild(you);
+                }
 
                 const heart = document.createElement('span');
                 heart.className = 'likes-popover-heart';
