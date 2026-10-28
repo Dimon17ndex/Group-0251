@@ -354,15 +354,15 @@
             transform: translateX(calc(100% + 24px));
         }
 
-        /* На мобильных — встроенная в кнопку «Свернуть» */
+        /* На мобильных — отдельная кнопка «i» рядом с «Свернуть» */
         .schedule-toggle-info-btn {
             display: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            background: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f5f7ff;
             color: #0066ff;
-            border: 1px solid #c9d6ff;
+            border: 1px solid #e3e8ff;
             font-family: inherit;
             font-size: 1rem;
             font-weight: 700;
@@ -370,7 +370,6 @@
             justify-content: center;
             cursor: pointer;
             flex-shrink: 0;
-            margin-left: auto;
             line-height: 1;
         }
 
@@ -653,23 +652,29 @@
             .schedule-iframe-body { max-height: 75vh; }
             .schedule-iframe { height: 65vh; min-height: 420px; }
             .schedule-actions {
-                flex-direction: column;
+                flex-direction: row;
                 justify-content: stretch;
                 align-items: stretch;
-                gap: 6px;
+                gap: 8px;
                 padding: 10px 12px;
             }
-            .schedule-toggle-btn,
+            .schedule-toggle-btn {
+                flex: 1 1 auto;
+                width: auto;
+                justify-content: center;
+                font-size: 0.9rem;
+                padding: 10px 12px;
+            }
             .schedule-open-btn {
                 width: 100%;
-                flex: none;
+                flex: 1 1 100%;
             }
-            /* На мобильных «i» спрятан в кнопке «Свернуть» */
+            /* На мобильных «i» — отдельная кнопка справа от «Свернуть» */
             .schedule-info-btn { display: none; }
             .schedule-toggle-info-btn { display: inline-flex; }
-            .schedule-toggle-btn { justify-content: flex-start; }
-            .schedule-toggle-label { flex: 0 1 auto; }
-            .schedule-toggle-arrow { margin-left: auto; }
+            .schedule-toggle-info-btn {
+                order: 2;
+            }
             .schedule-error-text { font-size: 0.9rem; }
             .schedule-refresh-btn { padding: 10px 22px; font-size: 0.95rem; }
             .net-banner { font-size: 0.85rem; }
@@ -761,7 +766,7 @@
             font-size: 1.6rem;
             font-weight: 700;
             color: #000;
-            margin-bottom: 16px;
+            margin-bottom: 28px;
             text-align: center;
             flex-shrink: 0;
         }
@@ -913,7 +918,7 @@
         @media (max-width: 700px) {
             .max-fab { width: 48px; height: 48px; bottom: 16px; right: 16px; }
             .max-fab svg { width: 26px; height: 26px; }
-            .max-sheet-title { font-size: 1.4rem; }
+            .max-sheet-title { font-size: 1.4rem; margin-bottom: 24px; }
             .max-sheet-text { font-size: 0.95rem; }
         }
     </style>
@@ -1044,8 +1049,8 @@
                                             <polyline points="6 9 12 15 18 9"></polyline>
                                         </svg>
                                     </span>
-                                    <button type="button" class="schedule-toggle-info-btn" id="scheduleToggleInfoBtn" aria-label="О сервисе расписания">i</button>
                                 </button>
+                                <button type="button" class="schedule-toggle-info-btn" id="scheduleToggleInfoBtn" aria-label="О сервисе расписания">i</button>
                                 <button type="button" class="schedule-open-btn" id="scheduleOpenBtn">
                                     Открыть отдельно
                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1095,7 +1100,7 @@
             <div class="schedule-info-handle" id="scheduleInfoHandle"></div>
             <div class="schedule-info-title">Расписание занятий от МелГУ</div>
             <div class="schedule-info-text">
-                Данное расписание является официальным цифровым сервисом Мелитопольского Государственного Университета, вы видите официальный встроенный сервис, а также можете перейти на него напрямую по кнопке. В связи с этим наша площадка География 0251 не несет ответственность за качество и состояние работы данного расписания!
+                Данное расписание является официальным цифровым сервисом Мелитопольского Государственного Университета, вы видите официальный встроенный сервис, а также можете перейти на него напрямую по кнопке. В связи с этим наша площадка ГЕОГРАФИЯ 0251 не несет ответственность за качество и состояние работы данного расписания!
             </div>
             <button type="button" class="schedule-info-open-btn" id="scheduleInfoOpenBtn">Перейти напрямую в расписание МелГУ</button>
         </div>
@@ -1108,10 +1113,7 @@
             
             <!-- Контент плашки -->
             <div class="max-sheet-title">MAX-КАНАЛ</div>
-            <div class="max-sheet-text">
-                У нашего проекта есть MAX-канал, переходи, чтобы узнать о всех новинках и обновлениях сервиса ГЕОГРАФИЯ 0251
-            </div>
-            
+
             <div class="max-sheet-icon">
                 <!-- Иконка MAX (серая, анимируется при открытии) -->
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1127,6 +1129,10 @@
                         <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
                     </svg>
                 </div>
+            </div>
+
+            <div class="max-sheet-text">
+                У нашего проекта есть MAX-канал, переходи, чтобы узнать о всех новинках и обновлениях сервиса ГЕОГРАФИЯ 0251
             </div>
 
             <button onclick="openMaxLink()" class="max-sheet-open-btn">Открыть</button>
