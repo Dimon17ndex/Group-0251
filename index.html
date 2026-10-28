@@ -7,7 +7,7 @@
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
 
-    <!-- Подключаем Supabase SDK (используем unpkg для надежности) -->
+    <!-- Подключаем Supabase SDK -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <style>
@@ -686,8 +686,6 @@
         // ==========================================
         // 1. ЛОАДЕР И ПРОЯВЛЕНИЕ СТРАНИЦЫ
         // ==========================================
-        // Этот блок выполняется первым и не зависит ни от чего.
-        // Даже если Supabase упадет, сайт откроется.
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const loader = document.getElementById('loader');
@@ -704,23 +702,21 @@
         });
 
         // ==========================================
-        // 2. ИНИЦИАЛИЗАЦИЯ SUPABASE
+        // 2. ИНИЦИАЛИЗАЦИЯ SUPABASE (КЛЮЧИ ВСТАВЛЕНЫ)
         // ==========================================
-        // ВАЖНО: Замените эти строки на ваши реальные ключи из Supabase!
-        const SUPABASE_URL = 'ВАШ_PROJECT_URL';
-        const SUPABASE_ANON_KEY = 'ВАШ_ANON_KEY';
+        const SUPABASE_URL = 'https://zonhvkjgxmawhavhyljg.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_hB20gq52pt_ijPlJVB0zYA_7QmNExNV';
         
         let supabaseClient = null;
 
-        // Проверяем, загрузилась ли библиотека и введены ли ключи
-        if (typeof supabase !== 'undefined' && supabase !== null && SUPABASE_URL !== 'ВАШ_PROJECT_URL') {
+        if (typeof supabase !== 'undefined' && supabase !== null) {
             try {
                 supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             } catch (e) {
                 console.error('Ошибка инициализации Supabase:', e);
             }
         } else {
-            console.warn('Supabase не инициализирован: библиотека не загружена или ключи не заменены.');
+            console.warn('Supabase не инициализирован: библиотека не загружена.');
         }
 
         // ==========================================
@@ -730,7 +726,7 @@
 
         function openAuthModal() {
             if (!supabaseClient) {
-                alert('Пожалуйста, настройте ключи Supabase в коде (SUPABASE_URL и SUPABASE_ANON_KEY).');
+                alert('Ошибка: библиотека Supabase не загрузилась. Проверьте интернет.');
                 return;
             }
             document.getElementById('authModal').classList.add('active');
@@ -810,7 +806,7 @@
 
                     if (profileError) {
                         console.error(profileError);
-                        msg.textContent = 'Ошибка при создании профиля.';
+                        msg.textContent = 'Ошибка при создании профиля. Возможно, не выполнена настройка RLS.';
                         msg.classList.add('error');
                     } else {
                         msg.textContent = 'Регистрация успешна! Теперь вы можете войти.';
