@@ -7,550 +7,164 @@
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
 
-    <!-- Подключаем Supabase SDK -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; }
-        body {
-            background: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #222;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+        body { background: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #222; display: flex; flex-direction: column; overflow: hidden; }
 
-        button, a, .tab-btn, .heart-btn, .btn-disciplines, .schedule-link, .post-menu-btn {
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-            box-shadow: none;
-        }
+        button, a, .tab-btn, .heart-btn, .btn-disciplines, .schedule-link, .post-menu-btn { -webkit-tap-highlight-color: transparent; outline: none; box-shadow: none; }
 
-        header, .tabs, main {
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-        body.loaded header,
-        body.loaded .tabs,
-        body.loaded main { opacity: 1; }
+        header, .tabs, main { opacity: 0; transition: opacity 1s ease; }
+        body.loaded header, body.loaded .tabs, body.loaded main { opacity: 1; }
 
-        #loader {
-            position: fixed; inset: 0;
-            background: #ffffff;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 9999; transition: opacity 0.4s ease;
-        }
+        #loader { position: fixed; inset: 0; background: #ffffff; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.4s ease; }
         #loader.hidden { opacity: 0; pointer-events: none; }
-        .spinner {
-            width: 48px; height: 48px;
-            border: 4px solid #eeeeee;
-            border-top-color: #000000;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
+        .spinner { width: 48px; height: 48px; border: 4px solid #eeeeee; border-top-color: #000000; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        header {
-            padding: 40px 40px 20px 40px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            width: 100%;
-        }
-
-        .site-logo {
-            width: 52px; height: 52px; border-radius: 50%;
-            background: #0066ff;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
+        header { padding: 40px 40px 20px 40px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; width: 100%; }
+        .site-logo { width: 52px; height: 52px; border-radius: 50%; background: #0066ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .site-logo svg { width: 32px; height: 32px; display: block; }
-
-        h1 {
-            font-size: 2.2rem; font-weight: 700;
-            letter-spacing: 1.5px;
-            white-space: nowrap;
-            margin: 0;
-            text-align: left;
-        }
+        h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1.5px; white-space: nowrap; margin: 0; text-align: left; }
 
         .group-code {
-            margin-left: auto;
-            display: flex; align-items: center;
-            font-size: 1.1rem; font-weight: 600;
-            color: #000; letter-spacing: 0.5px;
-            padding: 0 14px;
-            height: 2.2rem;
-            border: 2px solid #000; border-radius: 12px;
-            white-space: nowrap;
-            flex-shrink: 0;
-            cursor: pointer;
-            transition: background 0.2s ease;
+            margin-left: auto; display: flex; align-items: center; font-size: 1.1rem; font-weight: 600;
+            color: #000; letter-spacing: 0.5px; padding: 0 14px; height: 2.2rem;
+            border: 2px solid #000; border-radius: 12px; white-space: nowrap; flex-shrink: 0; cursor: pointer; transition: background 0.2s ease;
         }
-        .group-code:hover {
-            background: #f0f0f0;
-        }
+        .group-code:hover { background: #f0f0f0; }
 
-        .tabs {
-            display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
-            padding: 14px 20px;
-            border-top: 1px solid #eee; border-bottom: 1px solid #eee;
-            flex-shrink: 0; position: relative; z-index: 5;
-            box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.12);
-        }
-        .tab-btn {
-            padding: 7px 22px; font-size: 0.95rem; font-weight: 600;
-            font-family: inherit;
-            color: #555; background: #f5f5f5;
-            border: 2px solid transparent; border-radius: 8px;
-            cursor: pointer; transition: all 0.2s ease; line-height: 1.1;
-            box-shadow: none;
-        }
-        .tab-btn.active {
-            background: #0066ff;
-            color: #fff;
-            box-shadow: none;
-        }
-        .tab-btn:focus,
-        .tab-btn:focus-visible {
-            outline: none;
-            box-shadow: none;
-        }
+        .tabs { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 14px 20px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; flex-shrink: 0; position: relative; z-index: 5; box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.12); }
+        .tab-btn { padding: 7px 22px; font-size: 0.95rem; font-weight: 600; font-family: inherit; color: #555; background: #f5f5f5; border: 2px solid transparent; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; line-height: 1.1; box-shadow: none; }
+        .tab-btn.active { background: #0066ff; color: #fff; box-shadow: none; }
+        .tab-btn:focus, .tab-btn:focus-visible { outline: none; box-shadow: none; }
 
-        main {
-            position: relative;
-            flex: 1;
-            overflow: hidden;
-            text-align: left;
-        }
+        main { position: relative; flex: 1; overflow: hidden; text-align: left; }
+        .tabs-track { display: flex; height: 100%; width: 300%; transition: transform 0.35s cubic-bezier(.22,.61,.36,1); will-change: transform; }
 
-        .tabs-track {
-            display: flex;
-            height: 100%;
-            width: 300%;
-            transition: transform 0.35s cubic-bezier(.22,.61,.36,1);
-            will-change: transform;
-        }
+        .tab-content { position: relative; width: 33.3333%; height: 100%; overflow-y: auto; padding: 0; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; -ms-overflow-style: none; }
+        .tab-content::-webkit-scrollbar { width: 0; height: 0; }
+        .tabs-track.animating .tab-content { scrollbar-width: none; -ms-overflow-style: none; }
+        .tabs-track.animating .tab-content::-webkit-scrollbar { width: 0; height: 0; }
 
-        .tab-content {
-            position: relative;
-            width: 33.3333%;
-            height: 100%;
-            overflow-y: auto;
-            padding: 0;
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
+        .tab-platform { max-width: 100%; margin: 0 auto; padding: 30px 20px 60px; background: #fff; min-height: 100%; }
+        .tab-platform-home { max-width: 760px; margin: 0 auto; padding: 30px 20px 60px; background: #fff; box-shadow: 0 0 40px rgba(0, 0, 0, 0.08); min-height: 100%; }
 
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        .tab-content::-webkit-scrollbar {
-            width: 0;
-            height: 0;
-        }
-
-        .tabs-track.animating .tab-content {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        .tabs-track.animating .tab-content::-webkit-scrollbar {
-            width: 0;
-            height: 0;
-        }
-
-        .tab-platform {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 30px 20px 60px;
-            background: #fff;
-            min-height: 100%;
-        }
-
-        .tab-platform-home {
-            max-width: 760px;
-            margin: 0 auto;
-            padding: 30px 20px 60px;
-            background: #fff;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
-            min-height: 100%;
-        }
-
-        .custom-scrollbar {
-            position: absolute;
-            top: 0;
-            right: 2px;
-            width: 8px;
-            height: 100%;
-            z-index: 20;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
+        .custom-scrollbar { position: absolute; top: 0; right: 2px; width: 8px; height: 100%; z-index: 20; pointer-events: none; opacity: 0; transition: opacity 0.2s ease; }
         .custom-scrollbar.visible { opacity: 1; }
-        .custom-scrollbar-thumb {
-            position: absolute;
-            right: 1px;
-            width: 6px;
-            min-height: 30px;
-            border-radius: 3px;
-            background: rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            pointer-events: auto;
-            transition: background 0.15s ease;
-        }
-        .custom-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.4);
-        }
+        .custom-scrollbar-thumb { position: absolute; right: 1px; width: 6px; min-height: 30px; border-radius: 3px; background: rgba(0, 0, 0, 0.2); cursor: pointer; pointer-events: auto; transition: background 0.15s ease; }
+        .custom-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.4); }
 
-        .pull-bg {
-            position: absolute; top: 0; left: 0; right: 0;
-            height: 0; background: #f0f0f0; z-index: 1;
-            pointer-events: none; transition: height 0.25s ease;
-        }
+        .pull-bg { position: absolute; top: 0; left: 0; right: 0; height: 0; background: #f0f0f0; z-index: 1; pointer-events: none; transition: height 0.25s ease; }
         .pull-bg.pulling { transition: none; }
-        .pull-bg .dots {
-            position: absolute; inset: 0;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            opacity: 0; transition: opacity 0.2s ease;
-        }
+        .pull-bg .dots { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0; transition: opacity 0.2s ease; }
         .pull-bg.show-dots .dots { opacity: 1; }
-        .pull-bg .dots span {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: #0066ff; display: block;
-            animation: dotJump 1s infinite ease-in-out;
-        }
+        .pull-bg .dots span { width: 8px; height: 8px; border-radius: 50%; background: #0066ff; display: block; animation: dotJump 1s infinite ease-in-out; }
         .pull-bg .dots span:nth-child(1) { animation-delay: 0s; }
         .pull-bg .dots span:nth-child(2) { animation-delay: 0.15s; }
         .pull-bg .dots span:nth-child(3) { animation-delay: 0.3s; }
-        @keyframes dotJump {
-            0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-        }
+        @keyframes dotJump { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } }
 
-        .feed-title {
-            font-size: 2.4rem; font-weight: 800;
-            letter-spacing: 2px; color: #000;
-            text-align: center; margin: 0 0 24px; width: 100%;
-            overflow: hidden;
-            transition: max-height 0.6s ease, margin 0.6s ease, opacity 0.6s ease;
-            max-height: 120px; opacity: 1;
-        }
+        .feed-title { font-size: 2.4rem; font-weight: 800; letter-spacing: 2px; color: #000; text-align: center; margin: 0 0 24px; width: 100%; overflow: hidden; transition: max-height 0.6s ease, margin 0.6s ease, opacity 0.6s ease; max-height: 120px; opacity: 1; }
         .feed-title.hidden { max-height: 0; margin: 0; opacity: 0; }
         .feed-title.pulled { max-height: 120px; margin: 0 0 24px; opacity: 1; }
 
-        .tab-inner {
-            width: 100%; display: flex; flex-direction: column; align-items: center;
-            transition: transform 0.25s ease; will-change: transform;
-        }
+        .tab-inner { width: 100%; display: flex; flex-direction: column; align-items: center; transition: transform 0.25s ease; will-change: transform; }
         .tab-inner.pulling { transition: none; }
 
-        .card-block {
-            display: flex; flex-direction: column; align-items: flex-start;
-            margin: 0 auto;
-            width: 620px;
-            max-width: 100%;
-        }
-        .card-user {
-            display: flex; align-items: center;
-            gap: 10px; margin-bottom: 12px;
-            width: 100%;
-        }
-        .user-avatar {
-            width: 36px; height: 36px; border-radius: 50%;
-            background: #0066ff; border: none; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .card-block { display: flex; flex-direction: column; align-items: flex-start; margin: 0 auto; width: 620px; max-width: 100%; }
+        .card-user { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; width: 100%; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: #0066ff; border: none; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .user-avatar svg { width: 22px; height: 22px; }
         .user-name { font-size: 0.9rem; color: #000000; }
 
-        .post-menu-btn {
-            margin-left: auto;
-            margin-right: 6px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 6px 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            border-radius: 6px;
-            transition: background 0.15s ease;
-            line-height: 0;
-        }
-        .post-menu-btn span {
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: #000;
-            display: block;
-            flex-shrink: 0;
-        }
+        .post-menu-btn { margin-left: auto; margin-right: 6px; background: transparent; border: none; cursor: pointer; padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; transition: background 0.15s ease; line-height: 0; }
+        .post-menu-btn span { width: 4px; height: 4px; border-radius: 50%; background: #000; display: block; flex-shrink: 0; }
         .post-menu-btn.disabled { cursor: default; }
 
-        .card-19x6 {
-            width: 620px; max-width: 100%; height: 420px;
-            background: #f5f5f5; border: 1px solid #ccc;
-            border-radius: 14px; overflow: hidden;
-        }
-        .card-19x6.filled {
-            background: #e53935;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 14px; color: #ffffff;
-        }
+        .card-19x6 { width: 620px; max-width: 100%; height: 420px; background: #f5f5f5; border: 1px solid #ccc; border-radius: 14px; overflow: hidden; }
+        .card-19x6.filled { background: #e53935; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: #ffffff; }
         .card-19x6.filled .cal-icon svg { width: 72px; height: 72px; display: block; }
-        .card-19x6.filled .dist-text {
-            font-size: 1.3rem; font-weight: 700;
-            letter-spacing: 1px; text-align: center; color: #ffffff;
-        }
+        .card-19x6.filled .dist-text { font-size: 1.3rem; font-weight: 700; letter-spacing: 1px; text-align: center; color: #ffffff; }
 
-        .post-body {
-            width: 620px;
-            max-width: 100%;
-        }
-
-        .post-footer {
-            margin-top: 10px; width: 100%;
-            display: flex; align-items: center; justify-content: space-between;
-        }
+        .post-body { width: 620px; max-width: 100%; }
+        .post-footer { margin-top: 10px; width: 100%; display: flex; align-items: center; justify-content: space-between; }
         .post-date { font-size: 0.85rem; color: #888888; text-align: right; }
 
-        .heart-btn {
-            margin: 0; background: transparent; border: none; cursor: pointer;
-            padding: 0; display: flex; align-items: center;
-            transition: transform 0.15s ease;
-            box-shadow: none;
-        }
+        .heart-btn { margin: 0; background: transparent; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; transition: transform 0.15s ease; box-shadow: none; }
         .heart-btn svg { width: 26px; height: 34px; display: block; }
-        .heart-btn svg path {
-            fill: transparent; stroke: #000000; stroke-width: 1.2;
-            stroke-linejoin: round; transition: fill 0.2s ease, stroke 0.2s ease;
-        }
+        .heart-btn svg path { fill: transparent; stroke: #000000; stroke-width: 1.2; stroke-linejoin: round; transition: fill 0.2s ease, stroke 0.2s ease; }
         .heart-btn.liked svg path { fill: #e53935; stroke: none; }
 
-        .card-caption {
-            margin-top: 6px; font-size: 1.6rem; font-weight: 700;
-            color: #000; text-align: left; line-height: 1.2;
-        }
+        .card-caption { margin-top: 6px; font-size: 1.6rem; font-weight: 700; color: #000; text-align: left; line-height: 1.2; }
 
-        .posts-end {
-            text-align: center;
-            color: #888;
-            font-size: 1rem;
-            margin: 40px auto 20px;
-            width: 100%;
-        }
+        .posts-end { text-align: center; color: #888; font-size: 1rem; margin: 40px auto 20px; width: 100%; }
 
         .tab-content h2 { font-size: 1.6rem; margin-bottom: 16px; }
         .tab-content p { font-size: 1.1rem; color: #555; line-height: 1.6; }
-        .btn-disciplines {
-            display: inline-block; margin-top: 10px; padding: 18px 48px;
-            font-size: 1.4rem; font-weight: 600; letter-spacing: 1.5px;
-            text-decoration: none; color: #fff;
-            background-color: #0066ff; border: 2px solid #0066ff;
-            border-radius: 10px;
-            transition: all 0.25s ease;
-            box-shadow: none;
-        }
-        .schedule-link {
-            display: inline-block; margin-top: 10px; padding: 16px 32px;
-            font-size: 1.1rem; font-weight: 600; text-decoration: none;
-            color: #0066ff; border: 2px solid #0066ff;
-            border-radius: 10px; transition: all 0.2s ease;
-            box-shadow: none;
-        }
+        .btn-disciplines { display: inline-block; margin-top: 10px; padding: 18px 48px; font-size: 1.4rem; font-weight: 600; letter-spacing: 1.5px; text-decoration: none; color: #fff; background-color: #0066ff; border: 2px solid #0066ff; border-radius: 10px; transition: all 0.25s ease; box-shadow: none; }
+        .schedule-link { display: inline-block; margin-top: 10px; padding: 16px 32px; font-size: 1.1rem; font-weight: 600; text-decoration: none; color: #0066ff; border: 2px solid #0066ff; border-radius: 10px; transition: all 0.2s ease; box-shadow: none; }
 
         @media (hover: hover) and (pointer: fine) {
             .tab-btn:hover { background: #eef4ff; color: #0066ff; }
-            .btn-disciplines:hover {
-                background-color: #fff; color: #0066ff;
-                box-shadow: none;
-                transform: translateY(-2px);
-            }
+            .btn-disciplines:hover { background-color: #fff; color: #0066ff; box-shadow: none; transform: translateY(-2px); }
             .schedule-link:hover { background: #0066ff; color: #fff; }
             .heart-btn:hover { transform: scale(1.1); }
             .post-menu-btn:hover { background: #f0f0f0; }
         }
 
         @media (max-width: 700px) {
-            header {
-                padding: 12px 10px;
-                display: flex; flex-direction: row; align-items: center;
-                justify-content: space-between; gap: 8px;
-                width: 100%; box-sizing: border-box; overflow: hidden;
-            }
-
-            .site-logo {
-                position: static; transform: none;
-                width: 36px; height: 36px; margin: 0; flex-shrink: 0;
-            }
+            header { padding: 12px 10px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; width: 100%; box-sizing: border-box; overflow: hidden; }
+            .site-logo { position: static; transform: none; width: 36px; height: 36px; margin: 0; flex-shrink: 0; }
             .site-logo svg { width: 22px; height: 22px; }
-
-            .header-text {
-                display: flex; align-items: center; justify-content: flex-start;
-                flex: 1 1 auto; min-width: 0; overflow: hidden;
-            }
-            h1 {
-                font-size: 0.95rem; letter-spacing: 0.2px; line-height: 1.2;
-                white-space: nowrap; text-align: left;
-                color: transparent; position: relative; max-width: 100%;
-            }
-            h1::before {
-                content: "ГЕОГРАФИЯ"; color: #222;
-                position: absolute; left: 0; top: 50%;
-                transform: translateY(-50%); white-space: nowrap;
-                max-width: 100%; overflow: hidden;
-            }
-
-            .group-code {
-                position: static; display: inline-flex; height: auto;
-                margin: 0; padding: 3px 8px; font-size: 0.72rem;
-                border-width: 1.5px; white-space: nowrap; flex-shrink: 0;
-                cursor: pointer;
-            }
-
+            .header-text { display: flex; align-items: center; justify-content: flex-start; flex: 1 1 auto; min-width: 0; overflow: hidden; }
+            h1 { font-size: 0.95rem; letter-spacing: 0.2px; line-height: 1.2; white-space: nowrap; text-align: left; color: transparent; position: relative; max-width: 100%; }
+            h1::before { content: "ГЕОГРАФИЯ"; color: #222; position: absolute; left: 0; top: 50%; transform: translateY(-50%); white-space: nowrap; max-width: 100%; overflow: hidden; }
+            .group-code { position: static; display: inline-flex; height: auto; margin: 0; padding: 3px 8px; font-size: 0.72rem; border-width: 1.5px; white-space: nowrap; flex-shrink: 0; cursor: pointer; }
             .tabs { gap: 6px; padding: 10px 12px; }
-            .tab-btn {
-                padding: 6px 14px; font-size: 0.82rem;
-                border-radius: 6px; flex: 1 1 auto; text-align: center;
-            }
-
-            .tab-platform,
-            .tab-platform-home {
-                max-width: 100%;
-                padding: 18px 12px 40px;
-                box-shadow: none;
-            }
-
+            .tab-btn { padding: 6px 14px; font-size: 0.82rem; border-radius: 6px; flex: 1 1 auto; text-align: center; }
+            .tab-platform, .tab-platform-home { max-width: 100%; padding: 18px 12px 40px; box-shadow: none; }
             .custom-scrollbar { display: none; }
-
             .feed-title { font-size: 1.35rem; letter-spacing: 1px; margin: 0 0 14px; }
             .feed-title.hidden { max-height: 0; margin: 0; opacity: 0; }
             .feed-title.pulled { max-height: 80px; margin: 0 0 14px; opacity: 1; }
-
             .card-block { margin: 0; width: 100%; }
             .card-user { gap: 8px; margin-bottom: 8px; }
             .user-avatar { width: 30px; height: 30px; }
             .user-avatar svg { width: 18px; height: 18px; }
             .user-name { font-size: 0.85rem; }
-
             .post-menu-btn { padding: 4px 6px; gap: 4px; margin-right: 4px; }
             .post-menu-btn span { width: 3.5px; height: 3.5px; }
-
             .card-19x6 { width: 100%; height: 200px; border-radius: 10px; }
             .card-19x6.filled { gap: 10px; }
             .card-19x6.filled .cal-icon svg { width: 48px; height: 48px; }
             .card-19x6.filled .dist-text { font-size: 0.95rem; letter-spacing: 0.5px; padding: 0 10px; }
-
             .post-body { width: 100%; }
-
             .post-footer { margin-top: 8px; }
             .post-date { font-size: 0.75rem; }
             .heart-btn svg { width: 22px; height: 28px; }
-
             .card-caption { font-size: 1.05rem; line-height: 1.3; }
-
             .posts-end { font-size: 0.9rem; margin: 30px auto 10px; }
-
             .tab-content h2 { font-size: 1.3rem; }
             .tab-content p { font-size: 1rem; }
-
-            .btn-disciplines {
-                display: block; width: 100%; text-align: center;
-                padding: 14px 20px; font-size: 1.1rem; letter-spacing: 1px;
-            }
-            .schedule-link {
-                display: block; width: 100%; text-align: center;
-                padding: 14px 20px; font-size: 1rem;
-            }
+            .btn-disciplines { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1.1rem; letter-spacing: 1px; }
+            .schedule-link { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1rem; }
         }
 
-        /* === Стили для модального окна авторизации === */
-        .auth-modal {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(3px);
-            align-items: center;
-            justify-content: center;
-        }
-        .auth-modal.active {
-            display: flex;
-        }
-        .auth-modal-content {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 380px;
-            position: relative;
-            text-align: center;
-        }
-        .auth-close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .auth-close:hover {
-            color: #000;
-        }
-        .auth-modal-content h2 {
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-        .auth-modal-content input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-        .auth-modal-content button {
-            width: 100%;
-            padding: 12px;
-            background: #0066ff;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .auth-modal-content button:hover {
-            background: #0052cc;
-        }
-        .auth-toggle {
-            display: block;
-            margin-top: 15px;
-            color: #0066ff;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .auth-message {
-            margin-top: 15px;
-            font-size: 0.9rem;
-        }
+        /* === Стили для модальных окон === */
+        .auth-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(3px); align-items: center; justify-content: center; }
+        .auth-modal.active { display: flex; }
+        .auth-modal-content { background-color: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 380px; position: relative; text-align: center; }
+        .auth-close { position: absolute; top: 10px; right: 15px; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .auth-close:hover { color: #000; }
+        .auth-modal-content h2 { margin-bottom: 20px; font-size: 1.5rem; }
+        .auth-modal-content input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        .auth-modal-content button { width: 100%; padding: 12px; background: #0066ff; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .auth-modal-content button:hover { background: #0052cc; }
+        .auth-toggle { display: block; margin-top: 15px; color: #0066ff; cursor: pointer; font-size: 0.9rem; }
+        .auth-message { margin-top: 15px; font-size: 0.9rem; }
         .auth-message.error { color: #e53935; }
         .auth-message.success { color: #43a047; }
     </style>
@@ -571,7 +185,6 @@
         <div class="header-text">
             <h1>ГЕОГРАФИЯ</h1>
         </div>
-        <!-- Бейдж теперь кликабельный -->
         <div class="group-code" onclick="openAuthModal()">2611-0251.1</div>
     </header>
 
@@ -583,48 +196,34 @@
 
     <main>
         <div class="tabs-track" id="tabsTrack">
-
             <!-- ВКЛАДКА 1 -->
             <section class="tab-content" id="tab-home">
                 <div class="tab-platform-home">
                     <div class="pull-bg" id="pullBg">
                         <div class="dots"><span></span><span></span><span></span></div>
                     </div>
-
                     <div class="tab-inner" id="tabInnerHome">
                         <div class="feed-title" id="feedTitle">НОВОСТИ ГРУППЫ</div>
-
-                        <!-- Блок 1 (единственный заполненный) -->
+                        
+                        <!-- Блок 1 -->
                         <div class="card-block">
                             <div class="card-user">
                                 <div class="user-avatar">
                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="9"/>
-                                        <ellipse cx="12" cy="12" rx="4" ry="9"/>
-                                        <line x1="3" y1="12" x2="21" y2="12"/>
-                                        <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
-                                        <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
+                                        <circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M5 6.5 C7 8, 17 8, 19 6.5"/><path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
                                     </svg>
                                 </div>
                                 <span class="user-name">География 0251</span>
-
-                                <button class="post-menu-btn disabled" aria-label="Меню">
-                                    <span></span><span></span><span></span>
-                                </button>
+                                <button class="post-menu-btn disabled" aria-label="Меню"><span></span><span></span><span></span></button>
                             </div>
                             <div class="card-19x6 filled">
                                 <div class="cal-icon">
                                     <svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="5" width="18" height="16" rx="2"/>
-                                        <line x1="3" y1="9" x2="21" y2="9"/>
-                                        <line x1="8" y1="3" x2="8" y2="7"/>
-                                        <line x1="16" y1="3" x2="16" y2="7"/>
-                                        <line x1="-1" y1="25" x2="25" y2="-1"/>
+                                        <rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="-1" y1="25" x2="25" y2="-1"/>
                                     </svg>
                                 </div>
                                 <div class="dist-text">ДИСТАНТ 27 октября — 7 ноября</div>
                             </div>
-
                             <div class="post-body">
                                 <div class="post-footer">
                                     <button class="heart-btn" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
@@ -633,8 +232,6 @@
                                 <div class="card-caption">В Мелитопольском государственном университете дистанционное обучение</div>
                             </div>
                         </div>
-
-                        <!-- Серая надпись под последним постом -->
                         <div class="posts-end">Это пока все посты</div>
                     </div>
                 </div>
@@ -654,12 +251,7 @@
                 <div class="tab-platform">
                     <h2>Расписание</h2>
                     <p>Актуальное расписание занятий группы 2611-0251.1.</p>
-                    <a class="schedule-link"
-                       href="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1"
-                       target="_blank"
-                       rel="noopener">
-                        Открыть расписание ↗
-                    </a>
+                    <a class="schedule-link" href="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1" target="_blank" rel="noopener">Открыть расписание ↗</a>
                 </div>
             </section>
         </div>
@@ -682,19 +274,29 @@
         </div>
     </div>
 
+    <!-- Модальное окно профиля -->
+    <div id="profileModal" class="auth-modal">
+        <div class="auth-modal-content" style="padding: 40px 30px;">
+            <span class="auth-close" onclick="closeProfileModal()">&times;</span>
+            <h2 style="margin-bottom: 10px; font-size: 1.2rem; color: #888; font-weight: 500;">Вы вошли как:</h2>
+            <div id="profileUsername" style="font-size: 2rem; font-weight: 700; color: #0066ff; margin-bottom: 30px; word-break: break-word;">
+                Имя
+            </div>
+            <button onclick="handleLogout()" style="background: #f5f5f5; color: #e53935; border: 1px solid #e53935; width: 100%; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">Выйти из аккаунта</button>
+        </div>
+    </div>
+
     <script>
         // ==========================================
-        // 1. ЛОАДЕР И ПРОЯВЛЕНИЕ СТРАНИЦЫ
+        // 1. ЛОАДЕР
         // ==========================================
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const loader = document.getElementById('loader');
                 if(loader) loader.classList.add('hidden');
-                
                 setTimeout(() => {
                     document.body.classList.add('loaded');
                     if(loader) loader.style.display = 'none';
-                    
                     const feedTitle = document.getElementById('feedTitle');
                     if(feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
                 }, 300);
@@ -702,39 +304,50 @@
         });
 
         // ==========================================
-        // 2. ИНИЦИАЛИЗАЦИЯ SUPABASE (КЛЮЧИ ВСТАВЛЕНЫ)
+        // 2. SUPABASE
         // ==========================================
         const SUPABASE_URL = 'https://zonhvkjgxmawhavhyljg.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_hB20gq52pt_ijPlJVB0zYA_7QmNExNV';
         
         let supabaseClient = null;
-
         if (typeof supabase !== 'undefined' && supabase !== null) {
             try {
                 supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } catch (e) {
-                console.error('Ошибка инициализации Supabase:', e);
-            }
-        } else {
-            console.warn('Supabase не инициализирован: библиотека не загружена.');
+            } catch (e) { console.error(e); }
         }
 
         // ==========================================
-        // 3. ЛОГИКА МОДАЛЬНОГО ОКНА
+        // 3. ЛОГИКА ОКОН (АВТОРИЗАЦИЯ И ПРОФИЛЬ)
         // ==========================================
         let isLoginMode = false;
 
-        function openAuthModal() {
+        async function openAuthModal() {
             if (!supabaseClient) {
-                alert('Ошибка: библиотека Supabase не загрузилась. Проверьте интернет.');
+                alert('Ошибка: библиотека Supabase не загрузилась.');
                 return;
             }
-            document.getElementById('authModal').classList.add('active');
-            document.getElementById('authMessage').textContent = '';
+            
+            // Проверяем сессию
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            if (session) {
+                // Если вошел — показываем профиль
+                const username = session.user.user_metadata.username || 'Пользователь';
+                document.getElementById('profileUsername').textContent = username;
+                document.getElementById('profileModal').classList.add('active');
+            } else {
+                // Если не вошел — форму
+                document.getElementById('authModal').classList.add('active');
+                document.getElementById('authMessage').textContent = '';
+            }
         }
 
         function closeAuthModal() {
             document.getElementById('authModal').classList.remove('active');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
         }
 
         function toggleAuthMode() {
@@ -743,6 +356,12 @@
             document.getElementById('authSubmitBtn').textContent = isLoginMode ? 'Войти' : 'Зарегистрироваться';
             document.getElementById('authToggle').textContent = isLoginMode ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти';
             document.getElementById('authMessage').textContent = '';
+        }
+
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            closeProfileModal();
+            window.location.reload();
         }
 
         async function handleAuth() {
@@ -761,32 +380,25 @@
                 return;
             }
 
-            const fakeEmail = `${username.toLowerCase()}@example.com`;
+            // Очищаем имя от недопустимых символов для email
+            const safeUsername = username.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const fakeEmail = `${safeUsername}@example.com`;
 
             if (isLoginMode) {
-                const { error } = await supabaseClient.auth.signInWithPassword({
-                    email: fakeEmail,
-                    password: password,
-                });
-
+                const { error } = await supabaseClient.auth.signInWithPassword({ email: fakeEmail, password: password });
                 if (error) {
                     msg.textContent = 'Неверное имя или пароль';
                     msg.classList.add('error');
                 } else {
                     msg.textContent = 'Вход выполнен!';
                     msg.classList.add('success');
-                    setTimeout(() => {
-                        closeAuthModal();
-                        window.location.reload(); 
-                    }, 1000);
+                    setTimeout(() => { closeAuthModal(); }, 1000);
                 }
             } else {
                 const { data: authData, error: authError } = await supabaseClient.auth.signUp({
                     email: fakeEmail,
                     password: password,
-                    options: {
-                        data: { username: username }
-                    }
+                    options: { data: { username: username } }
                 });
 
                 if (authError) {
@@ -806,15 +418,12 @@
 
                     if (profileError) {
                         console.error(profileError);
-                        msg.textContent = 'Ошибка при создании профиля. Возможно, не выполнена настройка RLS.';
+                        msg.textContent = 'Ошибка при создании профиля.';
                         msg.classList.add('error');
                     } else {
                         msg.textContent = 'Регистрация успешна! Теперь вы можете войти.';
                         msg.classList.add('success');
-                        setTimeout(() => {
-                            toggleAuthMode();
-                            msg.textContent = '';
-                        }, 2000);
+                        setTimeout(() => { toggleAuthMode(); msg.textContent = ''; }, 2000);
                     }
                 }
             }
@@ -828,9 +437,7 @@
         });
 
         document.addEventListener('touchstart', function initVibrate() {
-            if (navigator.vibrate) {
-                try { navigator.vibrate(1); } catch (e) {}
-            }
+            if (navigator.vibrate) { try { navigator.vibrate(1); } catch (e) {} }
             document.removeEventListener('touchstart', initVibrate);
         }, { once: true });
 
@@ -845,15 +452,11 @@
         function goToTab(index) {
             index = Math.max(0, Math.min(index, totalTabs - 1));
             if (index === currentIndex) return;
-
             currentIndex = index;
-
             track.classList.add('animating');
-
             track.style.transform = `translateX(-${index * (100 / totalTabs)}%)`;
             tabButtons.forEach((b, i) => b.classList.toggle('active', i === index));
             if (index !== 0) resetPull();
-
             const onEnd = () => {
                 track.classList.remove('animating');
                 track.removeEventListener('transitionend', onEnd);
@@ -883,16 +486,13 @@
 
         main.addEventListener('touchmove', (e) => {
             if (e.touches.length !== 1) return;
-
             tDeltaX = e.touches[0].clientX - tStartX;
             tDeltaY = e.touches[0].clientY - tStartY;
-
             if (swipeMode === null) {
                 if (Math.abs(tDeltaX) > 10 || Math.abs(tDeltaY) > 10) {
                     swipeMode = Math.abs(tDeltaX) > Math.abs(tDeltaY) ? 'h' : 'v';
                 }
             }
-
             if (swipeMode === 'h') {
                 if (pulling) return;
                 e.preventDefault();
@@ -902,7 +502,6 @@
         main.addEventListener('touchend', () => {
             if (swipeMode === 'h') {
                 const threshold = Math.max(50, main.clientWidth * 0.15);
-
                 if (tDeltaX > threshold && currentIndex > 0) {
                     goToTab(currentIndex - 1);
                 } else if (tDeltaX < -threshold && currentIndex < totalTabs - 1) {
@@ -928,7 +527,6 @@
 
         function setPull(value) {
             currentPull = Math.max(0, Math.min(value, MAX_PULL));
-
             if (currentPull > 0) {
                 feedTitle.classList.remove('hidden');
                 feedTitle.classList.add('pulled');
@@ -937,7 +535,6 @@
                 pullBg.classList.add('pulling');
                 pullBg.classList.add('show-dots');
                 pullBg.style.height = currentPull + 'px';
-
                 if (currentPull >= MAX_PULL && !vibrated && navigator.vibrate) {
                     navigator.vibrate(30);
                     vibrated = true;
@@ -965,35 +562,27 @@
             pulling = false;
             pullDecided = false;
             vibrated = false;
-
-            if (navigator.vibrate) {
-                try { navigator.vibrate(1); } catch (e) {}
-            }
+            if (navigator.vibrate) { try { navigator.vibrate(1); } catch (e) {} }
         }, { passive: true });
 
         homeTab.addEventListener('touchmove', (e) => {
             if (currentIndex !== 0) return;
             if (swipeMode === 'h') return;
-
             const delta = e.touches[0].clientY - startY;
-
             if (delta < -5) {
                 pulling = false;
                 pullDecided = true;
                 resetPull();
                 return;
             }
-
             if (homeTab.scrollTop > 0) {
                 if (pulling) { pulling = false; resetPull(); }
                 return;
             }
-
             if (!pullDecided && delta > 12) {
                 pullDecided = true;
                 pulling = true;
             }
-
             if (pulling) {
                 setPull(delta * 0.6);
                 if (delta > 10) e.preventDefault();
@@ -1014,28 +603,20 @@
         function updateCustomScrollbar() {
             activeScrollEl = tabContents[currentIndex];
             if (!activeScrollEl) return;
-
             const scrollHeight = activeScrollEl.scrollHeight;
             const clientHeight = activeScrollEl.clientHeight;
-
             if (scrollHeight <= clientHeight + 1) {
                 customScrollbar.classList.remove('visible');
                 return;
             }
-
             customScrollbar.classList.add('visible');
-
             const trackHeight = customScrollbar.clientHeight;
             const ratio = clientHeight / scrollHeight;
             let thumbHeight = Math.max(30, trackHeight * ratio);
             const maxScrollTop = scrollHeight - clientHeight;
             const scrollTop = activeScrollEl.scrollTop;
-
             const maxThumbTop = trackHeight - thumbHeight;
-            const thumbTop = maxScrollTop > 0
-                ? (scrollTop / maxScrollTop) * maxThumbTop
-                : 0;
-
+            const thumbTop = maxScrollTop > 0 ? (scrollTop / maxScrollTop) * maxThumbTop : 0;
             customThumb.style.height = thumbHeight + 'px';
             customThumb.style.top = thumbTop + 'px';
         }
@@ -1047,7 +628,6 @@
         });
 
         setTimeout(updateCustomScrollbar, 600);
-
         window.addEventListener('resize', updateCustomScrollbar);
 
         let thumbDrag = false;
@@ -1068,7 +648,6 @@
             const trackHeight = customScrollbar.clientHeight;
             const thumbHeight = customThumb.clientHeight;
             const maxThumbTop = trackHeight - thumbHeight;
-
             const deltaY = e.clientY - thumbStartY;
             const scrollRatio = (activeScrollEl.scrollHeight - activeScrollEl.clientHeight) / maxThumbTop;
             activeScrollEl.scrollTop = thumbStartScroll + deltaY * scrollRatio;
