@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>География физическая и общественная — 2611-0251.1</title>
+    <title>География — 2611-0251.1</title>
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
 
@@ -24,7 +24,7 @@
             overflow: hidden;
         }
 
-        button, a, .tab-btn, .heart-btn, .btn-disciplines, .schedule-link {
+        button, a, .tab-btn, .heart-btn, .btn-disciplines, .schedule-link, .post-menu-btn {
             -webkit-tap-highlight-color: transparent;
             outline: none;
             box-shadow: none;
@@ -55,14 +55,15 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         header {
-            padding: 40px 20px 20px;
-            position: relative; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
+            padding: 40px 40px 20px 40px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
         }
 
         .site-logo {
-            position: absolute; left: 40px; top: 50%;
-            transform: translateY(-50%);
             width: 52px; height: 52px; border-radius: 50%;
             background: #0066ff;
             display: flex; align-items: center; justify-content: center;
@@ -72,19 +73,24 @@
 
         h1 {
             font-size: 2.2rem; font-weight: 700;
-            letter-spacing: 1.5px; text-align: center;
-            max-width: 900px; margin: 0 auto;
+            letter-spacing: 1.5px;
             white-space: nowrap;
+            margin: 0;
+            text-align: left;
         }
+
         .group-code {
-            position: absolute; right: 60px; top: 52px; height: 2.2rem;
+            margin-left: auto;
             display: flex; align-items: center;
             font-size: 1.1rem; font-weight: 600;
             color: #000; letter-spacing: 0.5px;
             padding: 0 14px;
+            height: 2.2rem;
             border: 2px solid #000; border-radius: 12px;
             white-space: nowrap;
+            flex-shrink: 0;
         }
+
         .tabs {
             display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
             padding: 14px 20px;
@@ -131,9 +137,16 @@
             width: 33.3333%;
             height: 100%;
             overflow-y: auto;
-            padding: 30px 20px 60px;
+            padding: 0;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
+
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .tab-content::-webkit-scrollbar {
+            width: 0;
+            height: 0;
         }
 
         .tabs-track.animating .tab-content {
@@ -145,10 +158,48 @@
             height: 0;
         }
 
-        .tab-content > * {
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
+        .tab-platform {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+            background: #fff;
+            min-height: 100%;
+        }
+
+        .tab-platform-home {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+            background: #fff;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+            min-height: 100%;
+        }
+
+        .custom-scrollbar {
+            position: absolute;
+            top: 0;
+            right: 2px;
+            width: 8px;
+            height: 100%;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .custom-scrollbar.visible { opacity: 1; }
+        .custom-scrollbar-thumb {
+            position: absolute;
+            right: 1px;
+            width: 6px;
+            min-height: 30px;
+            border-radius: 3px;
+            background: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            pointer-events: auto;
+            transition: background 0.15s ease;
+        }
+        .custom-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.4);
         }
 
         .pull-bg {
@@ -195,9 +246,15 @@
 
         .card-block {
             display: flex; flex-direction: column; align-items: flex-start;
-            margin: 0 140px; width: calc(100% - 280px);
+            margin: 0 auto;
+            width: 620px;
+            max-width: 100%;
         }
-        .card-user { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .card-user {
+            display: flex; align-items: center;
+            gap: 10px; margin-bottom: 12px;
+            width: 100%;
+        }
         .user-avatar {
             width: 36px; height: 36px; border-radius: 50%;
             background: #0066ff; border: none; flex-shrink: 0;
@@ -205,6 +262,31 @@
         }
         .user-avatar svg { width: 22px; height: 22px; }
         .user-name { font-size: 0.9rem; color: #000000; }
+
+        .post-menu-btn {
+            margin-left: auto;
+            margin-right: 6px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 6px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            border-radius: 6px;
+            transition: background 0.15s ease;
+            line-height: 0;
+        }
+        .post-menu-btn span {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #000;
+            display: block;
+            flex-shrink: 0;
+        }
+        .post-menu-btn.disabled { cursor: default; }
 
         .card-19x6 {
             width: 620px; max-width: 100%; height: 420px;
@@ -220,6 +302,11 @@
         .card-19x6.filled .dist-text {
             font-size: 1.3rem; font-weight: 700;
             letter-spacing: 1px; text-align: center; color: #ffffff;
+        }
+
+        .post-body {
+            width: 620px;
+            max-width: 100%;
         }
 
         .post-footer {
@@ -242,13 +329,17 @@
         .heart-btn.liked svg path { fill: #e53935; stroke: none; }
 
         .card-caption {
-            margin-top: 0; font-size: 1.6rem; font-weight: 700;
+            margin-top: 6px; font-size: 1.6rem; font-weight: 700;
             color: #000; text-align: left; line-height: 1.2;
         }
 
-        .divider {
-            margin: 30px 140px; width: calc(100% - 280px);
-            height: 1px; background: #eee; border: none;
+        /* Серая надпись «Это пока все посты» */
+        .posts-end {
+            text-align: center;
+            color: #888;
+            font-size: 1rem;
+            margin: 40px auto 20px;
+            width: 100%;
         }
 
         .tab-content h2 { font-size: 1.6rem; margin-bottom: 16px; }
@@ -270,7 +361,6 @@
             box-shadow: none;
         }
 
-        /* Hover — только для устройств с мышью (ПК), не для тач */
         @media (hover: hover) and (pointer: fine) {
             .tab-btn:hover { background: #eef4ff; color: #0066ff; }
             .btn-disciplines:hover {
@@ -280,6 +370,7 @@
             }
             .schedule-link:hover { background: #0066ff; color: #fff; }
             .heart-btn:hover { transform: scale(1.1); }
+            .post-menu-btn:hover { background: #f0f0f0; }
         }
 
         /* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
@@ -325,7 +416,14 @@
                 border-radius: 6px; flex: 1 1 auto; text-align: center;
             }
 
-            .tab-content { padding: 18px 12px 40px; }
+            .tab-platform,
+            .tab-platform-home {
+                max-width: 100%;
+                padding: 18px 12px 40px;
+                box-shadow: none;
+            }
+
+            .custom-scrollbar { display: none; }
 
             .feed-title { font-size: 1.35rem; letter-spacing: 1px; margin: 0 0 14px; }
             .feed-title.hidden { max-height: 0; margin: 0; opacity: 0; }
@@ -337,10 +435,15 @@
             .user-avatar svg { width: 18px; height: 18px; }
             .user-name { font-size: 0.85rem; }
 
+            .post-menu-btn { padding: 4px 6px; gap: 4px; margin-right: 4px; }
+            .post-menu-btn span { width: 3.5px; height: 3.5px; }
+
             .card-19x6 { width: 100%; height: 200px; border-radius: 10px; }
             .card-19x6.filled { gap: 10px; }
             .card-19x6.filled .cal-icon svg { width: 48px; height: 48px; }
             .card-19x6.filled .dist-text { font-size: 0.95rem; letter-spacing: 0.5px; padding: 0 10px; }
+
+            .post-body { width: 100%; }
 
             .post-footer { margin-top: 8px; }
             .post-date { font-size: 0.75rem; }
@@ -348,7 +451,7 @@
 
             .card-caption { font-size: 1.05rem; line-height: 1.3; }
 
-            .divider { margin: 20px 0; width: 100%; }
+            .posts-end { font-size: 0.9rem; margin: 30px auto 10px; }
 
             .tab-content h2 { font-size: 1.3rem; }
             .tab-content p { font-size: 1rem; }
@@ -378,7 +481,7 @@
             </svg>
         </div>
         <div class="header-text">
-            <h1>ГЕОГРАФИЯ ФИЗИЧЕСКАЯ И ОБЩЕСТВЕННАЯ</h1>
+            <h1>ГЕОГРАФИЯ</h1>
         </div>
         <div class="group-code">2611-0251.1</div>
     </header>
@@ -394,182 +497,90 @@
 
             <!-- ВКЛАДКА 1 -->
             <section class="tab-content" id="tab-home">
-                <div class="pull-bg" id="pullBg">
-                    <div class="dots"><span></span><span></span><span></span></div>
-                </div>
-
-                <div class="tab-inner" id="tabInnerHome">
-                    <div class="feed-title" id="feedTitle">НОВОСТИ ГРУППЫ</div>
-
-                    <!-- Блок 1 -->
-                    <div class="card-block">
-                        <div class="card-user">
-                            <div class="user-avatar">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="9"/>
-                                    <ellipse cx="12" cy="12" rx="4" ry="9"/>
-                                    <line x1="3" y1="12" x2="21" y2="12"/>
-                                    <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
-                                    <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
-                                </svg>
-                            </div>
-                            <span class="user-name">География 0251</span>
-                        </div>
-                        <div class="card-19x6 filled">
-                            <div class="cal-icon">
-                                <svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="5" width="18" height="16" rx="2"/>
-                                    <line x1="3" y1="9" x2="21" y2="9"/>
-                                    <line x1="8" y1="3" x2="8" y2="7"/>
-                                    <line x1="16" y1="3" x2="16" y2="7"/>
-                                    <line x1="-1" y1="25" x2="25" y2="-1"/>
-                                </svg>
-                            </div>
-                            <div class="dist-text">ДИСТАНТ 27 октября — 7 ноября</div>
-                        </div>
-                        <div class="post-footer">
-                            <button class="heart-btn" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
-                            <div class="post-date">19:47 27.10.2026</div>
-                        </div>
-                        <div class="card-caption">В Мелитопольском государственном университете дистанционное обучение</div>
+                <div class="tab-platform-home">
+                    <div class="pull-bg" id="pullBg">
+                        <div class="dots"><span></span><span></span><span></span></div>
                     </div>
-                    <hr class="divider">
 
-                    <!-- Блок 2 -->
-                    <div class="card-block">
-                        <div class="card-user">
-                            <div class="user-avatar">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="9"/>
-                                    <ellipse cx="12" cy="12" rx="4" ry="9"/>
-                                    <line x1="3" y1="12" x2="21" y2="12"/>
-                                    <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
-                                    <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
-                                </svg>
-                            </div>
-                            <span class="user-name">Пользователь</span>
-                        </div>
-                        <div class="card-19x6"></div>
-                        <div class="post-footer">
-                            <button class="heart-btn" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
-                        </div>
-                        <div class="card-caption">Заголовок</div>
-                    </div>
-                    <hr class="divider">
+                    <div class="tab-inner" id="tabInnerHome">
+                        <div class="feed-title" id="feedTitle">НОВОСТИ ГРУППЫ</div>
 
-                    <!-- Блок 3 -->
-                    <div class="card-block">
-                        <div class="card-user">
-                            <div class="user-avatar">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="9"/>
-                                    <ellipse cx="12" cy="12" rx="4" ry="9"/>
-                                    <line x1="3" y1="12" x2="21" y2="12"/>
-                                    <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
-                                    <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
-                                </svg>
-                            </div>
-                            <span class="user-name">Пользователь</span>
-                        </div>
-                        <div class="card-19x6"></div>
-                        <div class="post-footer">
-                            <button class="heart-btn" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
-                        </div>
-                        <div class="card-caption">Заголовок</div>
-                    </div>
-                    <hr class="divider">
+                        <!-- Блок 1 (единственный заполненный) -->
+                        <div class="card-block">
+                            <div class="card-user">
+                                <div class="user-avatar">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="9"/>
+                                        <ellipse cx="12" cy="12" rx="4" ry="9"/>
+                                        <line x1="3" y1="12" x2="21" y2="12"/>
+                                        <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
+                                        <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
+                                    </svg>
+                                </div>
+                                <span class="user-name">География 0251</span>
 
-                    <!-- Блок 4 -->
-                    <div class="card-block">
-                        <div class="card-user">
-                            <div class="user-avatar">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="9"/>
-                                    <ellipse cx="12" cy="12" rx="4" ry="9"/>
-                                    <line x1="3" y1="12" x2="21" y2="12"/>
-                                    <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
-                                    <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
-                                </svg>
+                                <button class="post-menu-btn disabled" aria-label="Меню">
+                                    <span></span><span></span><span></span>
+                                </button>
                             </div>
-                            <span class="user-name">Пользователь</span>
-                        </div>
-                        <div class="card-19x6"></div>
-                        <div class="post-footer">
-                            <button class="heart-btn" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
-                        </div>
-                        <div class="card-caption">Заголовок</div>
-                    </div>
-                    <hr class="divider">
+                            <div class="card-19x6 filled">
+                                <div class="cal-icon">
+                                    <svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="5" width="18" height="16" rx="2"/>
+                                        <line x1="3" y1="9" x2="21" y2="9"/>
+                                        <line x1="8" y1="3" x2="8" y2="7"/>
+                                        <line x1="16" y1="3" x2="16" y2="7"/>
+                                        <line x1="-1" y1="25" x2="25" y2="-1"/>
+                                    </svg>
+                                </div>
+                                <div class="dist-text">ДИСТАНТ 27 октября — 7 ноября</div>
+                            </div>
 
-                    <!-- Блок 5 -->
-                    <div class="card-block">
-                        <div class="card-user">
-                            <div class="user-avatar">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="9"/>
-                                    <ellipse cx="12" cy="12" rx="4" ry="9"/>
-                                    <line x1="3" y1="12" x2="21" y2="12"/>
-                                    <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
-                                    <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
-                                </svg>
+                            <div class="post-body">
+                                <div class="post-footer">
+                                    <button class="heart-btn" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
+                                    <div class="post-date">19:47 27.10.2026</div>
+                                </div>
+                                <div class="card-caption">В Мелитопольском государственном университете дистанционное обучение</div>
                             </div>
-                            <span class="user-name">Пользователь</span>
                         </div>
-                        <div class="card-19x6"></div>
-                        <div class="post-footer">
-                            <button class="heart-btn" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
-                        </div>
-                        <div class="card-caption">Заголовок</div>
-                    </div>
-                    <hr class="divider">
 
-                    <!-- Блок 6 -->
-                    <div class="card-block">
-                        <div class="card-user">
-                            <div class="user-avatar">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="9"/>
-                                    <ellipse cx="12" cy="12" rx="4" ry="9"/>
-                                    <line x1="3" y1="12" x2="21" y2="12"/>
-                                    <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
-                                    <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
-                                </svg>
-                            </div>
-                            <span class="user-name">Пользователь</span>
-                        </div>
-                        <div class="card-19x6"></div>
-                        <div class="post-footer">
-                            <button class="heart-btn" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
-                        </div>
-                        <div class="card-caption">Заголовок</div>
+                        <!-- Серая надпись под последним постом -->
+                        <div class="posts-end">Это пока все посты</div>
                     </div>
-                    <hr class="divider">
                 </div>
             </section>
 
             <!-- ВКЛАДКА 2 -->
             <section class="tab-content" id="tab-disciplines">
-                <h2>Дисциплины</h2>
-                <p>Здесь будет список предметов и конспектов группы.</p>
-                <a href="disciplines.html" class="btn-disciplines">ДИСЦИПЛИНЫ</a>
+                <div class="tab-platform">
+                    <h2>Дисциплины</h2>
+                    <p>Здесь будет список предметов и конспектов группы.</p>
+                    <a href="disciplines.html" class="btn-disciplines">ДИСЦИПЛИНЫ</a>
+                </div>
             </section>
 
             <!-- ВКЛАДКА 3 -->
             <section class="tab-content" id="tab-schedule">
-                <h2>Расписание</h2>
-                <p>Актуальное расписание занятий группы 2611-0251.1.</p>
-                <a class="schedule-link"
-                   href="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1"
-                   target="_blank"
-                   rel="noopener">
-                    Открыть расписание ↗
-                </a>
+                <div class="tab-platform">
+                    <h2>Расписание</h2>
+                    <p>Актуальное расписание занятий группы 2611-0251.1.</p>
+                    <a class="schedule-link"
+                       href="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1"
+                       target="_blank"
+                       rel="noopener">
+                        Открыть расписание ↗
+                    </a>
+                </div>
             </section>
+        </div>
+
+        <div class="custom-scrollbar" id="customScrollbar">
+            <div class="custom-scrollbar-thumb" id="customScrollbarThumb"></div>
         </div>
     </main>
 
     <script>
-        // Лоадер + проявление
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const loader = document.getElementById('loader');
@@ -583,12 +594,10 @@
             }, 500);
         });
 
-        // Сердечки
         document.querySelectorAll('.heart-btn').forEach(btn => {
             btn.addEventListener('click', () => btn.classList.toggle('liked'));
         });
 
-        // «Разбудить» Vibration API на первом касании
         document.addEventListener('touchstart', function initVibrate() {
             if (navigator.vibrate) {
                 try { navigator.vibrate(1); } catch (e) {}
@@ -596,7 +605,6 @@
             document.removeEventListener('touchstart', initVibrate);
         }, { once: true });
 
-        // ===== Вкладки =====
         const tabButtons = document.querySelectorAll('.tab-btn');
         const track = document.getElementById('tabsTrack');
         const tabContents = document.querySelectorAll('.tab-content');
@@ -620,6 +628,7 @@
             const onEnd = () => {
                 track.classList.remove('animating');
                 track.removeEventListener('transitionend', onEnd);
+                updateCustomScrollbar();
             };
             track.addEventListener('transitionend', onEnd);
         }
@@ -628,7 +637,6 @@
             btn.addEventListener('click', () => goToTab(i));
         });
 
-        // ===== Свайп: только переключение на соседнюю вкладку =====
         let tStartX = 0;
         let tStartY = 0;
         let tDeltaX = 0;
@@ -677,7 +685,6 @@
             tDeltaY = 0;
         });
 
-        // ===== Оверскролл «НОВОСТИ ГРУППЫ» (только Главная) =====
         const feedTitle = document.getElementById('feedTitle');
         const tabInner = document.getElementById('tabInnerHome');
         const pullBg = document.getElementById('pullBg');
@@ -768,6 +775,80 @@
             if (pulling) {
                 pulling = false;
                 resetPull();
+            }
+        });
+
+        const customScrollbar = document.getElementById('customScrollbar');
+        const customThumb = document.getElementById('customScrollbarThumb');
+        let activeScrollEl = null;
+
+        function updateCustomScrollbar() {
+            activeScrollEl = tabContents[currentIndex];
+            if (!activeScrollEl) return;
+
+            const scrollHeight = activeScrollEl.scrollHeight;
+            const clientHeight = activeScrollEl.clientHeight;
+
+            if (scrollHeight <= clientHeight + 1) {
+                customScrollbar.classList.remove('visible');
+                return;
+            }
+
+            customScrollbar.classList.add('visible');
+
+            const trackHeight = customScrollbar.clientHeight;
+            const ratio = clientHeight / scrollHeight;
+            let thumbHeight = Math.max(30, trackHeight * ratio);
+            const maxScrollTop = scrollHeight - clientHeight;
+            const scrollTop = activeScrollEl.scrollTop;
+
+            const maxThumbTop = trackHeight - thumbHeight;
+            const thumbTop = maxScrollTop > 0
+                ? (scrollTop / maxScrollTop) * maxThumbTop
+                : 0;
+
+            customThumb.style.height = thumbHeight + 'px';
+            customThumb.style.top = thumbTop + 'px';
+        }
+
+        tabContents.forEach(tab => {
+            tab.addEventListener('scroll', () => {
+                if (tab === tabContents[currentIndex]) updateCustomScrollbar();
+            }, { passive: true });
+        });
+
+        setTimeout(updateCustomScrollbar, 600);
+
+        window.addEventListener('resize', updateCustomScrollbar);
+
+        let thumbDrag = false;
+        let thumbStartY = 0;
+        let thumbStartScroll = 0;
+
+        customThumb.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            if (!activeScrollEl) return;
+            thumbDrag = true;
+            thumbStartY = e.clientY;
+            thumbStartScroll = activeScrollEl.scrollTop;
+            document.body.style.userSelect = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!thumbDrag || !activeScrollEl) return;
+            const trackHeight = customScrollbar.clientHeight;
+            const thumbHeight = customThumb.clientHeight;
+            const maxThumbTop = trackHeight - thumbHeight;
+
+            const deltaY = e.clientY - thumbStartY;
+            const scrollRatio = (activeScrollEl.scrollHeight - activeScrollEl.clientHeight) / maxThumbTop;
+            activeScrollEl.scrollTop = thumbStartScroll + deltaY * scrollRatio;
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (thumbDrag) {
+                thumbDrag = false;
+                document.body.style.userSelect = '';
             }
         });
     </script>
