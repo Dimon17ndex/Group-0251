@@ -645,7 +645,7 @@
             .tab-content h2 { font-size: 1.3rem; }
             .tab-content p { font-size: 1rem; }
             .btn-disciplines { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1.1rem; letter-spacing: 1px; }
-                        .schedule-link { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1rem; }
+            .schedule-link { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1rem; }
             .schedule-iframe-wrap { max-width: 100%; }
             .schedule-iframe-body { max-height: 75vh; }
             .schedule-iframe { height: 65vh; min-height: 420px; }
@@ -660,7 +660,7 @@
                 width: 100%;
                 flex: none;
                 justify-content: flex-start;
-                font-size: 0.9rem;
+                                font-size: 0.9rem;
                 padding: 10px 12px;
             }
             .schedule-toggle-label { flex: 0 1 auto; }
@@ -777,6 +777,15 @@
         }
 
         .auth-modal.active .profile-modal-content { transform: translateY(0); }
+
+        /* Когда видна плашка «Плохой интернет» — сдвигаем и модалку профиля */
+        body.net-offline .profile-modal-content {
+            transform: translateY(44px);
+            transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        body.net-offline .auth-modal.active .profile-modal-content {
+            transform: translateY(44px);
+        }
 
         /* Обёртка аватарки — держит и круг, и карандаш */
         .profile-avatar-wrap {
@@ -963,6 +972,12 @@
             .profile-sections { gap: 6px; margin-bottom: 16px; }
             .profile-section-btn { padding: 10px 6px; font-size: 0.78rem; gap: 4px; }
             .profile-section-btn svg { width: 20px; height: 20px; }
+
+            /* Мобильный сдвиг профиля при «Плохом интернете» */
+            body.net-offline .profile-modal-content,
+            body.net-offline .auth-modal.active .profile-modal-content {
+                transform: translateY(calc(40px + env(safe-area-inset-top, 0px)));
+            }
         }
 
         /* На мобильных в ЛАНДШАФТЕ — компактно */
@@ -1296,35 +1311,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
-        </div>
 
-        <div class="custom-scrollbar" id="customScrollbar">
-            <div class="custom-scrollbar-thumb" id="customScrollbarThumb"></div>
-        </div>
-    </main>
-
-    <!-- Модальное окно авторизации -->
-    <div id="authModal" class="auth-modal">
-        <div class="auth-modal-content">
-            <span class="auth-close" onclick="closeAuthModal()">&times;</span>
-            <h2 id="authTitle">Регистрация</h2>
-            <input type="text" id="authUsername" placeholder="Ваше имя (никнейм)" required>
-            <input type="password" id="authPassword" placeholder="Пароль" required>
-            <button id="authSubmitBtn" onclick="handleAuth()">Зарегистрироваться</button>
-            <div class="auth-toggle" id="authToggle" onclick="toggleAuthMode()">Уже есть аккаунт? Войти</div>
-            <div class="auth-message" id="authMessage"></div>
-        </div>
-    </div>
-
-    <!-- Модальное окно профиля (увеличенное) -->
-    <div id="profileModal" class="auth-modal">
-        <div class="profile-modal-content">
-            <!-- Шестерёнка слева вверху -->
-            <button class="profile-settings-btn" onclick="openProfileSettings()" aria-label="Настройки профиля">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"/>
                                         <path d="M4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                 </svg>
             </button>
