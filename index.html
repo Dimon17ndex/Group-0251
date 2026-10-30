@@ -1551,7 +1551,7 @@
             monitorConnection();
         });
 
-                // ==========================================
+                        // ==========================================
         // 3. ЛОГИКА ЛАЙКОВ
         // ==========================================
         async function initLikes() {
@@ -1608,7 +1608,9 @@
                         'postgres_changes',
                         { event: '*', schema: 'public', table: 'likes' },
                         (payload) => {
-                            const postId = payload.new?.post_id || payload.old?.post_id;
+                            const postId = payload.new?.post_id
+                                        || payload.old?.post_id
+                                        || (payload.old?.id ? (allLikes.find(l => l.id === payload.old.id)?.post_id) : null);
                             if (!postId) return;
 
                             if (payload.eventType === 'INSERT') {
@@ -1617,9 +1619,10 @@
                                 );
                                 if (!exists) allLikes.push(payload.new);
                             } else if (payload.eventType === 'DELETE') {
-                                const idx = allLikes.findIndex(
-                                    l => l.user_id === payload.old.user_id && l.post_id === payload.old.post_id
-                                );
+                                // При DELETE в payload.old обычно только id — ищем по нему
+                                const idx = payload.old.id
+                                    ? allLikes.findIndex(l => l.id === payload.old.id)
+                                    : allLikes.findIndex(l => l.user_id === payload.old.user_id && l.post_id === payload.old.post_id);
                                 if (idx !== -1) allLikes.splice(idx, 1);
                             }
 
