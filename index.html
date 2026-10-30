@@ -941,17 +941,30 @@
             flex-shrink: 0;
         }
 
-        /* === Мобильная адаптация профиля === */
+                /* === Мобильная адаптация профиля === */
         @media (max-width: 700px) {
             .profile-modal-content {
-                /* На мобильных в портрете — на весь экран */
                 height: 100vh;
                 height: 100dvh;
                 max-height: 100vh;
                 max-height: 100dvh;
                 padding: calc(env(safe-area-inset-top, 0px) + 16px) 18px calc(env(safe-area-inset-bottom, 0px) + 24px);
                 border-radius: 0;
+                /* плавный сдвиг при появлении «Плохого интернета» */
+                transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
             }
+
+            /* Когда плашка видна И профиль открыт — сдвигаем карточку вниз */
+            body.net-offline .auth-modal.active .profile-modal-content {
+                transform: translateY(calc(40px + env(safe-area-inset-top, 0px)));
+            }
+
+            /* Плашка при этом тоже сдвигается вниз на safe-area — чтобы не накрывать «челку» */
+            .net-banner.visible {
+                height: calc(40px + env(safe-area-inset-top, 0px));
+                padding-top: env(safe-area-inset-top, 0px);
+            }
+        }
             .profile-avatar-wrap { width: 84px; height: 84px; margin-top: 24px; margin-bottom: 18px; }
             .profile-avatar svg { width: 48px; height: 48px; }
             .profile-avatar-pencil { width: 28px; height: 28px; right: -2px; bottom: -2px; }
