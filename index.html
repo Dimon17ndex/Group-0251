@@ -650,7 +650,7 @@
             .btn-disciplines { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1.1rem; letter-spacing: 1px; }
             .schedule-link { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1rem; }
             .schedule-iframe-wrap { max-width: 100%; }
-            .schedule-iframe-body { max-height: 75vh; }
+                        .schedule-iframe-body { max-height: 75vh; }
             .schedule-iframe { height: 65vh; min-height: 420px; }
             .schedule-actions {
                 flex-direction: column;
@@ -729,6 +729,214 @@
         .auth-message.error { color: #e53935; }
         .auth-message.success { color: #43a047; }
 
+        /* === Модальное окно профиля (увеличенное) === */
+        .profile-modal-content {
+            background-color: #fff;
+            padding: 30px 30px 40px;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            text-align: center;
+            margin-bottom: 0;
+            height: 92vh;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        .auth-modal.active .profile-modal-content { transform: translateY(0); }
+
+                /* Обёртка аватарки — держит и круг, и карандаш */
+        .profile-avatar-wrap {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            margin: 40px auto 22px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Сам круг аватарки */
+        .profile-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #0066ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: filter 0.25s ease;
+        }
+        .profile-avatar svg { width: 56px; height: 56px; display: block; }
+
+        /* Затемнение аватарки при наведении (только ПК) */
+        .profile-avatar::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+
+        /* Карандашик — правый нижний угол аватарки */
+        .profile-avatar-pencil {
+            position: absolute;
+            right: -2px;
+            bottom: -2px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #0066ff;
+            color: #0066ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: scale(0.6) translateY(4px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .profile-avatar-pencil svg { width: 16px; height: 16px; display: block; }
+
+        /* Появление только на устройствах с hover (ПК) */
+        @media (hover: hover) and (pointer: fine) {
+            .profile-avatar-wrap:hover .profile-avatar::after {
+                opacity: 1;
+            }
+            .profile-avatar-wrap:hover .profile-avatar-pencil {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .profile-username {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0066ff;
+            margin-bottom: 30px;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+
+        .profile-logout-btn {
+            background: #f5f5f5;
+            color: #e53935;
+            border: 1px solid #e53935;
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: auto;
+            flex-shrink: 0;
+            transition: background 0.2s ease;
+        }
+        .profile-logout-btn:hover { background: #ffecec; }
+
+                /* Мобильная адаптация профиля */
+        @media (max-width: 700px) {
+            .profile-modal-content {
+                height: 94vh;
+                max-height: 94vh;
+                padding: 20px 20px 30px;
+            }
+                        .profile-avatar-wrap { width: 84px; height: 84px; margin-top: 30px; }
+            .profile-avatar svg { width: 48px; height: 48px; }
+            .profile-avatar-pencil { width: 28px; height: 28px; right: -2px; bottom: -2px; }
+            .profile-avatar-pencil svg { width: 14px; height: 14px; }
+            .profile-username { font-size: 1.6rem; }
+        }
+
+        /* Шестерёнка слева вверху (базовые стили — для всех экранов) */
+        .profile-settings-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #f5f5f5;
+            border: none;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, transform 0.3s ease;
+            padding: 0;
+            z-index: 2;
+        }
+        .profile-settings-btn:hover {
+            background: #e9efff;
+            color: #0066ff;
+        }
+        .profile-settings-btn:active { transform: rotate(60deg); }
+        .profile-settings-btn svg { width: 20px; height: 20px; display: block; }
+
+        /* Разделы профиля (Лайки / Посты / Задания) */
+        .profile-sections {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+        .profile-section-btn {
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 8px;
+            background: #f5f7ff;
+            color: #0066ff;
+            border: 1px solid #e3e8ff;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease;
+            line-height: 1.1;
+        }
+        .profile-section-btn:hover { background: #e9efff; }
+        .profile-section-btn:active { transform: scale(0.97); }
+        .profile-section-btn svg { width: 22px; height: 22px; display: block; }
+
+        /* Разделительная черта */
+        .profile-divider {
+            width: 100%;
+            height: 1px;
+            background: #e5e5e5;
+            margin: 4px 0 0;
+            flex-shrink: 0;
+        }
+
+        /* Мобильная адаптация новых элементов */
+        @media (max-width: 700px) {
+            .profile-settings-btn { width: 32px; height: 32px; top: 12px; left: 12px; }
+            .profile-settings-btn svg { width: 18px; height: 18px; }
+            .profile-sections { gap: 6px; margin-bottom: 16px; }
+            .profile-section-btn { padding: 10px 6px; font-size: 0.78rem; gap: 4px; }
+            .profile-section-btn svg { width: 20px; height: 20px; }
+        }
+
         /* === Плашка для MAX === */
         .max-sheet {
             display: flex; visibility: hidden; position: fixed; z-index: 10000;
@@ -761,7 +969,6 @@
         
         .max-sheet-handle:active { cursor: grabbing; }
 
-        /* Контент внутри плашки */
         .max-sheet-title {
             font-size: 1.6rem;
             font-weight: 700;
@@ -791,7 +998,6 @@
             flex-shrink: 0;
         }
 
-        /* Иконка MAX — базовая (скрыта до старта анимации) */
         .max-sheet-icon > svg {
             width: 100%;
             height: 100%;
@@ -800,7 +1006,6 @@
             transform: scale(0);
         }
 
-        /* Логотип-планета */
         .max-sheet-logo {
             position: absolute;
             top: -10px;
@@ -815,7 +1020,6 @@
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
             border: 4px solid #ffffff;
             box-sizing: content-box;
-            /* начальное состояние — невидим, маленький, в центре */
             opacity: 0;
             transform: scale(0);
             transform-origin: center center;
@@ -848,36 +1052,29 @@
             background: #0052cc;
         }
 
-        /* ============================================================
-           АНИМАЦИЯ ПОЯВЛЕНИЯ ИКОНКИ MAX И ЛОГОТИПА
-           ============================================================ */
-
-        /* 1. Иконка MAX: появление в градиенте → пауза 0.3с → уменьшение и перекраска */
         @keyframes maxIconAppear {
             0% {
                 opacity: 0;
                 transform: scale(0) translate(0, 0);
-                fill: #9B59D6; /* фиолетовый старт */
+                fill: #9B59D6;
             }
             30% {
                 opacity: 1;
-                transform: scale(1.35) translate(0, 0); /* пик прыжка — большой */
-                fill: #1E5BFF; /* насыщенный синий */
+                transform: scale(1.35) translate(0, 0);
+                fill: #1E5BFF;
             }
             55% {
-                /* пауза ~0.3с — MAX стоит большим в синем */
                 opacity: 1;
                 transform: scale(1.35) translate(0, 0);
                 fill: #1E5BFF;
             }
             100% {
                 opacity: 1;
-                transform: scale(1) translate(-10px, 10px); /* уменьшилась и сдвинулась ниже-левее */
-                fill: #aaa; /* серый */
+                transform: scale(1) translate(-10px, 10px);
+                fill: #aaa;
             }
         }
 
-        /* 2. Логотип-планета выпрыгивает из центра */
         @keyframes logoAppear {
             0% {
                 opacity: 0;
@@ -893,7 +1090,6 @@
             }
         }
 
-        /* Запускаем анимации при открытии плашки */
         .max-sheet.active .max-sheet-icon > svg {
             animation: maxIconAppear 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
         }
@@ -1084,15 +1280,69 @@
         </div>
     </div>
 
-    <!-- Модальное окно профиля -->
-    <div id="profileModal" class="auth-modal">
-        <div class="auth-modal-content" style="padding: 40px 30px;">
-            <span class="auth-close" onclick="closeProfileModal()">&times;</span>
-            <h2 style="margin-bottom: 10px; font-size: 1.2rem; color: #888; font-weight: 500;">Вы вошли как:</h2>
-            <div id="profileUsername" style="font-size: 2rem; font-weight: 700; color: #0066ff; margin-bottom: 30px; word-break: break-word;">Имя</div>
-            <button onclick="handleLogout()" style="background: #f5f5f5; color: #e53935; border: 1px solid #e53935; width: 100%; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">Выйти из аккаунта</button>
+    <!-- Модальное окно профиля (увеличенное) -->
+<div id="profileModal" class="auth-modal">
+    <div class="profile-modal-content">
+        <!-- Шестерёнка слева вверху -->
+        <button class="profile-settings-btn" onclick="openProfileSettings()" aria-label="Настройки профиля">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+        </button>
+
+        <!-- Крестик закрытия справа -->
+        <span class="auth-close" onclick="closeProfileModal()">&times;</span>
+
+                <div class="profile-avatar-wrap" onclick="openProfileSettings()" role="button" tabindex="0" aria-label="Изменить аватарку">
+            <div class="profile-avatar">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>
+                </svg>
+            </div>
+            <div class="profile-avatar-pencil" aria-hidden="true">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                </svg>
+            </div>
         </div>
+
+        <div id="profileUsername" class="profile-username">Имя</div>
+
+        <!-- Разделы -->
+        <div class="profile-sections">
+            <button class="profile-section-btn" onclick="openProfileSection('likes')">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/>
+                </svg>
+                Лайки
+            </button>
+            <button class="profile-section-btn" onclick="openProfileSection('posts')">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="16" rx="2"/>
+                    <line x1="7" y1="9" x2="17" y2="9"/>
+                    <line x1="7" y1="13" x2="17" y2="13"/>
+                    <line x1="7" y1="17" x2="13" y2="17"/>
+                </svg>
+                Посты
+            </button>
+            <button class="profile-section-btn" onclick="openProfileSection('tasks')">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 11l3 3L22 4"/>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+                Задания
+            </button>
+        </div>
+
+        <!-- Разделительная черта -->
+        <div class="profile-divider"></div>
+
+        <button class="profile-logout-btn" onclick="handleLogout()">Выйти из аккаунта</button>
     </div>
+</div>
 
     <!-- Плашка «О сервисе расписания» -->
     <div id="scheduleInfoSheet" class="schedule-info-sheet" onclick="handleScheduleInfoBackdropClick(event)">
@@ -1111,15 +1361,12 @@
         <div class="max-sheet-content" id="maxSheetContent" onclick="event.stopPropagation()">
             <div class="max-sheet-handle" id="maxSheetHandle"></div>
             
-            <!-- Контент плашки -->
             <div class="max-sheet-title">MAX-КАНАЛ</div>
 
             <div class="max-sheet-icon">
-                <!-- Иконка MAX (серая, анимируется при открытии) -->
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.06L2 22l4.94-1.38C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.54 0-3-.4-4.28-1.1l-.32-.18-3.1.86.86-3.1-.18-.32C4.4 15 4 13.54 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
                 </svg>
-                <!-- Наш логотип-планета поверх, чуть выше и правее -->
                 <div class="max-sheet-logo">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="9"/>
@@ -1209,7 +1456,6 @@
             document.body.classList.remove('net-offline');
         }
 
-        // Проверка доступности Supabase (ping через реальный запрос к БД)
         async function checkSupabaseConnection() {
             if (!supabaseClient) return false;
             try {
@@ -1244,7 +1490,7 @@
         }
 
         setTimeout(monitorConnection, 1500);
-        netOnlineTimer = setInterval(monitorConnection, 10000);
+                netOnlineTimer = setInterval(monitorConnection, 10000);
 
         window.addEventListener('offline', () => {
             showNetBanner();
@@ -1321,6 +1567,16 @@
         }
         function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
         function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
+        function openProfileSettings() {
+    // Заглушка: здесь будет переход в настройки профиля
+    alert('Настройки профиля (в разработке)');
+}
+
+function openProfileSection(section) {
+    // Заглушка: здесь будет переход к разделам Лайки / Посты / Задания
+    const names = { likes: 'Лайки', posts: 'Посты', tasks: 'Задания' };
+    alert('Раздел: ' + (names[section] || section) + ' (в разработке)');
+}
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
             document.getElementById('authTitle').textContent = isLoginMode ? 'Вход' : 'Регистрация';
@@ -1624,7 +1880,6 @@
         const scheduleWrap = document.querySelector('.schedule-iframe-wrap');
         if (scheduleToggleBtn && scheduleWrap) {
             scheduleToggleBtn.addEventListener('click', (e) => {
-                // Игнорируем клик, если он пришёлся по вложенной кнопке «i»
                 if (e.target.closest('.schedule-toggle-info-btn')) return;
                 const collapsed = scheduleWrap.classList.toggle('collapsed');
                 scheduleToggleBtn.setAttribute('aria-expanded', String(!collapsed));
@@ -1760,7 +2015,6 @@
             }
         }
 
-        // Свайп вниз для закрытия плашки «О сервисе»
         let startYInfo = 0;
         let currentYInfo = 0;
         let isDraggingInfo = false;
@@ -1821,10 +2075,8 @@
         let longPressTimer = null;
         let longPressTriggered = false;
 
-        // Возвращает массив никнеймов, поставивших лайк на пост
         async function getLikersForPost(postId) {
             if (!supabaseClient) return [];
-            // берём лайки для поста
             const { data: likes, error } = await supabaseClient
                 .from('likes')
                 .select('user_id')
@@ -1833,20 +2085,17 @@
             if (!likes || likes.length === 0) return [];
 
             const userIds = [...new Set(likes.map(l => l.user_id))];
-            // берём профили по id
             const { data: profiles, error: pErr } = await supabaseClient
                 .from('profiles')
                 .select('id, username')
                 .in('id', userIds);
             if (pErr) {
                 console.error('Ошибка загрузки профилей:', pErr);
-                // если профилей нет — вернём user_id как fallback
                 return userIds.map(id => ({ id, username: 'Пользователь', isMe: false }));
             }
             const map = {};
             (profiles || []).forEach(p => { map[p.id] = p.username; });
 
-            // Определяем текущего пользователя (на случай, если currentUserId ещё не установлен)
             let myId = currentUserId;
             if (!myId) {
                 const { data: { session } } = await supabaseClient.auth.getSession();
@@ -1898,18 +2147,15 @@
         function positionLikesPopover(btn) {
             if (!btn || !likesPopover) return;
             const rect = btn.getBoundingClientRect();
-            // сбрасываем видимость, чтобы измерить реальный размер
             likesPopover.style.visibility = 'hidden';
             likesPopover.classList.add('visible');
             const popRect = likesPopover.getBoundingClientRect();
             const gap = 8;
             let top = rect.bottom + gap;
             let left = rect.left;
-            // если не влезает снизу — показываем сверху
             if (top + popRect.height > window.innerHeight - 8) {
                 top = rect.top - popRect.height - gap;
             }
-            // если не влезает справа — прижимаем к правому краю
             if (left + popRect.width > window.innerWidth - 8) {
                 left = window.innerWidth - popRect.width - 8;
             }
@@ -1923,13 +2169,11 @@
         async function showLikesPopover(btn) {
             const postId = btn.getAttribute('data-post-id');
             if (!postId) return;
-            // заглушка, пока грузится
             if (likesPopover) {
                 likesPopover.innerHTML = '<div class="likes-popover-empty">Загрузка…</div>';
                 positionLikesPopover(btn);
             }
             const likers = await getLikersForPost(postId);
-            // проверяем, что всё ещё наводим на ту же кнопку
             if (currentHoverBtn !== btn) return;
             renderLikesPopover(likers);
             positionLikesPopover(btn);
@@ -1945,9 +2189,7 @@
             if (likesHideTimer) { clearTimeout(likesHideTimer); likesHideTimer = null; }
         }
 
-        // Навешиваем обработчики на все сердечки
         document.querySelectorAll('.heart-btn').forEach(btn => {
-            // === ПК: наведение (через 0.2с) ===
             btn.addEventListener('mouseenter', () => {
                 if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
                     clearLikesTimers();
@@ -1960,7 +2202,6 @@
                     clearLikesTimers();
                     if (currentHoverBtn === btn) {
                         currentHoverBtn = null;
-                        // закрываем с задержкой — даём курсору дойти до карточки
                         likesHideTimer = setTimeout(() => {
                             if (!likesPopover || !likesPopover.matches(':hover')) {
                                 hideLikesPopover();
@@ -1970,7 +2211,6 @@
                 }
             });
 
-            // === ПК: правая кнопка мыши ===
             btn.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 clearLikesTimers();
@@ -1978,7 +2218,6 @@
                 showLikesPopover(btn);
             });
 
-            // === Мобильные: долгое зажатие ===
             btn.addEventListener('touchstart', (e) => {
                 clearLikesTimers();
                 longPressTriggered = false;
@@ -2005,7 +2244,6 @@
             });
         });
 
-        // === Карточка: не закрываем, пока курсор на ней ===
         if (likesPopover) {
             likesPopover.addEventListener('mouseenter', () => {
                 clearLikesTimers();
@@ -2016,7 +2254,6 @@
             });
         }
 
-        // Клик по сердечку после долгого зажатия — игнорируем лайк
         document.querySelectorAll('.heart-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 if (longPressTriggered) {
@@ -2027,7 +2264,6 @@
             }, true);
         });
 
-        // Скрываем карточку по клику вне её
         document.addEventListener('click', (e) => {
             if (!likesPopover) return;
             if (!likesPopover.contains(e.target) && !e.target.closest('.heart-btn')) {
@@ -2035,7 +2271,6 @@
             }
         });
 
-        // И по скроллу
         document.querySelectorAll('.tab-content').forEach(tc => {
             tc.addEventListener('scroll', () => { hideLikesPopover(); }, { passive: true });
         });
