@@ -1551,7 +1551,7 @@
             monitorConnection();
         });
 
-        // ==========================================
+                // ==========================================
         // 3. ЛОГИКА ЛАЙКОВ
         // ==========================================
         async function initLikes() {
@@ -1599,6 +1599,49 @@
                     }
                 });
             });
+
+            // === Realtime: одна подписка на изменения лайков ===
+            if (supabaseClient) {
+                supabaseClient
+                    .channel('likes-realtime')
+                    .on(
+                        'postgres_changes',
+                        { event: '*', schema: 'public', table: 'likes' },
+                        (payload) => {
+                            const postId = payload.new?.post_id || payload.old?.post_id;
+                            if (!postId) return;
+
+                            if (payload.eventType === 'INSERT') {
+                                const exists = allLikes.some(
+                                    l => l.user_id === payload.new.user_id && l.post_id === payload.new.post_id
+                                );
+                                if (!exists) allLikes.push(payload.new);
+                            } else if (payload.eventType === 'DELETE') {
+                                const idx = allLikes.findIndex(
+                                    l => l.user_id === payload.old.user_id && l.post_id === payload.old.post_id
+                                );
+                                if (idx !== -1) allLikes.splice(idx, 1);
+                            }
+
+                            const countSpan = document.getElementById('count-' + postId);
+                            const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+
+                            const count = allLikes.filter(l => l.post_id === postId).length;
+                            if (countSpan) {
+                                countSpan.textContent = count;
+                                countSpan.style.display = count > 0 ? 'inline-block' : 'none';
+                            }
+
+                            if (heartBtn && currentUserId) {
+                                const isLiked = allLikes.some(
+                                    l => l.post_id === postId && l.user_id === currentUserId
+                                );
+                                heartBtn.classList.toggle('liked', isLiked);
+                            }
+                        }
+                    )
+                    .subscribe();
+            }
         }
 
         // ==========================================
