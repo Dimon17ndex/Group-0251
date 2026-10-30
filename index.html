@@ -349,12 +349,10 @@
             color: #fff;
         }
 
-        /* При свёрнутом расписании на ПК — «i» плавно уезжает вправо за фрейм */
         .schedule-iframe-wrap.collapsed .schedule-info-btn {
             transform: translateX(calc(100% + 24px));
         }
 
-        /* На мобильных — «i» внутри кнопки «Свернуть/Развернуть» */
         .schedule-toggle-info-btn {
             display: none;
             width: 26px;
@@ -500,7 +498,7 @@
             flex-shrink: 0;
         }
 
-        /* Сдвиг страницы вниз, когда плашка видна (кнопка MAX не сдвигается) */
+        /* Десктоп: сдвиг через transform (как было) */
         body.net-offline header,
         body.net-offline .tabs,
         body.net-offline main {
@@ -512,7 +510,6 @@
             transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
         }
 
-        /* «Челка» — красная полоска сверху, пока плашка видна */
         body.net-offline::before {
             content: "";
             position: fixed;
@@ -648,9 +645,9 @@
             .tab-content h2 { font-size: 1.3rem; }
             .tab-content p { font-size: 1rem; }
             .btn-disciplines { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1.1rem; letter-spacing: 1px; }
-            .schedule-link { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1rem; }
+                        .schedule-link { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1rem; }
             .schedule-iframe-wrap { max-width: 100%; }
-                        .schedule-iframe-body { max-height: 75vh; }
+            .schedule-iframe-body { max-height: 75vh; }
             .schedule-iframe { height: 65vh; min-height: 420px; }
             .schedule-actions {
                 flex-direction: column;
@@ -672,18 +669,10 @@
                 width: 100%;
                 flex: none;
             }
-            /* На мобильных «i» — внутри кнопки «Свернуть/Развернуть», справа */
             .schedule-info-btn { display: none; }
             .schedule-toggle-info-btn { display: inline-flex; }
             .schedule-error-text { font-size: 0.9rem; }
             .schedule-refresh-btn { padding: 10px 22px; font-size: 0.95rem; }
-            .net-banner { font-size: 0.85rem; }
-            .net-banner.visible { height: 40px; }
-            body.net-offline header,
-            body.net-offline .tabs,
-            body.net-offline main {
-                transform: translateY(40px);
-            }
             .likes-popover {
                 min-width: 140px;
                 max-width: 220px;
@@ -693,6 +682,45 @@
             .likes-popover-name { max-width: 140px; }
             .schedule-info-title { font-size: 1.2rem; }
             .schedule-info-text { font-size: 0.9rem; }
+
+            /* === Плашка «Плохой интернет» на мобильных === */
+            .net-banner {
+                font-size: 0.85rem;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 0;
+                padding: 0 16px;
+            }
+            .net-banner.visible {
+                height: calc(40px + env(safe-area-inset-top, 0px));
+                padding-top: env(safe-area-inset-top, 0px);
+            }
+
+            /* Сдвиг страницы вниз через padding-top у body (не перекрываем) */
+            body {
+                transition: padding-top 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+            }
+            body.net-offline {
+                padding-top: calc(40px + env(safe-area-inset-top, 0px));
+            }
+            body.net-offline header,
+            body.net-offline .tabs,
+            body.net-offline main {
+                transform: none;
+            }
+            body.net-offline::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: env(safe-area-inset-top, 0px);
+                background: #e53935;
+                z-index: 10002;
+                transition: opacity 0.35s ease;
+            }
         }
 
         /* === Модальные окна === */
@@ -703,7 +731,7 @@
             align-items: flex-end; justify-content: center;
             transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, visibility 0.3s ease;
         }
-        
+
         .auth-modal.active {
             visibility: visible; background-color: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
@@ -750,7 +778,7 @@
 
         .auth-modal.active .profile-modal-content { transform: translateY(0); }
 
-                /* Обёртка аватарки — держит и круг, и карандаш */
+        /* Обёртка аватарки — держит и круг, и карандаш */
         .profile-avatar-wrap {
             position: relative;
             width: 96px;
@@ -811,7 +839,6 @@
         }
         .profile-avatar-pencil svg { width: 16px; height: 16px; display: block; }
 
-        /* Появление только на устройствах с hover (ПК) */
         @media (hover: hover) and (pointer: fine) {
             .profile-avatar-wrap:hover .profile-avatar::after {
                 opacity: 1;
@@ -848,21 +875,7 @@
         }
         .profile-logout-btn:hover { background: #ffecec; }
 
-                       /* Мобильная адаптация профиля */
-        @media (max-width: 700px) {
-            .profile-modal-content {
-                height: 88vh;
-                max-height: 88vh;
-                padding: 16px 18px 24px;
-            }
-            .profile-avatar-wrap { width: 84px; height: 84px; margin-top: 24px; margin-bottom: 18px; }
-            .profile-avatar svg { width: 48px; height: 48px; }
-            .profile-avatar-pencil { width: 28px; height: 28px; right: -2px; bottom: -2px; }
-            .profile-avatar-pencil svg { width: 14px; height: 14px; }
-            .profile-username { font-size: 1.6rem; margin-bottom: 22px; }
-        }
-
-        /* Шестерёнка слева вверху (базовые стили — для всех экранов) */
+        /* Шестерёнка слева вверху */
         .profile-settings-btn {
             position: absolute;
             top: 15px;
@@ -928,13 +941,38 @@
             flex-shrink: 0;
         }
 
-        /* Мобильная адаптация новых элементов */
+        /* === Мобильная адаптация профиля === */
         @media (max-width: 700px) {
+            .profile-modal-content {
+                /* На мобильных в портрете — на весь экран */
+                height: 100vh;
+                height: 100dvh;
+                max-height: 100vh;
+                max-height: 100dvh;
+                padding: calc(env(safe-area-inset-top, 0px) + 16px) 18px calc(env(safe-area-inset-bottom, 0px) + 24px);
+                border-radius: 0;
+            }
+            .profile-avatar-wrap { width: 84px; height: 84px; margin-top: 24px; margin-bottom: 18px; }
+            .profile-avatar svg { width: 48px; height: 48px; }
+            .profile-avatar-pencil { width: 28px; height: 28px; right: -2px; bottom: -2px; }
+            .profile-avatar-pencil svg { width: 14px; height: 14px; }
+            .profile-username { font-size: 1.6rem; margin-bottom: 22px; }
+
             .profile-settings-btn { width: 32px; height: 32px; top: 12px; left: 12px; }
             .profile-settings-btn svg { width: 18px; height: 18px; }
             .profile-sections { gap: 6px; margin-bottom: 16px; }
             .profile-section-btn { padding: 10px 6px; font-size: 0.78rem; gap: 4px; }
             .profile-section-btn svg { width: 20px; height: 20px; }
+        }
+
+        /* На мобильных в ЛАНДШАФТЕ — компактно */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .profile-modal-content {
+                height: 92vh;
+                max-height: 92vh;
+                padding: 16px 24px 24px;
+                border-radius: 16px 16px 0 0;
+            }
         }
 
         /* === Плашка для MAX === */
@@ -966,7 +1004,7 @@
             width: 40px; height: 4px; background: #ddd; border-radius: 2px;
             margin: 0 auto 20px auto; cursor: grab; flex-shrink: 0;
         }
-        
+
         .max-sheet-handle:active { cursor: grabbing; }
 
         .max-sheet-title {
@@ -1281,68 +1319,69 @@
     </div>
 
     <!-- Модальное окно профиля (увеличенное) -->
-<div id="profileModal" class="auth-modal">
-    <div class="profile-modal-content">
-        <!-- Шестерёнка слева вверху -->
-        <button class="profile-settings-btn" onclick="openProfileSettings()" aria-label="Настройки профиля">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-            </svg>
-        </button>
-
-        <!-- Крестик закрытия справа -->
-        <span class="auth-close" onclick="closeProfileModal()">&times;</span>
-
-                <div class="profile-avatar-wrap" onclick="openProfileSettings()" role="button" tabindex="0" aria-label="Изменить аватарку">
-            <div class="profile-avatar">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="8" r="4"/>
-                    <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>
+    <div id="profileModal" class="auth-modal">
+        <div class="profile-modal-content">
+            <!-- Шестерёнка слева вверху -->
+            <button class="profile-settings-btn" onclick="openProfileSettings()" aria-label="Настройки профиля">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                                        <path d="M4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                 </svg>
+            </button>
+
+            <!-- Крестик закрытия справа -->
+            <span class="auth-close" onclick="closeProfileModal()">&times;</span>
+
+            <!-- Аватарка с карандашом -->
+            <div class="profile-avatar-wrap" onclick="openProfileSettings()" role="button" tabindex="0" aria-label="Изменить аватарку">
+                <div class="profile-avatar">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>
+                    </svg>
+                </div>
+                <div class="profile-avatar-pencil" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                    </svg>
+                </div>
             </div>
-            <div class="profile-avatar-pencil" aria-hidden="true">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 20h9"/>
-                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
-                </svg>
+
+            <div id="profileUsername" class="profile-username">Имя</div>
+
+            <!-- Разделы -->
+            <div class="profile-sections">
+                <button class="profile-section-btn" onclick="openProfileSection('likes')">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/>
+                    </svg>
+                    Лайки
+                </button>
+                <button class="profile-section-btn" onclick="openProfileSection('posts')">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="16" rx="2"/>
+                        <line x1="7" y1="9" x2="17" y2="9"/>
+                        <line x1="7" y1="13" x2="17" y2="13"/>
+                        <line x1="7" y1="17" x2="13" y2="17"/>
+                    </svg>
+                    Посты
+                </button>
+                <button class="profile-section-btn" onclick="openProfileSection('tasks')">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11l3 3L22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                    Задания
+                </button>
             </div>
+
+            <!-- Разделительная черта -->
+            <div class="profile-divider"></div>
+
+            <button class="profile-logout-btn" onclick="handleLogout()">Выйти из аккаунта</button>
         </div>
-
-        <div id="profileUsername" class="profile-username">Имя</div>
-
-        <!-- Разделы -->
-        <div class="profile-sections">
-            <button class="profile-section-btn" onclick="openProfileSection('likes')">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/>
-                </svg>
-                Лайки
-            </button>
-            <button class="profile-section-btn" onclick="openProfileSection('posts')">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="16" rx="2"/>
-                    <line x1="7" y1="9" x2="17" y2="9"/>
-                    <line x1="7" y1="13" x2="17" y2="13"/>
-                    <line x1="7" y1="17" x2="13" y2="17"/>
-                </svg>
-                Посты
-            </button>
-            <button class="profile-section-btn" onclick="openProfileSection('tasks')">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 11l3 3L22 4"/>
-                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                </svg>
-                Задания
-            </button>
-        </div>
-
-        <!-- Разделительная черта -->
-        <div class="profile-divider"></div>
-
-        <button class="profile-logout-btn" onclick="handleLogout()">Выйти из аккаунта</button>
     </div>
-</div>
 
     <!-- Плашка «О сервисе расписания» -->
     <div id="scheduleInfoSheet" class="schedule-info-sheet" onclick="handleScheduleInfoBackdropClick(event)">
@@ -1490,7 +1529,7 @@
         }
 
         setTimeout(monitorConnection, 1500);
-                netOnlineTimer = setInterval(monitorConnection, 10000);
+        netOnlineTimer = setInterval(monitorConnection, 10000);
 
         window.addEventListener('offline', () => {
             showNetBanner();
@@ -1568,15 +1607,12 @@
         function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
         function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
         function openProfileSettings() {
-    // Заглушка: здесь будет переход в настройки профиля
-    alert('Настройки профиля (в разработке)');
-}
-
-function openProfileSection(section) {
-    // Заглушка: здесь будет переход к разделам Лайки / Посты / Задания
-    const names = { likes: 'Лайки', posts: 'Посты', tasks: 'Задания' };
-    alert('Раздел: ' + (names[section] || section) + ' (в разработке)');
-}
+            alert('Настройки профиля (в разработке)');
+        }
+        function openProfileSection(section) {
+            const names = { likes: 'Лайки', posts: 'Посты', tasks: 'Задания' };
+            alert('Раздел: ' + (names[section] || section) + ' (в разработке)');
+        }
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
             document.getElementById('authTitle').textContent = isLoginMode ? 'Вход' : 'Регистрация';
@@ -1668,7 +1704,6 @@ function openProfileSection(section) {
             if (!isDraggingSheet) return;
             currentYSheet = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
             const deltaY = currentYSheet - startYSheet;
-            
             if (deltaY > 0) {
                 maxSheetContent.style.transform = `translateY(${deltaY}px)`;
                 maxSheet.style.backgroundColor = `rgba(0, 0, 0, ${0.4 - (deltaY / 300) * 0.4})`;
@@ -1681,7 +1716,6 @@ function openProfileSection(section) {
             if (!isDraggingSheet) return;
             isDraggingSheet = false;
             maxSheetContent.style.transition = 'transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)';
-            
             const deltaY = currentYSheet - startYSheet;
             if (deltaY > 100) {
                 closeMaxSheet();
@@ -1924,7 +1958,6 @@ function openProfileSection(section) {
             if (!scheduleIframe) return;
             showScheduleLoader();
             scheduleIframe.src = scheduleIframe.src;
-
             clearTimeout(scheduleLoadTimeout);
             scheduleLoadTimeout = setTimeout(() => {
                 showScheduleError();
@@ -1963,7 +1996,7 @@ function openProfileSection(section) {
             scheduleRefreshBtn.addEventListener('click', reloadSchedule);
         }
 
-        // ==========================================
+                // ==========================================
         // 8.1 ПЛАШКА «О СЕРВИСЕ РАСПИСАНИЯ»
         // ==========================================
         const scheduleInfoSheet = document.getElementById('scheduleInfoSheet');
