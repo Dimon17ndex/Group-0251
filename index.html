@@ -498,7 +498,7 @@
             flex-shrink: 0;
         }
 
-        /* Десктоп: сдвиг через transform (как было) */
+        /* Десктоп: сдвиг через transform */
         body.net-offline header,
         body.net-offline .tabs,
         body.net-offline main {
@@ -757,7 +757,7 @@
         .auth-message.error { color: #e53935; }
         .auth-message.success { color: #43a047; }
 
-        /* === Модальное окно профиля (увеличенное) === */
+        /* === Модальное окно профиля === */
         .profile-modal-content {
             background-color: #fff;
             padding: 30px 30px 40px;
@@ -778,7 +778,6 @@
 
         .auth-modal.active .profile-modal-content { transform: translateY(0); }
 
-        /* Обёртка аватарки — держит и круг, и карандаш */
         .profile-avatar-wrap {
             position: relative;
             width: 96px;
@@ -789,7 +788,6 @@
             cursor: pointer;
         }
 
-        /* Сам круг аватарки */
         .profile-avatar {
             width: 100%;
             height: 100%;
@@ -804,7 +802,6 @@
         }
         .profile-avatar svg { width: 56px; height: 56px; display: block; }
 
-        /* Затемнение аватарки при наведении (только ПК) */
         .profile-avatar::after {
             content: "";
             position: absolute;
@@ -816,7 +813,6 @@
             pointer-events: none;
         }
 
-        /* Карандашик — правый нижний угол аватарки */
         .profile-avatar-pencil {
             position: absolute;
             right: -2px;
@@ -840,13 +836,8 @@
         .profile-avatar-pencil svg { width: 16px; height: 16px; display: block; }
 
         @media (hover: hover) and (pointer: fine) {
-            .profile-avatar-wrap:hover .profile-avatar::after {
-                opacity: 1;
-            }
-            .profile-avatar-wrap:hover .profile-avatar-pencil {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
+            .profile-avatar-wrap:hover .profile-avatar::after { opacity: 1; }
+            .profile-avatar-wrap:hover .profile-avatar-pencil { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         .profile-username {
@@ -869,13 +860,12 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: auto;
+            margin-top: 16px;
             flex-shrink: 0;
             transition: background 0.2s ease;
         }
         .profile-logout-btn:hover { background: #ffecec; }
 
-        /* Шестерёнка слева вверху */
         .profile-settings-btn {
             position: absolute;
             top: 15px;
@@ -894,14 +884,10 @@
             padding: 0;
             z-index: 2;
         }
-        .profile-settings-btn:hover {
-            background: #e9efff;
-            color: #0066ff;
-        }
+        .profile-settings-btn:hover { background: #e9efff; color: #0066ff; }
         .profile-settings-btn:active { transform: rotate(60deg); }
         .profile-settings-btn svg { width: 20px; height: 20px; display: block; }
 
-        /* Разделы профиля (Лайки / Посты / Задания) */
         .profile-sections {
             display: flex;
             gap: 8px;
@@ -932,16 +918,219 @@
         .profile-section-btn:active { transform: scale(0.97); }
         .profile-section-btn svg { width: 22px; height: 22px; display: block; }
 
-        /* Разделительная черта */
         .profile-divider {
             width: 100%;
             height: 1px;
             background: #e5e5e5;
-            margin: 4px 0 0;
+            margin: 8px 0 16px;
             flex-shrink: 0;
         }
 
-                /* === Мобильная адаптация профиля === */
+                                .profile-section-panels.has-likes-border {
+            border-top: none;
+            padding-top: 14px;   /* квадраты на месте */
+            position: relative;
+        }
+
+        /* Линия рисуется отдельно и её можно опускать */
+        .profile-section-panels.has-likes-border::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 18px;           /* ← опускаем линию (подбирайте: 14–30px) */
+            height: 2px;
+            background: #0066ff;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Сама синяя линия — псевдоэлемент, который можно двигать отдельно */
+        .profile-section-panels.has-likes-border::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;                      /* при необходимости: 6px, 8px — опустить ниже */
+            height: 2px;
+            background: #0066ff;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+                .likes-count-label {
+            position: absolute;
+            right: 6px;
+            top: 6px;            /* ← подпись над линией */
+            background: transparent;
+            padding: 0 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #0066ff;
+            line-height: 1;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .profile-section-panels {
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 60px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            position: relative;
+            padding: 0 6px;
+        }
+        .profile-section-panels::-webkit-scrollbar { width: 0; height: 0; }
+
+        .likes-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 32px 0;
+        }
+        .likes-loader.hidden { display: none; }
+
+        .likes-loader-spinner {
+            width: 36px;
+            height: 36px;
+            border: 4px solid #e3e8ff;
+            border-top-color: #0066ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: block;
+        }
+
+        .likes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            width: 100%;
+            padding: 4px 0;
+            overflow: visible;
+        }
+
+        .likes-grid-item {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #f5f5f5;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .likes-grid-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .likes-grid-thumb {
+            width: 100%;
+            height: 100%;
+            background: #e53935;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: #ffffff;
+            padding: 4px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .likes-grid-thumb svg {
+            width: 32%;
+            height: 32%;
+            max-width: 36px;
+            max-height: 36px;
+            display: block;
+            flex-shrink: 0;
+        }
+        .likes-grid-thumb .thumb-text {
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            line-height: 1.1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        /* Кнопка «убрать лайк» внутри квадрата */
+        .likes-grid-unlike {
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.85);
+            color: rgba(0, 0, 0, 0.7);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8);
+            transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+            z-index: 3;
+            padding: 0;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+        .likes-grid-unlike svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .likes-grid-item:hover .likes-grid-unlike {
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: auto;
+            }
+        }
+
+        @media (hover: none) {
+            .likes-grid-unlike { display: none; }
+        }
+
+        .profile-panel-empty {
+            color: #888;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            padding: 24px 8px;
+            text-align: center;
+        }
+        .profile-panel-empty.hidden { display: none; }
+
+        .profile-panel {
+            display: none;
+            width: 100%;
+            text-align: center;
+            padding: 24px 0;
+            color: #888;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .profile-panel.active { display: block; }
+        .profile-panel > .profile-panel-empty { padding: 0 8px; }
+
+        .profile-section-btn.active {
+            background: #0066ff;
+            color: #fff;
+            border-color: #0066ff;
+        }
+        .profile-section-btn.active svg { stroke: #fff; }
+
         @media (max-width: 700px) {
             .profile-modal-content {
                 height: 100vh;
@@ -950,35 +1139,31 @@
                 max-height: 100dvh;
                 padding: calc(env(safe-area-inset-top, 0px) + 16px) 18px calc(env(safe-area-inset-bottom, 0px) + 24px);
                 border-radius: 0;
-                /* плавный сдвиг при появлении «Плохого интернета» */
                 transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
             }
 
-            /* Когда плашка видна И профиль открыт — сдвигаем карточку вниз */
             body.net-offline .auth-modal.active .profile-modal-content {
                 transform: translateY(calc(40px + env(safe-area-inset-top, 0px)));
             }
 
-            /* Плашка при этом тоже сдвигается вниз на safe-area — чтобы не накрывать «челку» */
             .net-banner.visible {
                 height: calc(40px + env(safe-area-inset-top, 0px));
                 padding-top: env(safe-area-inset-top, 0px);
             }
-        }
+
             .profile-avatar-wrap { width: 84px; height: 84px; margin-top: 24px; margin-bottom: 18px; }
             .profile-avatar svg { width: 48px; height: 48px; }
             .profile-avatar-pencil { width: 28px; height: 28px; right: -2px; bottom: -2px; }
             .profile-avatar-pencil svg { width: 14px; height: 14px; }
             .profile-username { font-size: 1.6rem; margin-bottom: 22px; }
-
             .profile-settings-btn { width: 32px; height: 32px; top: 12px; left: 12px; }
             .profile-settings-btn svg { width: 18px; height: 18px; }
             .profile-sections { gap: 6px; margin-bottom: 16px; }
             .profile-section-btn { padding: 10px 6px; font-size: 0.78rem; gap: 4px; }
             .profile-section-btn svg { width: 20px; height: 20px; }
+            .likes-count-label { font-size: 0.7rem; right: 4px; padding: 0 4px; }
         }
 
-        /* На мобильных в ЛАНДШАФТЕ — компактно */
         @media (max-width: 900px) and (orientation: landscape) {
             .profile-modal-content {
                 height: 92vh;
@@ -1104,41 +1289,16 @@
         }
 
         @keyframes maxIconAppear {
-            0% {
-                opacity: 0;
-                transform: scale(0) translate(0, 0);
-                fill: #9B59D6;
-            }
-            30% {
-                opacity: 1;
-                transform: scale(1.35) translate(0, 0);
-                fill: #1E5BFF;
-            }
-            55% {
-                opacity: 1;
-                transform: scale(1.35) translate(0, 0);
-                fill: #1E5BFF;
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translate(-10px, 10px);
-                fill: #aaa;
-            }
+            0% { opacity: 0; transform: scale(0) translate(0, 0); fill: #9B59D6; }
+            30% { opacity: 1; transform: scale(1.35) translate(0, 0); fill: #1E5BFF; }
+            55% { opacity: 1; transform: scale(1.35) translate(0, 0); fill: #1E5BFF; }
+            100% { opacity: 1; transform: scale(1) translate(-10px, 10px); fill: #aaa; }
         }
 
         @keyframes logoAppear {
-            0% {
-                opacity: 0;
-                transform: scale(0);
-            }
-            60% {
-                opacity: 1;
-                transform: scale(1.15);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
+            0% { opacity: 0; transform: scale(0); }
+            60% { opacity: 1; transform: scale(1.15); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
         .max-sheet.active .max-sheet-icon > svg {
@@ -1149,7 +1309,6 @@
             animation: logoAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.95s both;
         }
 
-        /* === Кнопка MAX в правом нижнем углу === */
         .max-fab {
             position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px;
             border-radius: 50%; background: linear-gradient(135deg, #4A90E2 0%, #9B59D6 100%);
@@ -1205,7 +1364,6 @@
 
     <main>
         <div class="tabs-track" id="tabsTrack">
-            <!-- ВКЛАДКА 1 -->
             <section class="tab-content" id="tab-home">
                 <div class="tab-platform-home">
                     <div class="pull-bg" id="pullBg">
@@ -1214,7 +1372,6 @@
                     <div class="tab-inner" id="tabInnerHome">
                         <div class="feed-title" id="feedTitle">НОВОСТИ ГРУППЫ</div>
                         
-                        <!-- Блок 1 -->
                         <div class="card-block">
                             <div class="card-user">
                                 <div class="user-avatar">
@@ -1249,7 +1406,6 @@
                 </div>
             </section>
 
-            <!-- ВКЛАДКА 2 -->
             <section class="tab-content" id="tab-disciplines">
                 <div class="tab-platform">
                     <h2>Дисциплины</h2>
@@ -1258,7 +1414,6 @@
                 </div>
             </section>
 
-            <!-- ВКЛАДКА 3 -->
             <section class="tab-content" id="tab-schedule">
                 <div class="tab-platform">
                     <h2 style="text-align: center;">Расписание занятий от МелГУ</h2>
@@ -1279,7 +1434,7 @@
                                         </svg>
                                         Обновить
                                     </button>
-                                </div>
+                                                                </div>
                                 <iframe
                                     class="schedule-iframe"
                                     src="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1"
@@ -1289,15 +1444,15 @@
                                 ></iframe>
                             </div>
                             <div class="schedule-actions">
-                                <button type="button" class="schedule-toggle-btn" id="scheduleToggleBtn" aria-expanded="true">
+                                                                <button type="button" class="schedule-toggle-btn" id="scheduleToggleBtn" aria-expanded="true">
                                     <span class="schedule-toggle-label">Свернуть расписание</span>
                                     <span class="schedule-toggle-arrow">
                                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                             <polyline points="6 9 12 15 18 9"></polyline>
                                         </svg>
                                     </span>
-                                    <button type="button" class="schedule-toggle-info-btn" id="scheduleToggleInfoBtn" aria-label="О сервисе расписания">i</button>
                                 </button>
+                                <button type="button" class="schedule-toggle-info-btn" id="scheduleToggleInfoBtn" aria-label="О сервисе расписания">i</button>
                                 <button type="button" class="schedule-open-btn" id="scheduleOpenBtn">
                                     Открыть отдельно
                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1331,21 +1486,18 @@
         </div>
     </div>
 
-    <!-- Модальное окно профиля (увеличенное) -->
+    <!-- Модальное окно профиля -->
     <div id="profileModal" class="auth-modal">
         <div class="profile-modal-content">
-            <!-- Шестерёнка слева вверху -->
             <button class="profile-settings-btn" onclick="openProfileSettings()" aria-label="Настройки профиля">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-    </svg>
-</button>
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
 
-            <!-- Крестик закрытия справа -->
             <span class="auth-close" onclick="closeProfileModal()">&times;</span>
 
-            <!-- Аватарка с карандашом -->
             <div class="profile-avatar-wrap" onclick="openProfileSettings()" role="button" tabindex="0" aria-label="Изменить аватарку">
                 <div class="profile-avatar">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -1363,15 +1515,14 @@
 
             <div id="profileUsername" class="profile-username">Имя</div>
 
-            <!-- Разделы -->
             <div class="profile-sections">
-                <button class="profile-section-btn" onclick="openProfileSection('likes')">
+                <button class="profile-section-btn active" data-section="likes" onclick="openProfileSection('likes', this)">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/>
                     </svg>
                     Лайки
                 </button>
-                <button class="profile-section-btn" onclick="openProfileSection('posts')">
+                <button class="profile-section-btn" data-section="posts" onclick="openProfileSection('posts', this)">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="4" width="18" height="16" rx="2"/>
                         <line x1="7" y1="9" x2="17" y2="9"/>
@@ -1380,7 +1531,7 @@
                     </svg>
                     Посты
                 </button>
-                <button class="profile-section-btn" onclick="openProfileSection('tasks')">
+                <button class="profile-section-btn" data-section="tasks" onclick="openProfileSection('tasks', this)">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 11l3 3L22 4"/>
                         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
@@ -1389,7 +1540,19 @@
                 </button>
             </div>
 
-            <!-- Разделительная черта -->
+            <div class="profile-section-panels">
+                <div class="profile-panel active" data-panel="likes">
+                    <div class="likes-count-label" id="likesCountLabel">Ваши лайки: 0</div>
+                    <div class="likes-loader" id="likesLoader">
+                        <span class="likes-loader-spinner"></span>
+                    </div>
+                    <div class="profile-panel-empty hidden" id="likesEmpty">Вы пока ничего не лайкали</div>
+                    <div class="likes-grid" id="likesGrid"></div>
+                </div>
+                <div class="profile-panel" data-panel="posts">У вас пока нет постов</div>
+                <div class="profile-panel" data-panel="tasks">У вас пока нет отмеченных заданий</div>
+            </div>
+
             <div class="profile-divider"></div>
 
             <button class="profile-logout-btn" onclick="handleLogout()">Выйти из аккаунта</button>
@@ -1445,12 +1608,11 @@
         </svg>
     </button>
 
-    <!-- Карточка лайкнувших -->
     <div class="likes-popover" id="likesPopover"></div>
 
     <script>
         // ==========================================
-        // 1. ЛОАДЕР И ЛАЙКИ
+        // 1. ЛОАДЕР
         // ==========================================
         function hideLoaderAndShowSite() {
             const loader = document.getElementById('loader');
@@ -1491,9 +1653,7 @@
         initSupabase();
         window.addEventListener('load', initSupabase);
 
-        // === Плашка «Плохой интернет» ===
         const netBanner = document.getElementById('netBanner');
-        let netOfflineTimer = null;
         let netOnlineTimer = null;
 
         function showNetBanner() {
@@ -1544,14 +1704,10 @@
         setTimeout(monitorConnection, 1500);
         netOnlineTimer = setInterval(monitorConnection, 10000);
 
-        window.addEventListener('offline', () => {
-            showNetBanner();
-        });
-        window.addEventListener('online', () => {
-            monitorConnection();
-        });
+        window.addEventListener('offline', () => { showNetBanner(); });
+        window.addEventListener('online', () => { monitorConnection(); });
 
-                        // ==========================================
+        // ==========================================
         // 3. ЛОГИКА ЛАЙКОВ
         // ==========================================
         async function initLikes() {
@@ -1589,18 +1745,23 @@
                             const index = allLikes.findIndex(l => l.user_id === userId && l.post_id === postId);
                             if (index !== -1) allLikes.splice(index, 1);
                             updateCounter();
+                            if (document.getElementById('profileModal')?.classList.contains('active')) {
+                                loadLikedPostsIntoGrid();
+                            }
                         } else { btn.classList.add('liked'); }
                     } else {
                         const { data, error } = await supabaseClient.from('likes').insert([{ user_id: userId, post_id: postId }]).select();
                         if (!error && data) {
                             allLikes.push(data[0]);
                             updateCounter();
+                            if (document.getElementById('profileModal')?.classList.contains('active')) {
+                                loadLikedPostsIntoGrid();
+                            }
                         } else { btn.classList.remove('liked'); }
                     }
                 });
             });
 
-            // === Realtime: одна подписка на изменения лайков ===
             if (supabaseClient) {
                 supabaseClient
                     .channel('likes-realtime')
@@ -1619,7 +1780,6 @@
                                 );
                                 if (!exists) allLikes.push(payload.new);
                             } else if (payload.eventType === 'DELETE') {
-                                // При DELETE в payload.old обычно только id — ищем по нему
                                 const idx = payload.old.id
                                     ? allLikes.findIndex(l => l.id === payload.old.id)
                                     : allLikes.findIndex(l => l.user_id === payload.old.user_id && l.post_id === payload.old.post_id);
@@ -1628,18 +1788,18 @@
 
                             const countSpan = document.getElementById('count-' + postId);
                             const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
-
                             const count = allLikes.filter(l => l.post_id === postId).length;
+
                             if (countSpan) {
                                 countSpan.textContent = count;
                                 countSpan.style.display = count > 0 ? 'inline-block' : 'none';
                             }
-
                             if (heartBtn && currentUserId) {
-                                const isLiked = allLikes.some(
-                                    l => l.post_id === postId && l.user_id === currentUserId
-                                );
+                                const isLiked = allLikes.some(l => l.post_id === postId && l.user_id === currentUserId);
                                 heartBtn.classList.toggle('liked', isLiked);
+                            }
+                            if (document.getElementById('profileModal')?.classList.contains('active')) {
+                                loadLikedPostsIntoGrid();
                             }
                         }
                     )
@@ -1648,7 +1808,7 @@
         }
 
         // ==========================================
-        // 4. ЛОГИКА ОКОН (АВТОРИЗАЦИЯ И ПРОФИЛЬ)
+        // 4. ЛОГИКА ОКОН
         // ==========================================
         let isLoginMode = false;
         async function openAuthModal() {
@@ -1657,6 +1817,8 @@
             if (session) {
                 const username = session.user.user_metadata.username || 'Пользователь';
                 document.getElementById('profileUsername').textContent = username;
+                restoreProfileSection();
+                loadLikedPostsIntoGrid();
                 document.getElementById('profileModal').classList.add('active');
             } else {
                 document.getElementById('authModal').classList.add('active');
@@ -1665,13 +1827,168 @@
         }
         function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
         function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
-        function openProfileSettings() {
-            alert('Настройки профиля (в разработке)');
+        function openProfileSettings() { alert('Настройки профиля (в разработке)'); }
+
+        function openProfileSection(section, btnEl, save) {
+            document.querySelectorAll('.profile-section-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            else {
+                const fallback = document.querySelector('.profile-section-btn[data-section="' + section + '"]');
+                if (fallback) fallback.classList.add('active');
+            }
+            document.querySelectorAll('.profile-panel').forEach(p => p.classList.remove('active'));
+            const panel = document.querySelector('.profile-panel[data-panel="' + section + '"]');
+            if (panel) panel.classList.add('active');
+
+            const panelsWrap = document.querySelector('.profile-section-panels');
+            if (panelsWrap) panelsWrap.classList.toggle('has-likes-border', section === 'likes');
+
+            if (save !== false) {
+                try { localStorage.setItem('profileActiveSection', section); } catch (e) {}
+            }
         }
-        function openProfileSection(section) {
-            const names = { likes: 'Лайки', posts: 'Посты', tasks: 'Задания' };
-            alert('Раздел: ' + (names[section] || section) + ' (в разработке)');
+
+        function restoreProfileSection() {
+            let saved = 'likes';
+            try {
+                const s = localStorage.getItem('profileActiveSection');
+                if (s === 'likes' || s === 'posts' || s === 'tasks') saved = s;
+            } catch (e) {}
+            openProfileSection(saved, null, false);
         }
+
+        const POSTS_MAP = {
+            'post-1': { title: 'ДИСТАНТ 27 октября — 7 ноября' }
+        };
+
+        async function loadLikedPostsIntoGrid() {
+            const grid = document.getElementById('likesGrid');
+            const empty = document.getElementById('likesEmpty');
+            const loader = document.getElementById('likesLoader');
+            const countLabel = document.getElementById('likesCountLabel');
+            if (!grid || !empty) return;
+
+            const setCount = (n) => {
+                if (!countLabel) return;
+                countLabel.textContent = 'Ваши лайки: ' + n;
+                countLabel.style.display = n > 0 ? 'block' : 'none';
+            };
+
+            if (loader) loader.classList.remove('hidden');
+            empty.classList.add('hidden');
+            grid.innerHTML = '';
+            setCount(0);
+
+            const hideLoader = () => { if (loader) loader.classList.add('hidden'); };
+
+            if (!supabaseClient) {
+                hideLoader();
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            let userId = currentUserId;
+            if (!userId) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                userId = session ? session.user.id : null;
+                currentUserId = userId;
+            }
+            if (!userId) {
+                hideLoader();
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            const { data: likes, error } = await supabaseClient
+                .from('likes')
+                .select('post_id')
+                .eq('user_id', userId);
+
+            if (error) {
+                console.error('Ошибка загрузки лайков пользователя:', error);
+                hideLoader();
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            const uniquePostIds = [...new Set((likes || []).map(l => l.post_id))];
+
+            if (uniquePostIds.length === 0) {
+                hideLoader();
+                empty.classList.remove('hidden');
+                grid.innerHTML = '';
+                setCount(0);
+                return;
+            }
+
+            hideLoader();
+            empty.classList.add('hidden');
+            setCount(uniquePostIds.length);
+
+            uniquePostIds.forEach(postId => {
+                const meta = POSTS_MAP[postId] || { title: 'Пост' };
+                const item = document.createElement('div');
+                item.className = 'likes-grid-item';
+                item.setAttribute('data-post-id', postId);
+                item.setAttribute('title', meta.title);
+
+                const thumb = document.createElement('div');
+                thumb.className = 'likes-grid-thumb';
+                thumb.innerHTML =
+                    '<svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+                        '<rect x="3" y="5" width="18" height="16" rx="2"/>' +
+                        '<line x1="3" y1="9" x2="21" y2="9"/>' +
+                        '<line x1="8" y1="3" x2="8" y2="7"/>' +
+                        '<line x1="16" y1="3" x2="16" y2="7"/>' +
+                        '<line x1="-1" y1="25" x2="25" y2="-1"/>' +
+                    '</svg>' +
+                    '<div class="thumb-text">' + meta.title + '</div>';
+                item.appendChild(thumb);
+
+                // Кнопка «убрать лайк»
+                const unlikeBtn = document.createElement('button');
+                unlikeBtn.type = 'button';
+                unlikeBtn.className = 'likes-grid-unlike';
+                unlikeBtn.setAttribute('aria-label', 'Убрать лайк');
+                unlikeBtn.innerHTML =
+                    '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                        '<path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/>' +
+                        '<line x1="3" y1="3" x2="21" y2="21"/>' +
+                    '</svg>';
+                unlikeBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (!supabaseClient || !currentUserId) return;
+
+                    unlikeBtn.disabled = true;
+                    const { error } = await supabaseClient
+                        .from('likes')
+                        .delete()
+                        .match({ user_id: currentUserId, post_id: postId });
+
+                    if (error) {
+                        console.error('Ошибка удаления лайка:', error);
+                        unlikeBtn.disabled = false;
+                        return;
+                    }
+
+                    const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+                    if (heartBtn) heartBtn.classList.remove('liked');
+
+                    loadLikedPostsIntoGrid();
+                });
+                item.appendChild(unlikeBtn);
+
+                item.addEventListener('click', () => {
+                    closeProfileModal();
+                    goToTab(0);
+                    const postEl = document.querySelector('.card-block .card-19x6');
+                    if (postEl) postEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+
+                grid.appendChild(item);
+            });
+        }
+
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
             document.getElementById('authTitle').textContent = isLoginMode ? 'Вход' : 'Регистрация';
@@ -1719,7 +2036,7 @@
         }
 
         // ==========================================
-        // 5. ПЛАШКА MAX (BOTTOM SHEET) И СВАЙП
+        // 5. ПЛАШКА MAX
         // ==========================================
         const maxSheet = document.getElementById('maxSheet');
         const maxSheetContent = document.getElementById('maxSheetContent');
@@ -1729,36 +2046,27 @@
             maxSheet.classList.add('active');
             maxSheetContent.style.transform = 'translateY(0)';
         }
-
         function closeMaxSheet() {
             maxSheet.classList.remove('active');
             maxSheetContent.style.transform = 'translateY(100%)';
         }
-
-        function openMaxLink() {
+                function openMaxLink() {
             closeMaxSheet();
             setTimeout(() => {
                 window.open('https://max.ru/join/fWtDGxMWIn-9Q9K2fMGUEFI8wmJ3FsHGLyrE9pyYViM', '_blank');
             }, 300);
         }
-
         function handleMaxSheetBackdropClick(event) {
-            if (event.target === maxSheet) {
-                closeMaxSheet();
-            }
+            if (event.target === maxSheet) closeMaxSheet();
         }
 
-        let startYSheet = 0;
-        let currentYSheet = 0;
-        let isDraggingSheet = false;
-
+        let startYSheet = 0, currentYSheet = 0, isDraggingSheet = false;
         function startDrag(e) {
             isDraggingSheet = true;
             startYSheet = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
             currentYSheet = startYSheet;
             maxSheetContent.style.transition = 'none';
         }
-
         function onDrag(e) {
             if (!isDraggingSheet) return;
             currentYSheet = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
@@ -1770,7 +2078,6 @@
                 maxSheet.style.webkitBackdropFilter = `blur(${3 - (deltaY / 300) * 3}px)`;
             }
         }
-
         function endDrag() {
             if (!isDraggingSheet) return;
             isDraggingSheet = false;
@@ -1778,22 +2085,18 @@
             const deltaY = currentYSheet - startYSheet;
             if (deltaY > 100) {
                 closeMaxSheet();
-                maxSheet.style.backgroundColor = '';
-                maxSheet.style.backdropFilter = '';
-                maxSheet.style.webkitBackdropFilter = '';
             } else {
                 maxSheetContent.style.transform = 'translateY(0)';
-                maxSheet.style.backgroundColor = '';
-                maxSheet.style.backdropFilter = '';
-                maxSheet.style.webkitBackdropFilter = '';
             }
+            maxSheet.style.backgroundColor = '';
+            maxSheet.style.backdropFilter = '';
+            maxSheet.style.webkitBackdropFilter = '';
         }
 
         maxSheetHandle.addEventListener('mousedown', startDrag);
         maxSheetContent.addEventListener('mousedown', startDrag);
         window.addEventListener('mousemove', onDrag);
         window.addEventListener('mouseup', endDrag);
-
         maxSheetHandle.addEventListener('touchstart', startDrag, { passive: true });
         maxSheetContent.addEventListener('touchstart', startDrag, { passive: true });
         window.addEventListener('touchmove', onDrag, { passive: false });
@@ -1967,7 +2270,7 @@
         document.addEventListener('mouseup', () => { if (thumbDrag) { thumbDrag = false; document.body.style.userSelect = ''; } });
 
         // ==========================================
-        // 7. СВОРАЧИВАНИЕ РАСПИСАНИЯ И ОТКРЫТИЕ ОТДЕЛЬНО
+        // 7. СВОРАЧИВАНИЕ РАСПИСАНИЯ
         // ==========================================
         const scheduleToggleBtn = document.getElementById('scheduleToggleBtn');
         const scheduleWrap = document.querySelector('.schedule-iframe-wrap');
@@ -1994,7 +2297,7 @@
         }
 
         // ==========================================
-        // 8. ЛОАДЕР И ОШИБКА ЗАГРУЗКИ РАСПИСАНИЯ
+        // 8. ЛОАДЕР И ОШИБКА РАСПИСАНИЯ
         // ==========================================
         const scheduleIframe = document.querySelector('.schedule-iframe');
         const scheduleLoader = document.getElementById('scheduleLoader');
@@ -2055,7 +2358,7 @@
             scheduleRefreshBtn.addEventListener('click', reloadSchedule);
         }
 
-                // ==========================================
+        // ==========================================
         // 8.1 ПЛАШКА «О СЕРВИСЕ РАСПИСАНИЯ»
         // ==========================================
         const scheduleInfoSheet = document.getElementById('scheduleInfoSheet');
@@ -2107,9 +2410,7 @@
             }
         }
 
-        let startYInfo = 0;
-        let currentYInfo = 0;
-        let isDraggingInfo = false;
+        let startYInfo = 0, currentYInfo = 0, isDraggingInfo = false;
 
         function startDragInfo(e) {
             isDraggingInfo = true;
@@ -2150,7 +2451,6 @@
             scheduleInfoContent.addEventListener('mousedown', startDragInfo);
             window.addEventListener('mousemove', onDragInfo);
             window.addEventListener('mouseup', endDragInfo);
-
             scheduleInfoHandle.addEventListener('touchstart', startDragInfo, { passive: true });
             scheduleInfoContent.addEventListener('touchstart', startDragInfo, { passive: true });
             window.addEventListener('touchmove', onDragInfo, { passive: false });
@@ -2337,13 +2637,8 @@
         });
 
         if (likesPopover) {
-            likesPopover.addEventListener('mouseenter', () => {
-                clearLikesTimers();
-            });
-            likesPopover.addEventListener('mouseleave', () => {
-                clearLikesTimers();
-                hideLikesPopover();
-            });
+            likesPopover.addEventListener('mouseenter', () => { clearLikesTimers(); });
+            likesPopover.addEventListener('mouseleave', () => { clearLikesTimers(); hideLikesPopover(); });
         }
 
         document.querySelectorAll('.heart-btn').forEach(btn => {
