@@ -2120,15 +2120,19 @@
             }, 3400);
         }
 
-        function waitForElementVisible(el, callback) {
+                function waitForElementVisible(el, callback) {
             const check = () => {
                 const rect = el.getBoundingClientRect();
                 const vh = window.innerHeight || document.documentElement.clientHeight;
-                // элемент считается видимым, если хотя бы половина в кадре
-                const visibleTop = rect.top < vh;
-                const visibleBottom = rect.bottom > 0;
+                const vw = window.innerWidth || document.documentElement.clientWidth;
+
+                // элемент в кадре по X и Y
+                const inViewport = rect.right > 0 && rect.left < vw && rect.bottom > 0 && rect.top < vh;
+
+                // и хотя бы половина элемента по вертикали видна
                 const enoughVisible = (Math.min(rect.bottom, vh) - Math.max(rect.top, 0)) >= rect.height * 0.5;
-                if (visibleTop && visibleBottom && enoughVisible) {
+
+                if (inViewport && enoughVisible) {
                     callback();
                     return;
                 }
@@ -2293,22 +2297,21 @@
                 });
                 item.appendChild(unlikeBtn);
 
-                                               item.addEventListener('click', () => {
+                                                               item.addEventListener('click', () => {
                     closeProfileModal();
                     goToTab(0);
 
                     const postEl = document.querySelector('.card-block');
                     if (!postEl) return;
 
-                    // Запускаем скролл
-                    postEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Ждём, пока переключение вкладок закончится (0.35s анимации + запас)
+                    setTimeout(() => {
+                        postEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                    // Ждём, пока пост окажется в кадре, и запускаем вспышку
-                    // Проверяем через rAF + таймер: если пост уже виден — вспышка сразу,
-                    // иначе — как только он появится в видимой области
-                    waitForElementVisible(postEl, () => {
-                        flashPostHighlight();
-                    });
+                        waitForElementVisible(postEl, () => {
+                            flashPostHighlight();
+                        });
+                    }, 380);
                 });
                                 // Дата под квадратом
                 const dateText = formatLikeDate(likeDate);
