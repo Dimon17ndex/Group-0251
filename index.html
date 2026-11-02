@@ -1184,11 +1184,13 @@
                     cell.appendChild(item);
                 }
 
-                grid.appendChild(cell);
+                                grid.appendChild(cell);
+                if (typeof window.__bindLikesMenuItems === 'function') window.__bindLikesMenuItems();
             });
 
             if (typeof window.__bindLikesMenuItems === 'function') window.__bindLikesMenuItems();
-        }   
+        }
+         
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
             document.getElementById('authTitle').textContent = isLoginMode ? 'Вход' : 'Регистрация';
@@ -1935,21 +1937,24 @@
             }
 
             function closeMenu() {
-                if (!menuOpen && !activeItem) return;
-                menuOpen = false;
-                if (activeItem) activeItem.classList.remove('likes-mobile-hidden');
-                activeItem = null;
-                activePostId = null;
-                floater.classList.remove('active');
-                menu.classList.remove('active');
-                floater.style.pointerEvents = 'none';
-                if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-                setTimeout(() => {
-                    floater.innerHTML = '';
-                    floater.style.pointerEvents = '';
-                    longPressTriggered = false;
-                }, 200);
-            }
+    if (!menuOpen && !activeItem) return;
+    menuOpen = false;
+    if (activeItem) {
+    activeItem.classList.remove('likes-mobile-hidden');
+    activeItem.dataset.longPressHandled = '0';   // ← добавить эту строку
+}
+    activeItem = null;
+    activePostId = null;
+    floater.classList.remove('active');
+    menu.classList.remove('active');
+    floater.style.pointerEvents = 'none';
+    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    setTimeout(() => {
+        floater.innerHTML = '';
+        floater.style.pointerEvents = '';
+        longPressTriggered = false;
+    }, 200);
+}
 
             function bindItems() {
                 document.querySelectorAll('.likes-grid-item').forEach(item => {
