@@ -648,7 +648,7 @@
             .schedule-link { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1rem; }
             .schedule-iframe-wrap { max-width: 100%; }
             .schedule-iframe-body { max-height: 75vh; }
-            .schedule-iframe { height: 65vh; min-height: 420px;
+            .schedule-iframe { height: 65vh; min-height: 420px; }
                         .schedule-actions {
                 flex-direction: column;
                 justify-content: stretch;
@@ -2857,13 +2857,14 @@
             likesPopover.addEventListener('mouseleave', () => { clearLikesTimers(); hideLikesPopover(); });
         }
 
-        document.querySelectorAll('.heart-btn').forEach(btn => {
+                document.querySelectorAll('.heart-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 if (longPressTriggered) {
                     e.preventDefault();
                     e.stopPropagation();
                     longPressTriggered = false;
-                            }, true);
+                }
+            }, true);
         });
 
         document.addEventListener('click', (e) => {
