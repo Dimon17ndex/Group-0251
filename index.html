@@ -2942,19 +2942,23 @@
                 if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) {} }
             }
 
-            function closeMenu() {
+                       function closeMenu() {
                 if (activeItem) activeItem.classList.remove('likes-mobile-hidden');
                 floater.classList.remove('active');
                 menu.classList.remove('active');
                 setTimeout(() => { floater.innerHTML = ''; }, 200);
+                if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
                 activeItem = null;
                 activePostId = null;
+                // сбрасываем флаг сразу, чтобы следующий тап по квадрату работал
                 longPressTriggered = false;
             }
 
-            menu.addEventListener('click', (e) => {
+                        menu.addEventListener('click', (e) => {
                 if (e.target.closest('.likes-mobile-btn')) return;
                 closeMenu();
+                // на всякий случай сбрасываем после тика, чтобы предотвратить «залипание»
+                setTimeout(() => { longPressTriggered = false; }, 0);
             });
 
             btn.addEventListener('click', async (e) => {
@@ -2999,9 +3003,13 @@
                         if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
                     }, { passive: true });
 
-                    item.addEventListener('touchend', (e) => {
+                                        item.addEventListener('touchend', (e) => {
                         if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-                        if (longPressTriggered) e.preventDefault();
+                        if (longPressTriggered) {
+                            e.preventDefault();
+                            // сбросим флаг в следующем тике, чтобы click всё-таки отработал
+                            setTimeout(() => { longPressTriggered = false; }, 50);
+                        }
                     });
 
                     item.addEventListener('touchcancel', () => {
