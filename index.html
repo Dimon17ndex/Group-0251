@@ -926,42 +926,36 @@
             flex-shrink: 0;
         }
 
-                                .profile-section-panels.has-likes-border {
+                                                .profile-section-panels.has-likes-border {
             border-top: none;
-            padding-top: 14px;   /* квадраты на месте */
+            padding-top: 32px;      /* место под подпись + отступ до линии */
             position: relative;
         }
 
-        /* Линия рисуется отдельно и её можно опускать */
+        /* Синяя линия — отдельным псевдоэлементом */
         .profile-section-panels.has-likes-border::before {
             content: "";
             position: absolute;
             left: 0;
             right: 0;
-            top: 18px;           /* ← опускаем линию (подбирайте: 14–30px) */
+            top: 26px;              /* ← линия опущена ниже подписи */
             height: 2px;
             background: #0066ff;
             pointer-events: none;
             z-index: 1;
         }
-
-        /* Сама синяя линия — псевдоэлемент, который можно двигать отдельно */
-        .profile-section-panels.has-likes-border::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;                      /* при необходимости: 6px, 8px — опустить ниже */
-            height: 2px;
-            background: #0066ff;
-            pointer-events: none;
-            z-index: 1;
+                /* Когда лайков нет — линию и подпись скрываем */
+        .profile-section-panels.has-likes-border.no-likes::before {
+            display: none;
+        }
+        .profile-section-panels.has-likes-border.no-likes .likes-count-label {
+            display: none;
         }
 
-                .likes-count-label {
+                                .likes-count-label {
             position: absolute;
             right: 6px;
-            top: 6px;            /* ← подпись над линией */
+            top: 4px;
             background: transparent;
             padding: 0 6px;
             font-size: 0.8rem;
@@ -1014,6 +1008,26 @@
             overflow: visible;
         }
 
+                /* Обёртка: квадрат + дата под ним */
+        .likes-grid-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Дата под квадратом — по центру */
+        .likes-grid-date {
+            margin-top: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #666;
+            line-height: 1;
+            white-space: nowrap;
+            text-align: center;
+            pointer-events: none;
+        }
+
         .likes-grid-item {
             position: relative;
             width: 100%;
@@ -1027,6 +1041,50 @@
         .likes-grid-item:hover {
             transform: scale(1.03);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+                        /* Мини-автор — полоса во всю ширину сверху квадрата */
+        .likes-grid-author {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 6px;
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 8px 8px 0 0;   /* скругление только сверху, как у квадрата */
+            box-sizing: border-box;
+            z-index: 2;
+            pointer-events: none;
+            color: #fff;
+        }
+        .likes-grid-author-avatar {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #0066ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .likes-grid-author-avatar svg {
+            width: 11px;
+            height: 11px;
+            display: block;
+        }
+        .likes-grid-author-name {
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90px;
         }
 
         .likes-grid-thumb {
@@ -1142,6 +1200,68 @@
                 transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
             }
 
+        /* === Мобильное меню квадрата === */
+        .likes-mobile-menu {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10020;
+            background: rgba(255, 255, 255, 0.15);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        .likes-mobile-menu.active {
+            display: block;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Поднятый квадрат */
+        .likes-grid-item.likes-mobile-active {
+            position: relative;
+            z-index: 10025;
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        /* Белый круг с перечёркнутым сердечком */
+        .likes-mobile-btn {
+            position: fixed;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: rgba(0, 0, 0, 0.7);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            z-index: 10030;
+            opacity: 0;
+            transform: scale(0.6);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            padding: 0;
+        }
+        .likes-mobile-menu.active .likes-mobile-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .likes-mobile-btn svg {
+            width: 26px;
+            height: 26px;
+            display: block;
+        }
+
+        /* Показываем только на тач-устройствах */
+        @media (hover: hover) {
+            .likes-mobile-menu { display: none !important; }
+        }
             body.net-offline .auth-modal.active .profile-modal-content {
                 transform: translateY(calc(40px + env(safe-area-inset-top, 0px)));
             }
@@ -1861,17 +1981,44 @@
             'post-1': { title: 'ДИСТАНТ 27 октября — 7 ноября' }
         };
 
-        async function loadLikedPostsIntoGrid() {
+                function formatLikeDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '';
+
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const likeDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            const diffDays = Math.round((today - likeDay) / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) return 'Сегодня';
+            if (diffDays === 1) return 'Вчера';
+            if (diffDays === 2) return 'Позавчера';
+
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+
+            if (yyyy === now.getFullYear()) return dd + '.' + mm;
+            return dd + '.' + mm + '.' + yyyy;
+        }
+
+                async function loadLikedPostsIntoGrid() {
             const grid = document.getElementById('likesGrid');
             const empty = document.getElementById('likesEmpty');
             const loader = document.getElementById('likesLoader');
             const countLabel = document.getElementById('likesCountLabel');
+            const panelsWrap = document.querySelector('.profile-section-panels');
             if (!grid || !empty) return;
 
             const setCount = (n) => {
                 if (!countLabel) return;
                 countLabel.textContent = 'Ваши лайки: ' + n;
                 countLabel.style.display = n > 0 ? 'block' : 'none';
+            };
+
+            const setNoLikes = (flag) => {
+                if (panelsWrap) panelsWrap.classList.toggle('no-likes', flag);
             };
 
             if (loader) loader.classList.remove('hidden');
@@ -1881,9 +2028,10 @@
 
             const hideLoader = () => { if (loader) loader.classList.add('hidden'); };
 
-            if (!supabaseClient) {
+                        if (!supabaseClient) {
                 hideLoader();
                 empty.classList.remove('hidden');
+                setNoLikes(true);
                 return;
             }
 
@@ -1896,43 +2044,62 @@
             if (!userId) {
                 hideLoader();
                 empty.classList.remove('hidden');
+                setNoLikes(true);
                 return;
             }
 
-            const { data: likes, error } = await supabaseClient
+                        const { data: likes, error } = await supabaseClient
                 .from('likes')
-                .select('post_id')
-                .eq('user_id', userId);
+                .select('post_id, created_at')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
 
             if (error) {
                 console.error('Ошибка загрузки лайков пользователя:', error);
                 hideLoader();
                 empty.classList.remove('hidden');
+                setNoLikes(true);
                 return;
             }
 
-            const uniquePostIds = [...new Set((likes || []).map(l => l.post_id))];
+                        const uniqueLikesMap = new Map();
+            (likes || []).forEach(l => {
+                if (!uniqueLikesMap.has(l.post_id)) {
+                    uniqueLikesMap.set(l.post_id, l);
+                }
+            });
+            const uniqueLikes = [...uniqueLikesMap.values()];
+            const uniquePostIds = uniqueLikes.map(l => l.post_id);
 
             if (uniquePostIds.length === 0) {
                 hideLoader();
                 empty.classList.remove('hidden');
                 grid.innerHTML = '';
                 setCount(0);
+                setNoLikes(true);
                 return;
             }
 
             hideLoader();
             empty.classList.add('hidden');
             setCount(uniquePostIds.length);
+            setNoLikes(false);
 
-            uniquePostIds.forEach(postId => {
+                                    uniqueLikes.forEach(like => {
+                const postId = like.post_id;
+                const likeDate = like.created_at;
                 const meta = POSTS_MAP[postId] || { title: 'Пост' };
+
+                // Обёртка: квадрат + дата под ним
+                const cell = document.createElement('div');
+                cell.className = 'likes-grid-cell';
+
                 const item = document.createElement('div');
                 item.className = 'likes-grid-item';
                 item.setAttribute('data-post-id', postId);
                 item.setAttribute('title', meta.title);
 
-                const thumb = document.createElement('div');
+                                const thumb = document.createElement('div');
                 thumb.className = 'likes-grid-thumb';
                 thumb.innerHTML =
                     '<svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
@@ -1944,6 +2111,20 @@
                     '</svg>' +
                     '<div class="thumb-text">' + meta.title + '</div>';
                 item.appendChild(thumb);
+
+                // Мини-автор в левом верхнем углу
+                const authorBox = document.createElement('div');
+                authorBox.className = 'likes-grid-author';
+                authorBox.innerHTML =
+                    '<span class="likes-grid-author-avatar">' +
+                        '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+                            '<circle cx="12" cy="12" r="9"/>' +
+                            '<ellipse cx="12" cy="12" rx="4" ry="9"/>' +
+                            '<line x1="3" y1="12" x2="21" y2="12"/>' +
+                        '</svg>' +
+                    '</span>' +
+                    '<span class="likes-grid-author-name">География 0251</span>';
+                item.appendChild(authorBox);
 
                 // Кнопка «убрать лайк»
                 const unlikeBtn = document.createElement('button');
@@ -1985,7 +2166,19 @@
                     if (postEl) postEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 });
 
-                grid.appendChild(item);
+                                // Дата под квадратом
+                const dateText = formatLikeDate(likeDate);
+                if (dateText) {
+                    const dateBox = document.createElement('div');
+                    dateBox.className = 'likes-grid-date';
+                    dateBox.textContent = dateText;
+                    cell.appendChild(item);
+                    cell.appendChild(dateBox);
+                } else {
+                    cell.appendChild(item);
+                }
+
+                grid.appendChild(cell);
             });
         }
 
@@ -2661,6 +2854,142 @@
         document.querySelectorAll('.tab-content').forEach(tc => {
             tc.addEventListener('scroll', () => { hideLikesPopover(); }, { passive: true });
         });
+
+                // === Мобильное меню квадрата (долгое нажатие) ===
+        (function initLikesMobileMenu() {
+            const menu = document.getElementById('likesMobileMenu');
+            const btn = document.getElementById('likesMobileUnlikeBtn');
+            if (!menu || !btn) return;
+
+            let pressTimer = null;
+            let activeItem = null;
+            let activePostId = null;
+            let longPressTriggered = false;
+
+            function openMenu(item, postId) {
+                activeItem = item;
+                activePostId = postId;
+                longPressTriggered = true;
+
+                item.classList.add('likes-mobile-active');
+                menu.classList.add('active');
+
+                // Позиционируем кнопку рядом с квадратом
+                const rect = item.getBoundingClientRect();
+                const btnSize = 52;
+                const gap = 12;
+                const padding = 8;
+
+                let left = rect.right + gap;      // сначала справа
+                // если не влезает справа — слева
+                if (left + btnSize > window.innerWidth - padding) {
+                    left = rect.left - btnSize - gap;
+                }
+                // если и слева не влезает (квадрат на всю ширину) — под квадратом
+                if (left < padding) {
+                    left = rect.left + (rect.width - btnSize) / 2;
+                    const top = rect.bottom + gap;
+                    btn.style.top = Math.min(window.innerHeight - btnSize - padding, top) + 'px';
+                } else {
+                    const top = rect.top + (rect.height - btnSize) / 2;
+                    btn.style.top = Math.max(padding, Math.min(window.innerHeight - btnSize - padding, top)) + 'px';
+                }
+                btn.style.left = Math.max(padding, Math.min(window.innerWidth - btnSize - padding, left)) + 'px';
+
+                if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) {} }
+            }
+
+            function closeMenu() {
+                if (activeItem) activeItem.classList.remove('likes-mobile-active');
+                menu.classList.remove('active');
+                activeItem = null;
+                activePostId = null;
+                longPressTriggered = false;
+            }
+
+            // Клик вне кнопки — закрыть
+            menu.addEventListener('click', (e) => {
+                if (e.target.closest('.likes-mobile-btn')) return;
+                closeMenu();
+            });
+
+            // Клик по кнопке — убрать лайк
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!activePostId || !supabaseClient || !currentUserId) { closeMenu(); return; }
+
+                const postId = activePostId;
+                closeMenu();
+
+                const { error } = await supabaseClient
+                    .from('likes')
+                    .delete()
+                    .match({ user_id: currentUserId, post_id: postId });
+
+                if (error) {
+                    console.error('Ошибка удаления лайка:', error);
+                    return;
+                }
+
+                const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+                if (heartBtn) heartBtn.classList.remove('liked');
+
+                loadLikedPostsIntoGrid();
+            });
+
+            // Навешиваем обработчики на все квадраты (после рендера)
+            function bindItems() {
+                document.querySelectorAll('.likes-grid-item').forEach(item => {
+                    if (item.dataset.mobileMenuBound === '1') return;
+                    item.dataset.mobileMenuBound = '1';
+
+                    item.addEventListener('touchstart', (e) => {
+                        if (!window.matchMedia('(hover: none)').matches) return;
+                        if (e.touches.length !== 1) return;
+                        const postId = item.getAttribute('data-post-id');
+                        if (!postId) return;
+
+                        longPressTriggered = false;
+                        pressTimer = setTimeout(() => openMenu(item, postId), 500);
+                    }, { passive: true });
+
+                    item.addEventListener('touchmove', () => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                    }, { passive: true });
+
+                    item.addEventListener('touchend', (e) => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                        // если меню не открыли — обычный клик по квадрату сработает
+                        if (longPressTriggered) e.preventDefault();
+                    });
+
+                    item.addEventListener('touchcancel', () => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                    });
+                });
+            }
+
+            // Перебиндить после перерисовки сетки
+            const observer = new MutationObserver(bindItems);
+            const grid = document.getElementById('likesGrid');
+            if (grid) observer.observe(grid, { childList: true, subtree: true });
+
+            bindItems();
+
+            // Закрытие при скролле/повороте — на всякий случай
+            window.addEventListener('scroll', () => { if (menu.classList.contains('active')) closeMenu(); }, { passive: true });
+            window.addEventListener('resize', () => { if (menu.classList.contains('active')) closeMenu(); });
+        })();
     </script>
+
+        <!-- Оверлей для мобильного меню квадрата -->
+    <div class="likes-mobile-menu" id="likesMobileMenu">
+        <button type="button" class="likes-mobile-btn" id="likesMobileUnlikeBtn" aria-label="Убрать лайк">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/>
+                <line x1="3" y1="3" x2="21" y2="21"/>
+            </svg>
+        </button>
+    </div>
 </body>
 </html>
