@@ -159,7 +159,6 @@
             border: 0;
         }
 
-        /* Лоадер поверх iframe */
         .schedule-loader {
             position: absolute;
             inset: 0;
@@ -185,7 +184,6 @@
             animation: spin 0.8s linear infinite;
         }
 
-        /* Ошибка загрузки расписания */
         .schedule-error {
             position: absolute;
             inset: 0;
@@ -240,7 +238,6 @@
             display: block;
         }
 
-        /* === Кнопки под расписанием === */
         .schedule-actions {
             display: flex;
             align-items: stretch;
@@ -320,7 +317,6 @@
             display: block;
         }
 
-        /* === Кнопка «i» === */
         .schedule-info-btn {
             position: absolute;
             top: 10px;
@@ -372,7 +368,6 @@
             margin-left: 6px;
         }
 
-        /* === Плашка «О сервисе расписания» === */
         .schedule-info-sheet {
             display: flex; visibility: hidden; position: fixed; z-index: 10010;
             left: 0; top: 0; width: 100%; height: 100%;
@@ -444,7 +439,6 @@
             background: #0052cc;
         }
 
-        /* === Плашка «Плохой интернет» === */
         .net-banner {
             position: fixed;
             top: 0;
@@ -498,7 +492,6 @@
             flex-shrink: 0;
         }
 
-        /* Десктоп: сдвиг через transform */
         body.net-offline header,
         body.net-offline .tabs,
         body.net-offline main {
@@ -522,7 +515,6 @@
             transition: opacity 0.35s ease;
         }
 
-        /* === Карточка лайкнувших === */
         .likes-popover {
             position: fixed;
             z-index: 10005;
@@ -683,7 +675,6 @@
             .schedule-info-title { font-size: 1.2rem; }
             .schedule-info-text { font-size: 0.9rem; }
 
-            /* === Плашка «Плохой интернет» на мобильных === */
             .net-banner {
                 font-size: 0.85rem;
                 position: fixed;
@@ -698,7 +689,6 @@
                 padding-top: env(safe-area-inset-top, 0px);
             }
 
-            /* Сдвиг страницы вниз через padding-top у body (не перекрываем) */
             body {
                 transition: padding-top 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
             }
@@ -1184,7 +1174,6 @@
         }
         .profile-section-btn.active svg { stroke: #fff; }
 
-        /* === Мобильная адаптация профиля === */
         @media (max-width: 700px) {
             .profile-modal-content {
                 height: 100vh;
@@ -1217,7 +1206,6 @@
             .profile-section-btn svg { width: 20px; height: 20px; }
             .likes-count-label { font-size: 0.7rem; right: 4px; padding: 0 4px; }
 
-            /* === Мобильное меню квадрата (floater) === */
             .likes-mobile-menu {
                 display: none;
                 position: fixed;
@@ -1297,7 +1285,6 @@
             }
         }
 
-        /* На мобильных в ЛАНДШАФТЕ — компактно */
         @media (max-width: 900px) and (orientation: landscape) {
             .profile-modal-content {
                 height: 92vh;
@@ -1307,7 +1294,6 @@
             }
         }
 
-        /* === Плашка для MAX === */
         .max-sheet {
             display: flex; visibility: hidden; position: fixed; z-index: 10000;
             left: 0; top: 0; width: 100%; height: 100%;
@@ -1464,7 +1450,6 @@
     </style>
 </head>
 <body>
-    <!-- Плашка «Плохой интернет» -->
     <div class="net-banner" id="netBanner" role="status" aria-live="polite">
         <span class="net-banner-center">
             <span class="net-banner-text">Плохой интернет</span>
@@ -1514,7 +1499,7 @@
                                     </svg>
                                 </div>
                                 <span class="user-name">География 0251</span>
-                                                                <button class="post-menu-btn disabled" aria-label="Меню"><span></span><span></span><span></span></button>
+                                <button class="post-menu-btn disabled" aria-label="Меню"><span></span><span></span><span></span></button>
                             </div>
                             <div class="card-19x6 filled">
                                 <div class="cal-icon">
@@ -1574,7 +1559,6 @@
                                     src="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1"
                                     title="Расписание занятий группы 2611-0251.1"
                                     loading="lazy"
-                                    referrerpolicy="no-referrer"
                                 ></iframe>
                             </div>
                             <div class="schedule-actions">
@@ -2078,7 +2062,7 @@
             const { data: likes, error } = await supabaseClient
                 .from('likes')
                 .select('post_id, created_at')
-                                .eq('user_id', userId)
+                .eq('user_id', userId)
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -2110,6 +2094,7 @@
             hideLoader();
             empty.classList.add('hidden');
             setCount(uniquePostIds.length);
+                        setCount(uniquePostIds.length);
             setNoLikes(false);
 
             uniqueLikes.forEach(like => {
@@ -2857,7 +2842,7 @@
             likesPopover.addEventListener('mouseleave', () => { clearLikesTimers(); hideLikesPopover(); });
         }
 
-                document.querySelectorAll('.heart-btn').forEach(btn => {
+        document.querySelectorAll('.heart-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 if (longPressTriggered) {
                     e.preventDefault();
@@ -2875,15 +2860,21 @@
         });
 
         document.querySelectorAll('.tab-content').forEach(tc => {
-            tc.addEventListener('scroll', () => { hideLikesPopover(); }, { passive: true });
+            tc.addEventListener('scroll', () => {
+                if (!likesPopover || !likesPopover.matches(':hover')) {
+                    hideLikesPopover();
+                }
+            }, { passive: true });
         });
 
-                // === Мобильное меню квадрата (floater) ===
+        // ==========================================
+        // 10. МОБИЛЬНОЕ МЕНЮ КВАДРАТА (Лайки)
+        // ==========================================
         (function initLikesMobileMenu() {
             const menu = document.getElementById('likesMobileMenu');
             const btn = document.getElementById('likesMobileUnlikeBtn');
             const floater = document.getElementById('likesMobileFloater');
-            if (!menu || !btn || !floater) {
+                        if (!menu || !btn || !floater) {
                 console.warn('initLikesMobileMenu: элементы меню не найдены');
                 return;
             }
@@ -3006,9 +2997,12 @@
                         if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
                     }, { passive: true });
 
-                    item.addEventListener('touchend', (e) => {
+                    item.addEventListener('touchend', () => {
                         if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-                        // НЕ вызываем preventDefault — даём клику пройти нормально
+                        // preventDefault не нужен — даём обычному клику пройти
+                        if (longPressTriggered) {
+                            setTimeout(() => { longPressTriggered = false; }, 50);
+                        }
                     });
 
                     item.addEventListener('touchcancel', () => {
@@ -3026,144 +3020,6 @@
             // Закрытие при скролле/повороте
             window.addEventListener('scroll', () => { if (menuOpen) closeMenu(); }, { passive: true });
             window.addEventListener('resize', () => { if (menuOpen) closeMenu(); });
-        })();
-
-            function openMenu(item, postId) {
-                activeItem = item;
-                activePostId = postId;
-                longPressTriggered = true;
-
-                const rect = item.getBoundingClientRect();
-
-                // Скрыть оригинал в сетке
-                item.classList.add('likes-mobile-hidden');
-
-                // Очистить флоатер и склонировать квадрат
-                floater.innerHTML = '';
-                const clone = item.cloneNode(true);
-                clone.classList.remove('likes-mobile-hidden');
-                clone.removeAttribute('data-post-id');
-                const cloneUnlike = clone.querySelector('.likes-grid-unlike');
-                if (cloneUnlike) cloneUnlike.remove();
-                floater.appendChild(clone);
-
-                // Позиционируем флоатер по координатам оригинала
-                floater.style.top = rect.top + 'px';
-                floater.style.left = rect.left + 'px';
-                floater.style.width = rect.width + 'px';
-                floater.style.height = rect.height + 'px';
-
-                menu.classList.add('active');
-                floater.classList.add('active');
-
-                // Кнопка «убрать лайк» рядом с флоатером
-                const btnSize = 52;
-                const gap = 12;
-                const padding = 8;
-
-                let left = rect.right + gap;
-                if (left + btnSize > window.innerWidth - padding) {
-                    left = rect.left - btnSize - gap;
-                }
-
-                let top;
-                if (left < padding) {
-                    left = rect.left + (rect.width - btnSize) / 2;
-                    top = rect.bottom + gap;
-                } else {
-                    top = rect.top + (rect.height - btnSize) / 2;
-                }
-
-                btn.style.top = Math.max(padding, Math.min(window.innerHeight - btnSize - padding, top)) + 'px';
-                btn.style.left = Math.max(padding, Math.min(window.innerWidth - btnSize - padding, left)) + 'px';
-
-                if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) {} }
-            }
-
-                       function closeMenu() {
-                if (activeItem) activeItem.classList.remove('likes-mobile-hidden');
-                floater.classList.remove('active');
-                menu.classList.remove('active');
-                setTimeout(() => { floater.innerHTML = ''; }, 200);
-                if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-                activeItem = null;
-                activePostId = null;
-                // сбрасываем флаг сразу, чтобы следующий тап по квадрату работал
-                longPressTriggered = false;
-            }
-
-                        menu.addEventListener('click', (e) => {
-                if (e.target.closest('.likes-mobile-btn')) return;
-                closeMenu();
-                // на всякий случай сбрасываем после тика, чтобы предотвратить «залипание»
-                setTimeout(() => { longPressTriggered = false; }, 0);
-            });
-
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                if (!activePostId || !supabaseClient || !currentUserId) { closeMenu(); return; }
-
-                const postId = activePostId;
-                closeMenu();
-
-                const { error } = await supabaseClient
-                    .from('likes')
-                    .delete()
-                    .match({ user_id: currentUserId, post_id: postId });
-
-                if (error) {
-                    console.error('Ошибка удаления лайка:', error);
-                    return;
-                }
-
-                const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
-                if (heartBtn) heartBtn.classList.remove('liked');
-
-                loadLikedPostsIntoGrid();
-            });
-
-            function bindItems() {
-                document.querySelectorAll('.likes-grid-item').forEach(item => {
-                    if (item.dataset.mobileMenuBound === '1') return;
-                    item.dataset.mobileMenuBound = '1';
-
-                    item.addEventListener('touchstart', (e) => {
-                        if (!window.matchMedia('(hover: none)').matches) return;
-                        if (e.touches.length !== 1) return;
-                        const postId = item.getAttribute('data-post-id');
-                        if (!postId) return;
-
-                        longPressTriggered = false;
-                        pressTimer = setTimeout(() => openMenu(item, postId), 500);
-                    }, { passive: true });
-
-                    item.addEventListener('touchmove', () => {
-                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-                    }, { passive: true });
-
-                                        item.addEventListener('touchend', (e) => {
-                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-                        if (longPressTriggered) {
-                            e.preventDefault();
-                            // сбросим флаг в следующем тике, чтобы click всё-таки отработал
-                            setTimeout(() => { longPressTriggered = false; }, 50);
-                        }
-                    });
-
-                    item.addEventListener('touchcancel', () => {
-                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-                    });
-                });
-            }
-
-            const observer = new MutationObserver(bindItems);
-            const grid = document.getElementById('likesGrid');
-            if (grid) observer.observe(grid, { childList: true, subtree: true });
-
-            bindItems();
-
-            window.addEventListener('scroll', () => { if (menu.classList.contains('active')) closeMenu(); }, { passive: true });
-            window.addEventListener('resize', () => { if (menu.classList.contains('active')) closeMenu(); });
         })();
     </script>
 </body>
