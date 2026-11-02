@@ -159,6 +159,7 @@
             border: 0;
         }
 
+        /* Лоадер поверх iframe */
         .schedule-loader {
             position: absolute;
             inset: 0;
@@ -184,6 +185,7 @@
             animation: spin 0.8s linear infinite;
         }
 
+        /* Ошибка загрузки расписания */
         .schedule-error {
             position: absolute;
             inset: 0;
@@ -238,6 +240,7 @@
             display: block;
         }
 
+        /* === Кнопки под расписанием === */
         .schedule-actions {
             display: flex;
             align-items: stretch;
@@ -317,6 +320,7 @@
             display: block;
         }
 
+        /* === Кнопка «i» === */
         .schedule-info-btn {
             position: absolute;
             top: 10px;
@@ -368,6 +372,7 @@
             margin-left: 6px;
         }
 
+        /* === Плашка «О сервисе расписания» === */
         .schedule-info-sheet {
             display: flex; visibility: hidden; position: fixed; z-index: 10010;
             left: 0; top: 0; width: 100%; height: 100%;
@@ -439,6 +444,7 @@
             background: #0052cc;
         }
 
+        /* === Плашка «Плохой интернет» === */
         .net-banner {
             position: fixed;
             top: 0;
@@ -446,4 +452,2560 @@
             right: 0;
             height: 0;
             overflow: hidden;
-            backgrou
+            background: #e53935;
+            color: #fff;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 16px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: height 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+                        opacity 0.35s ease;
+            opacity: 0;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+
+        .net-banner.visible {
+            height: 44px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .net-banner-center {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .net-banner-text {
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        .net-banner-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        /* Десктоп: сдвиг через transform */
+        body.net-offline header,
+        body.net-offline .tabs,
+        body.net-offline main {
+            transform: translateY(44px);
+            transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        header, .tabs, main {
+            transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        body.net-offline::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: env(safe-area-inset-top, 0px);
+            background: #e53935;
+            z-index: 10002;
+            transition: opacity 0.35s ease;
+        }
+
+        /* === Карточка лайкнувших === */
+        .likes-popover {
+            position: fixed;
+            z-index: 10005;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+            padding: 10px 12px;
+            min-width: 160px;
+            max-width: 260px;
+            max-height: 240px;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateY(6px) scale(0.97);
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            font-size: 0.9rem;
+            color: #222;
+        }
+
+        .likes-popover.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .likes-popover-empty {
+            color: #888;
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 4px 0;
+        }
+
+        .likes-popover-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 5px 6px;
+            white-space: nowrap;
+            border-radius: 6px;
+            transition: background 0.15s ease;
+            cursor: default;
+        }
+
+        .likes-popover-row:hover {
+            background: #f2f2f2;
+        }
+
+        .likes-popover-row + .likes-popover-row {
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .likes-popover-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 170px;
+        }
+
+        .likes-popover-you {
+            color: #0066ff;
+            font-weight: 600;
+        }
+
+        .likes-popover-heart {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .likes-popover-heart svg {
+            width: 100%;
+            height: 100%;
+            fill: #e53935;
+            display: block;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .tab-btn:hover { background: #eef4ff; color: #0066ff; }
+            .btn-disciplines:hover { background-color: #fff; color: #0066ff; box-shadow: none; transform: translateY(-2px); }
+            .schedule-link:hover { background: #0066ff; color: #fff; }
+            .heart-btn:hover { transform: scale(1.1); }
+            .post-menu-btn:hover { background: #f0f0f0; }
+        }
+
+        @media (max-width: 700px) {
+            header { padding: 12px 10px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; width: 100%; box-sizing: border-box; overflow: hidden; }
+            .site-logo { position: static; transform: none; width: 36px; height: 36px; margin: 0; flex-shrink: 0; }
+            .site-logo svg { width: 22px; height: 22px; }
+            .header-text { display: flex; align-items: center; justify-content: flex-start; flex: 1 1 auto; min-width: 0; overflow: hidden; }
+            h1 { font-size: 0.95rem; letter-spacing: 0.2px; line-height: 1.2; white-space: nowrap; text-align: left; color: transparent; position: relative; max-width: 100%; }
+            h1::before { content: "ГЕОГРАФИЯ"; color: #222; position: absolute; left: 0; top: 50%; transform: translateY(-50%); white-space: nowrap; max-width: 100%; overflow: hidden; }
+            .group-code { position: static; display: inline-flex; height: auto; margin: 0; padding: 3px 8px; font-size: 0.72rem; border-width: 1.5px; white-space: nowrap; flex-shrink: 0; cursor: pointer; }
+            .tabs { gap: 6px; padding: 10px 12px; }
+            .tab-btn { padding: 6px 14px; font-size: 0.82rem; border-radius: 6px; flex: 1 1 auto; text-align: center; }
+            .tab-platform, .tab-platform-home { max-width: 100%; padding: 18px 12px 40px; box-shadow: none; }
+            .custom-scrollbar { display: none; }
+            .feed-title { font-size: 1.35rem; letter-spacing: 1px; margin: 0 0 14px; }
+            .feed-title.hidden { max-height: 0; margin: 0; opacity: 0; }
+            .feed-title.pulled { max-height: 80px; margin: 0 0 14px; opacity: 1; }
+            .card-block { margin: 0; width: 100%; }
+            .card-user { gap: 8px; margin-bottom: 8px; }
+            .user-avatar { width: 30px; height: 30px; }
+            .user-avatar svg { width: 18px; height: 18px; }
+            .user-name { font-size: 0.85rem; }
+            .post-menu-btn { padding: 4px 6px; gap: 4px; margin-right: 4px; }
+            .post-menu-btn span { width: 3.5px; height: 3.5px; }
+            .card-19x6 { width: 100%; height: 200px; border-radius: 10px; }
+            .card-19x6.filled { gap: 10px; }
+            .card-19x6.filled .cal-icon svg { width: 48px; height: 48px; }
+            .card-19x6.filled .dist-text { font-size: 0.95rem; letter-spacing: 0.5px; padding: 0 10px; }
+            .post-body { width: 100%; }
+            .post-footer { margin-top: 8px; }
+            .post-date { font-size: 0.75rem; }
+            .heart-btn svg { width: 22px; height: 28px; }
+            .card-caption { font-size: 1.05rem; line-height: 1.3; }
+            .posts-end { font-size: 0.9rem; margin: 30px auto 10px; }
+            .tab-content h2 { font-size: 1.3rem; }
+            .tab-content p { font-size: 1rem; }
+            .btn-disciplines { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1.1rem; letter-spacing: 1px; }
+                        .schedule-link { display: block; width: 100%; text-align: center; padding: 14px 20px; font-size: 1rem; }
+            .schedule-iframe-wrap { max-width: 100%; }
+            .schedule-iframe-body { max-height: 75vh; }
+            .schedule-iframe { height: 65vh; min-height: 420px; }
+            .schedule-actions {
+                flex-direction: column;
+                justify-content: stretch;
+                align-items: stretch;
+                gap: 6px;
+                padding: 10px 12px;
+            }
+            .schedule-toggle-btn {
+                width: 100%;
+                flex: none;
+                justify-content: flex-start;
+                font-size: 0.9rem;
+                padding: 10px 12px;
+            }
+            .schedule-toggle-label { flex: 0 1 auto; }
+            .schedule-toggle-arrow { margin-left: auto; }
+            .schedule-open-btn {
+                width: 100%;
+                flex: none;
+            }
+            .schedule-info-btn { display: none; }
+            .schedule-toggle-info-btn { display: inline-flex; }
+            .schedule-error-text { font-size: 0.9rem; }
+            .schedule-refresh-btn { padding: 10px 22px; font-size: 0.95rem; }
+            .likes-popover {
+                min-width: 140px;
+                max-width: 220px;
+                font-size: 0.85rem;
+                padding: 8px 10px;
+            }
+            .likes-popover-name { max-width: 140px; }
+            .schedule-info-title { font-size: 1.2rem; }
+            .schedule-info-text { font-size: 0.9rem; }
+
+            /* === Плашка «Плохой интернет» на мобильных === */
+            .net-banner {
+                font-size: 0.85rem;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 0;
+                padding: 0 16px;
+            }
+            .net-banner.visible {
+                height: calc(40px + env(safe-area-inset-top, 0px));
+                padding-top: env(safe-area-inset-top, 0px);
+            }
+
+            /* Сдвиг страницы вниз через padding-top у body (не перекрываем) */
+            body {
+                transition: padding-top 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+            }
+            body.net-offline {
+                padding-top: calc(40px + env(safe-area-inset-top, 0px));
+            }
+            body.net-offline header,
+            body.net-offline .tabs,
+            body.net-offline main {
+                transform: none;
+            }
+            body.net-offline::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: env(safe-area-inset-top, 0px);
+                background: #e53935;
+                z-index: 10002;
+                transition: opacity 0.35s ease;
+            }
+        }
+
+        /* === Модальные окна === */
+        .auth-modal {
+            display: flex; visibility: hidden; position: fixed; z-index: 10000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+            align-items: flex-end; justify-content: center;
+            transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, visibility 0.3s ease;
+        }
+
+        .auth-modal.active {
+            visibility: visible; background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+        }
+
+        .auth-modal-content {
+            background-color: #fff; padding: 30px; border-radius: 16px 16px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.1); width: 100%; max-width: 480px;
+            position: relative; text-align: center; margin-bottom: 0;
+            transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        .auth-modal.active .auth-modal-content { transform: translateY(0); }
+
+        .auth-close { position: absolute; top: 15px; right: 15px; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1; }
+        .auth-close:hover { color: #000; }
+        .auth-modal-content h2 { margin-bottom: 20px; font-size: 1.5rem; }
+        .auth-modal-content input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        .auth-modal-content button { width: 100%; padding: 12px; background: #0066ff; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .auth-modal-content button:hover { background: #0052cc; }
+        .auth-toggle { display: block; margin-top: 15px; color: #0066ff; cursor: pointer; font-size: 0.9rem; }
+        .auth-message { margin-top: 15px; font-size: 0.9rem; }
+        .auth-message.error { color: #e53935; }
+        .auth-message.success { color: #43a047; }
+
+        /* === Модальное окно профиля === */
+        .profile-modal-content {
+            background-color: #fff;
+            padding: 30px 30px 40px;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            text-align: center;
+            margin-bottom: 0;
+            height: 92vh;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        .auth-modal.active .profile-modal-content { transform: translateY(0); }
+
+        .profile-avatar-wrap {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            margin: 40px auto 22px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .profile-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #0066ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: filter 0.25s ease;
+        }
+        .profile-avatar svg { width: 56px; height: 56px; display: block; }
+
+        .profile-avatar::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+
+        .profile-avatar-pencil {
+            position: absolute;
+            right: -2px;
+            bottom: -2px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #0066ff;
+            color: #0066ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: scale(0.6) translateY(4px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .profile-avatar-pencil svg { width: 16px; height: 16px; display: block; }
+
+        @media (hover: hover) and (pointer: fine) {
+            .profile-avatar-wrap:hover .profile-avatar::after { opacity: 1; }
+            .profile-avatar-wrap:hover .profile-avatar-pencil { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .profile-username {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0066ff;
+            margin-bottom: 30px;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+
+        .profile-logout-btn {
+            background: #f5f5f5;
+            color: #e53935;
+            border: 1px solid #e53935;
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            flex-shrink: 0;
+            transition: background 0.2s ease;
+        }
+        .profile-logout-btn:hover { background: #ffecec; }
+
+        .profile-settings-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #f5f5f5;
+            border: none;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, transform 0.3s ease;
+            padding: 0;
+            z-index: 2;
+        }
+        .profile-settings-btn:hover { background: #e9efff; color: #0066ff; }
+        .profile-settings-btn:active { transform: rotate(60deg); }
+        .profile-settings-btn svg { width: 20px; height: 20px; display: block; }
+
+        .profile-sections {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+        .profile-section-btn {
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 8px;
+            background: #f5f7ff;
+            color: #0066ff;
+            border: 1px solid #e3e8ff;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease;
+            line-height: 1.1;
+        }
+        .profile-section-btn:hover { background: #e9efff; }
+        .profile-section-btn:active { transform: scale(0.97); }
+        .profile-section-btn svg { width: 22px; height: 22px; display: block; }
+
+        .profile-divider {
+            width: 100%;
+            height: 1px;
+            background: #e5e5e5;
+            margin: 8px 0 16px;
+            flex-shrink: 0;
+        }
+
+                                                .profile-section-panels.has-likes-border {
+            border-top: none;
+            padding-top: 32px;      /* место под подпись + отступ до линии */
+            position: relative;
+        }
+
+        /* Синяя линия — отдельным псевдоэлементом */
+        .profile-section-panels.has-likes-border::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 26px;              /* ← линия опущена ниже подписи */
+            height: 2px;
+            background: #0066ff;
+            pointer-events: none;
+            z-index: 1;
+        }
+                /* Когда лайков нет — линию и подпись скрываем */
+        .profile-section-panels.has-likes-border.no-likes::before {
+            display: none;
+        }
+        .profile-section-panels.has-likes-border.no-likes .likes-count-label {
+            display: none;
+        }
+
+                                .likes-count-label {
+            position: absolute;
+            right: 6px;
+            top: 4px;
+            background: transparent;
+            padding: 0 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #0066ff;
+            line-height: 1;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .profile-section-panels {
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 60px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            position: relative;
+            padding: 0 6px;
+        }
+        .profile-section-panels::-webkit-scrollbar { width: 0; height: 0; }
+
+        .likes-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 32px 0;
+        }
+        .likes-loader.hidden { display: none; }
+
+        .likes-loader-spinner {
+            width: 36px;
+            height: 36px;
+            border: 4px solid #e3e8ff;
+            border-top-color: #0066ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: block;
+        }
+
+        .likes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            width: 100%;
+            padding: 4px 0;
+            overflow: visible;
+        }
+
+                /* Обёртка: квадрат + дата под ним */
+        .likes-grid-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Дата под квадратом — по центру */
+        .likes-grid-date {
+            margin-top: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #666;
+            line-height: 1;
+            white-space: nowrap;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .likes-grid-item {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #f5f5f5;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .likes-grid-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+                        /* Мини-автор — полоса во всю ширину сверху квадрата */
+        .likes-grid-author {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 6px;
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 8px 8px 0 0;   /* скругление только сверху, как у квадрата */
+            box-sizing: border-box;
+            z-index: 2;
+            pointer-events: none;
+            color: #fff;
+        }
+        .likes-grid-author-avatar {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #0066ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .likes-grid-author-avatar svg {
+            width: 11px;
+            height: 11px;
+            display: block;
+        }
+        .likes-grid-author-name {
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90px;
+        }
+
+        .likes-grid-thumb {
+            width: 100%;
+            height: 100%;
+            background: #e53935;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: #ffffff;
+            padding: 4px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .likes-grid-thumb svg {
+            width: 32%;
+            height: 32%;
+            max-width: 36px;
+            max-height: 36px;
+            display: block;
+            flex-shrink: 0;
+        }
+        .likes-grid-thumb .thumb-text {
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            line-height: 1.1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        /* Кнопка «убрать лайк» внутри квадрата */
+        .likes-grid-unlike {
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.85);
+            color: rgba(0, 0, 0, 0.7);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8);
+            transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+            z-index: 3;
+            padding: 0;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+        .likes-grid-unlike svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .likes-grid-item:hover .likes-grid-unlike {
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: auto;
+            }
+        }
+
+        @media (hover: none) {
+            .likes-grid-unlike { display: none; }
+        }
+
+        .profile-panel-empty {
+            color: #888;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            padding: 24px 8px;
+            text-align: center;
+        }
+        .profile-panel-empty.hidden { display: none; }
+
+        .profile-panel {
+            display: none;
+            width: 100%;
+            text-align: center;
+            padding: 24px 0;
+            color: #888;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .profile-panel.active { display: block; }
+        .profile-panel > .profile-panel-empty { padding: 0 8px; }
+
+        .profile-section-btn.active {
+            background: #0066ff;
+            color: #fff;
+            border-color: #0066ff;
+        }
+        .profile-section-btn.active svg { stroke: #fff; }
+
+        @media (max-width: 700px) {
+            .profile-modal-content {
+                height: 100vh;
+                height: 100dvh;
+                max-height: 100vh;
+                max-height: 100dvh;
+                padding: calc(env(safe-area-inset-top, 0px) + 16px) 18px calc(env(safe-area-inset-bottom, 0px) + 24px);
+                border-radius: 0;
+                transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+            }
+
+        /* === Мобильное меню квадрата === */
+                .likes-mobile-menu {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10020;
+            background: rgba(0, 0, 0, 0.35);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        .likes-mobile-menu.active {
+            display: block !important;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+                /* Поднятая ячейка (квадрат + дата) — поверх блюра */
+        .likes-grid-cell.likes-mobile-active-cell {
+            position: relative;
+            z-index: 10025;
+        }
+
+        /* Поднятый квадрат */
+        .likes-grid-item.likes-mobile-active {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        /* Дата под квадратом не размывается (она внутри ячейки) */
+        .likes-grid-cell.likes-mobile-active-cell .likes-grid-date {
+            position: relative;
+            z-index: 10026;
+        }
+
+        /* Белый круг с перечёркнутым сердечком */
+        .likes-mobile-btn {
+            position: fixed;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: rgba(0, 0, 0, 0.7);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            z-index: 10030;
+            opacity: 0;
+            transform: scale(0.6);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            padding: 0;
+        }
+        .likes-mobile-menu.active .likes-mobile-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .likes-mobile-btn svg {
+            width: 26px;
+            height: 26px;
+            display: block;
+        }
+
+        /* Показываем только на тач-устройствах */
+        @media (hover: hover) {
+            .likes-mobile-menu { display: none !important; }
+        }
+            body.net-offline .auth-modal.active .profile-modal-content {
+                transform: translateY(calc(40px + env(safe-area-inset-top, 0px)));
+            }
+
+            .net-banner.visible {
+                height: calc(40px + env(safe-area-inset-top, 0px));
+                padding-top: env(safe-area-inset-top, 0px);
+            }
+
+            .profile-avatar-wrap { width: 84px; height: 84px; margin-top: 24px; margin-bottom: 18px; }
+            .profile-avatar svg { width: 48px; height: 48px; }
+            .profile-avatar-pencil { width: 28px; height: 28px; right: -2px; bottom: -2px; }
+            .profile-avatar-pencil svg { width: 14px; height: 14px; }
+            .profile-username { font-size: 1.6rem; margin-bottom: 22px; }
+            .profile-settings-btn { width: 32px; height: 32px; top: 12px; left: 12px; }
+            .profile-settings-btn svg { width: 18px; height: 18px; }
+            .profile-sections { gap: 6px; margin-bottom: 16px; }
+            .profile-section-btn { padding: 10px 6px; font-size: 0.78rem; gap: 4px; }
+            .profile-section-btn svg { width: 20px; height: 20px; }
+            .likes-count-label { font-size: 0.7rem; right: 4px; padding: 0 4px; }
+        }
+
+        @media (max-width: 900px) and (orientation: landscape) {
+            .profile-modal-content {
+                height: 92vh;
+                max-height: 92vh;
+                padding: 16px 24px 24px;
+                border-radius: 16px 16px 0 0;
+            }
+        }
+
+        /* === Плашка для MAX === */
+        .max-sheet {
+            display: flex; visibility: hidden; position: fixed; z-index: 10000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+            align-items: flex-end; justify-content: center;
+            transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, visibility 0.3s ease;
+        }
+
+        .max-sheet.active {
+            visibility: visible; background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+        }
+
+        .max-sheet-content {
+            background-color: #fff; padding: 15px 30px 40px; border-radius: 16px 16px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.1); width: 100%; max-width: 480px;
+            position: relative; text-align: center; margin-bottom: 0;
+            transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+            min-height: 400px;
+            display: flex; flex-direction: column;
+        }
+
+        .max-sheet.active .max-sheet-content { transform: translateY(0); }
+
+        .max-sheet-handle {
+            width: 40px; height: 4px; background: #ddd; border-radius: 2px;
+            margin: 0 auto 20px auto; cursor: grab; flex-shrink: 0;
+        }
+
+        .max-sheet-handle:active { cursor: grabbing; }
+
+        .max-sheet-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 28px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .max-sheet-text {
+            font-size: 1rem;
+            color: #555;
+            line-height: 1.35;
+            text-align: left;
+            margin-bottom: 24px;
+            flex-shrink: 0;
+        }
+
+        .max-sheet-icon {
+            position: relative;
+            margin: 0 auto 24px auto;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .max-sheet-icon > svg {
+            width: 100%;
+            height: 100%;
+            fill: #aaa;
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .max-sheet-logo {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #0066ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            border: 4px solid #ffffff;
+            box-sizing: content-box;
+            opacity: 0;
+            transform: scale(0);
+            transform-origin: center center;
+        }
+
+        .max-sheet-logo svg {
+            width: 42px;
+            height: 42px;
+            display: block;
+        }
+
+        .max-sheet-open-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #0066ff;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+
+        .max-sheet-open-btn:hover {
+            background: #0052cc;
+        }
+
+        @keyframes maxIconAppear {
+            0% { opacity: 0; transform: scale(0) translate(0, 0); fill: #9B59D6; }
+            30% { opacity: 1; transform: scale(1.35) translate(0, 0); fill: #1E5BFF; }
+            55% { opacity: 1; transform: scale(1.35) translate(0, 0); fill: #1E5BFF; }
+            100% { opacity: 1; transform: scale(1) translate(-10px, 10px); fill: #aaa; }
+        }
+
+        @keyframes logoAppear {
+            0% { opacity: 0; transform: scale(0); }
+            60% { opacity: 1; transform: scale(1.15); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .max-sheet.active .max-sheet-icon > svg {
+            animation: maxIconAppear 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+        }
+
+        .max-sheet.active .max-sheet-logo {
+            animation: logoAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.95s both;
+        }
+
+        .max-fab {
+            position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px;
+            border-radius: 50%; background: linear-gradient(135deg, #4A90E2 0%, #9B59D6 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center;
+            z-index: 999; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none; border: none;
+        }
+
+        .max-fab:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); }
+
+        .max-fab svg { width: 32px; height: 32px; fill: #ffffff; }
+
+        @media (max-width: 700px) {
+            .max-fab { width: 48px; height: 48px; bottom: 16px; right: 16px; }
+            .max-fab svg { width: 26px; height: 26px; }
+            .max-sheet-title { font-size: 1.4rem; margin-bottom: 24px; }
+            .max-sheet-text { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Плашка «Плохой интернет» -->
+    <div class="net-banner" id="netBanner" role="status" aria-live="polite">
+        <span class="net-banner-center">
+            <span class="net-banner-text">Плохой интернет</span>
+            <span class="net-banner-spinner"></span>
+        </span>
+    </div>
+
+    <div id="loader"><div class="spinner"></div></div>
+
+    <header>
+        <div class="site-logo">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <ellipse cx="12" cy="12" rx="4" ry="9"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
+                <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
+            </svg>
+        </div>
+        <div class="header-text">
+            <h1>ГЕОГРАФИЯ</h1>
+        </div>
+        <div class="group-code" onclick="openAuthModal()">2611-0251.1</div>
+    </header>
+
+    <nav class="tabs">
+        <button class="tab-btn active" data-tab="home" data-index="0">Главная</button>
+        <button class="tab-btn" data-tab="disciplines" data-index="1">Дисциплины</button>
+        <button class="tab-btn" data-tab="schedule" data-index="2">Расписание</button>
+    </nav>
+
+    <main>
+        <div class="tabs-track" id="tabsTrack">
+            <section class="tab-content" id="tab-home">
+                <div class="tab-platform-home">
+                    <div class="pull-bg" id="pullBg">
+                        <div class="dots"><span></span><span></span><span></span></div>
+                    </div>
+                    <div class="tab-inner" id="tabInnerHome">
+                        <div class="feed-title" id="feedTitle">НОВОСТИ ГРУППЫ</div>
+                        
+                        <div class="card-block">
+                            <div class="card-user">
+                                <div class="user-avatar">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M5 6.5 C7 8, 17 8, 19 6.5"/><path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
+                                    </svg>
+                                </div>
+                                <span class="user-name">География 0251</span>
+                                <button class="post-menu-btn disabled" aria-label="Меню"><span></span><span></span><span></span></button>
+                            </div>
+                            <div class="card-19x6 filled">
+                                <div class="cal-icon">
+                                    <svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="-1" y1="25" x2="25" y2="-1"/>
+                                    </svg>
+                                </div>
+                                <div class="dist-text">ДИСТАНТ 27 октября — 7 ноября</div>
+                            </div>
+                            <div class="post-body">
+                                <div class="post-footer">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <button class="heart-btn" data-post-id="post-1" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
+                                        <span class="like-count" id="count-post-1">0</span>
+                                    </div>
+                                    <div class="post-date">19:47 27.10.2026</div>
+                                </div>
+                                <div class="card-caption">В Мелитопольском государственном университете дистанционное обучение</div>
+                            </div>
+                        </div>
+                        <div class="posts-end">Это пока все посты</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-content" id="tab-disciplines">
+                <div class="tab-platform">
+                    <h2>Дисциплины</h2>
+                    <p>Здесь будет список предметов и конспектов группы.</p>
+                    <a href="disciplines.html" class="btn-disciplines">ДИСЦИПЛИНЫ</a>
+                </div>
+            </section>
+
+            <section class="tab-content" id="tab-schedule">
+                <div class="tab-platform">
+                    <h2 style="text-align: center;">Расписание занятий от МелГУ</h2>
+                    <div class="schedule-iframe-wrap">
+                        <button type="button" class="schedule-info-btn" id="scheduleInfoBtn" aria-label="О сервисе расписания">i</button>
+                        <div class="schedule-inner">
+                            <div class="schedule-iframe-body">
+                                <div class="schedule-loader" id="scheduleLoader">
+                                    <div class="schedule-spinner"></div>
+                                </div>
+                                <div class="schedule-error" id="scheduleError">
+                                    <div class="schedule-error-text">Похоже расписание МелГУ не загрузилось, проверьте интернет-соединение и обновите расписание</div>
+                                    <button type="button" class="schedule-refresh-btn" id="scheduleRefreshBtn">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="23 4 23 10 17 10"></polyline>
+                                            <polyline points="1 20 1 14 7 14"></polyline>
+                                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                        </svg>
+                                        Обновить
+                                    </button>
+                                                                </div>
+                                <iframe
+                                    class="schedule-iframe"
+                                    src="https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1"
+                                    title="Расписание занятий группы 2611-0251.1"
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer"
+                                ></iframe>
+                            </div>
+                            <div class="schedule-actions">
+                                                                <button type="button" class="schedule-toggle-btn" id="scheduleToggleBtn" aria-expanded="true">
+                                    <span class="schedule-toggle-label">Свернуть расписание</span>
+                                    <span class="schedule-toggle-arrow">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </span>
+                                </button>
+                                <button type="button" class="schedule-toggle-info-btn" id="scheduleToggleInfoBtn" aria-label="О сервисе расписания">i</button>
+                                <button type="button" class="schedule-open-btn" id="scheduleOpenBtn">
+                                    Открыть отдельно
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                        <polyline points="15 3 21 3 21 9"></polyline>
+                                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="custom-scrollbar" id="customScrollbar">
+            <div class="custom-scrollbar-thumb" id="customScrollbarThumb"></div>
+        </div>
+    </main>
+
+    <!-- Модальное окно авторизации -->
+    <div id="authModal" class="auth-modal">
+        <div class="auth-modal-content">
+            <span class="auth-close" onclick="closeAuthModal()">&times;</span>
+            <h2 id="authTitle">Регистрация</h2>
+            <input type="text" id="authUsername" placeholder="Ваше имя (никнейм)" required>
+            <input type="password" id="authPassword" placeholder="Пароль" required>
+            <button id="authSubmitBtn" onclick="handleAuth()">Зарегистрироваться</button>
+            <div class="auth-toggle" id="authToggle" onclick="toggleAuthMode()">Уже есть аккаунт? Войти</div>
+            <div class="auth-message" id="authMessage"></div>
+        </div>
+    </div>
+
+    <!-- Модальное окно профиля -->
+    <div id="profileModal" class="auth-modal">
+        <div class="profile-modal-content">
+            <button class="profile-settings-btn" onclick="openProfileSettings()" aria-label="Настройки профиля">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+
+            <span class="auth-close" onclick="closeProfileModal()">&times;</span>
+
+            <div class="profile-avatar-wrap" onclick="openProfileSettings()" role="button" tabindex="0" aria-label="Изменить аватарку">
+                <div class="profile-avatar">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>
+                    </svg>
+                </div>
+                <div class="profile-avatar-pencil" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div id="profileUsername" class="profile-username">Имя</div>
+
+            <div class="profile-sections">
+                <button class="profile-section-btn active" data-section="likes" onclick="openProfileSection('likes', this)">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/>
+                    </svg>
+                    Лайки
+                </button>
+                <button class="profile-section-btn" data-section="posts" onclick="openProfileSection('posts', this)">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="16" rx="2"/>
+                        <line x1="7" y1="9" x2="17" y2="9"/>
+                        <line x1="7" y1="13" x2="17" y2="13"/>
+                        <line x1="7" y1="17" x2="13" y2="17"/>
+                    </svg>
+                    Посты
+                </button>
+                <button class="profile-section-btn" data-section="tasks" onclick="openProfileSection('tasks', this)">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11l3 3L22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                    Задания
+                </button>
+            </div>
+
+            <div class="profile-section-panels">
+                <div class="profile-panel active" data-panel="likes">
+                    <div class="likes-count-label" id="likesCountLabel">Ваши лайки: 0</div>
+                    <div class="likes-loader" id="likesLoader">
+                        <span class="likes-loader-spinner"></span>
+                    </div>
+                    <div class="profile-panel-empty hidden" id="likesEmpty">Вы пока ничего не лайкали</div>
+                    <div class="likes-grid" id="likesGrid"></div>
+                </div>
+                <div class="profile-panel" data-panel="posts">У вас пока нет постов</div>
+                <div class="profile-panel" data-panel="tasks">У вас пока нет отмеченных заданий</div>
+            </div>
+
+            <div class="profile-divider"></div>
+
+            <button class="profile-logout-btn" onclick="handleLogout()">Выйти из аккаунта</button>
+        </div>
+    </div>
+
+    <!-- Плашка «О сервисе расписания» -->
+    <div id="scheduleInfoSheet" class="schedule-info-sheet" onclick="handleScheduleInfoBackdropClick(event)">
+        <div class="schedule-info-content" id="scheduleInfoContent" onclick="event.stopPropagation()">
+            <div class="schedule-info-handle" id="scheduleInfoHandle"></div>
+            <div class="schedule-info-title">Расписание занятий от МелГУ</div>
+            <div class="schedule-info-text">
+                Данное расписание является официальным цифровым сервисом Мелитопольского Государственного Университета, вы видите официальный встроенный сервис, а также можете перейти на него напрямую по кнопке. В связи с этим наша площадка ГЕОГРАФИЯ 0251 не несет ответственность за качество и состояние работы данного расписания!
+            </div>
+            <button type="button" class="schedule-info-open-btn" id="scheduleInfoOpenBtn">Перейти напрямую в расписание МелГУ</button>
+        </div>
+    </div>
+
+    <!-- Плашка MAX -->
+    <div id="maxSheet" class="max-sheet" onclick="handleMaxSheetBackdropClick(event)">
+        <div class="max-sheet-content" id="maxSheetContent" onclick="event.stopPropagation()">
+            <div class="max-sheet-handle" id="maxSheetHandle"></div>
+            
+            <div class="max-sheet-title">MAX-КАНАЛ</div>
+
+            <div class="max-sheet-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.06L2 22l4.94-1.38C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.54 0-3-.4-4.28-1.1l-.32-.18-3.1.86.86-3.1-.18-.32C4.4 15 4 13.54 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
+                </svg>
+                <div class="max-sheet-logo">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"/>
+                        <ellipse cx="12" cy="12" rx="4" ry="9"/>
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <path d="M5 6.5 C7 8, 17 8, 19 6.5"/>
+                        <path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="max-sheet-text">
+                У нашего проекта есть MAX-канал, переходи, чтобы узнать о всех новинках и обновлениях сервиса ГЕОГРАФИЯ 0251
+            </div>
+
+            <button onclick="openMaxLink()" class="max-sheet-open-btn">Открыть</button>
+        </div>
+    </div>
+
+    <!-- Кнопка MAX -->
+    <button onclick="openMaxSheet()" class="max-fab" aria-label="Открыть меню MAX">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.06L2 22l4.94-1.38C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.54 0-3-.4-4.28-1.1l-.32-.18-3.1.86.86-3.1-.18-.32C4.4 15 4 13.54 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
+        </svg>
+    </button>
+
+    <div class="likes-popover" id="likesPopover"></div>
+
+      <!-- Оверлей для мобильного меню квадрата -->
+    <div class="likes-mobile-menu" id="likesMobileMenu">
+        <button type="button" class="likes-mobile-btn" id="likesMobileUnlikeBtn" aria-label="Убрать лайк">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/>
+                <line x1="3" y1="3" x2="21" y2="21"/>
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. ЛОАДЕР
+        // ==========================================
+        function hideLoaderAndShowSite() {
+            const loader = document.getElementById('loader');
+            if(loader) loader.classList.add('hidden');
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+                if(loader) loader.style.display = 'none';
+                const feedTitle = document.getElementById('feedTitle');
+                if(feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
+            }, 150);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(hideLoaderAndShowSite, 250);
+            });
+        } else {
+            setTimeout(hideLoaderAndShowSite, 250);
+        }
+
+        // ==========================================
+        // 2. SUPABASE
+        // ==========================================
+        const SUPABASE_URL = 'https://zonhvkjgxmawhavhyljg.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_hB20gq52pt_ijPlJVB0zYA_7QmNExNV';
+        let supabaseClient = null;
+        let currentUserId = null;
+
+        function initSupabase() {
+            if (typeof supabase !== 'undefined' && supabase !== null && !supabaseClient) {
+                try {
+                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    initLikes();
+                } catch (e) { console.error(e); }
+            }
+        }
+
+        initSupabase();
+        window.addEventListener('load', initSupabase);
+
+        const netBanner = document.getElementById('netBanner');
+        let netOnlineTimer = null;
+
+        function showNetBanner() {
+            if (!netBanner) return;
+            netBanner.classList.add('visible');
+            document.body.classList.add('net-offline');
+        }
+
+        function hideNetBanner() {
+            if (!netBanner) return;
+            netBanner.classList.remove('visible');
+            document.body.classList.remove('net-offline');
+        }
+
+        async function checkSupabaseConnection() {
+            if (!supabaseClient) return false;
+            try {
+                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+                const req = supabaseClient.from('likes').select('id').limit(1);
+                const result = await Promise.race([req, timeout]);
+                if (result && result.error) {
+                    const msg = (result.error.message || '').toLowerCase();
+                    if (msg.includes('fetch') || msg.includes('network') || msg.includes('failed to')) {
+                        return false;
+                    }
+                }
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function monitorConnection() {
+            if (!supabaseClient) {
+                showNetBanner();
+                return;
+            }
+            const ok = await checkSupabaseConnection();
+            if (ok) {
+                if (netBanner && netBanner.classList.contains('visible')) {
+                    hideNetBanner();
+                }
+            } else {
+                showNetBanner();
+            }
+        }
+
+        setTimeout(monitorConnection, 1500);
+        netOnlineTimer = setInterval(monitorConnection, 10000);
+
+        window.addEventListener('offline', () => { showNetBanner(); });
+        window.addEventListener('online', () => { monitorConnection(); });
+
+        // ==========================================
+        // 3. ЛОГИКА ЛАЙКОВ
+        // ==========================================
+        async function initLikes() {
+            if (!supabaseClient) return;
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            const userId = session ? session.user.id : null;
+            currentUserId = userId;
+            const { data: allLikes, error } = await supabaseClient.from('likes').select('*');
+            if (error) { console.error('Ошибка загрузки лайков:', error); return; }
+
+            const heartButtons = document.querySelectorAll('.heart-btn');
+            heartButtons.forEach(btn => {
+                const postId = btn.getAttribute('data-post-id');
+                if (!postId) return;
+                const countSpan = document.getElementById('count-' + postId);
+                const updateCounter = () => {
+                    const count = allLikes.filter(like => like.post_id === postId).length;
+                    if (countSpan) {
+                        countSpan.textContent = count;
+                        countSpan.style.display = count > 0 ? 'inline-block' : 'none';
+                    }
+                };
+                if (userId) {
+                    const isLiked = allLikes.some(like => like.post_id === postId && like.user_id === userId);
+                    if (isLiked) btn.classList.add('liked');
+                }
+                updateCounter();
+                btn.addEventListener('click', async () => {
+                    if (!userId) { alert('Пожалуйста, войдите в аккаунт (нажмите на 2611-0251.1), чтобы ставить лайки!'); return; }
+                    const isCurrentlyLiked = btn.classList.contains('liked');
+                    btn.classList.toggle('liked');
+                    if (isCurrentlyLiked) {
+                        const { error } = await supabaseClient.from('likes').delete().match({ user_id: userId, post_id: postId });
+                        if (!error) {
+                            const index = allLikes.findIndex(l => l.user_id === userId && l.post_id === postId);
+                            if (index !== -1) allLikes.splice(index, 1);
+                            updateCounter();
+                            if (document.getElementById('profileModal')?.classList.contains('active')) {
+                                loadLikedPostsIntoGrid();
+                            }
+                        } else { btn.classList.add('liked'); }
+                    } else {
+                        const { data, error } = await supabaseClient.from('likes').insert([{ user_id: userId, post_id: postId }]).select();
+                        if (!error && data) {
+                            allLikes.push(data[0]);
+                            updateCounter();
+                            if (document.getElementById('profileModal')?.classList.contains('active')) {
+                                loadLikedPostsIntoGrid();
+                            }
+                        } else { btn.classList.remove('liked'); }
+                    }
+                });
+            });
+
+            if (supabaseClient) {
+                supabaseClient
+                    .channel('likes-realtime')
+                    .on(
+                        'postgres_changes',
+                        { event: '*', schema: 'public', table: 'likes' },
+                        (payload) => {
+                            const postId = payload.new?.post_id
+                                        || payload.old?.post_id
+                                        || (payload.old?.id ? (allLikes.find(l => l.id === payload.old.id)?.post_id) : null);
+                            if (!postId) return;
+
+                            if (payload.eventType === 'INSERT') {
+                                const exists = allLikes.some(
+                                    l => l.user_id === payload.new.user_id && l.post_id === payload.new.post_id
+                                );
+                                if (!exists) allLikes.push(payload.new);
+                            } else if (payload.eventType === 'DELETE') {
+                                const idx = payload.old.id
+                                    ? allLikes.findIndex(l => l.id === payload.old.id)
+                                    : allLikes.findIndex(l => l.user_id === payload.old.user_id && l.post_id === payload.old.post_id);
+                                if (idx !== -1) allLikes.splice(idx, 1);
+                            }
+
+                            const countSpan = document.getElementById('count-' + postId);
+                            const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+                            const count = allLikes.filter(l => l.post_id === postId).length;
+
+                            if (countSpan) {
+                                countSpan.textContent = count;
+                                countSpan.style.display = count > 0 ? 'inline-block' : 'none';
+                            }
+                            if (heartBtn && currentUserId) {
+                                const isLiked = allLikes.some(l => l.post_id === postId && l.user_id === currentUserId);
+                                heartBtn.classList.toggle('liked', isLiked);
+                            }
+                            if (document.getElementById('profileModal')?.classList.contains('active')) {
+                                loadLikedPostsIntoGrid();
+                            }
+                        }
+                    )
+                    .subscribe();
+            }
+        }
+
+        // ==========================================
+        // 4. ЛОГИКА ОКОН
+        // ==========================================
+        let isLoginMode = false;
+        async function openAuthModal() {
+            if (!supabaseClient) { alert('Ошибка: библиотека Supabase не загрузилась.'); return; }
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                const username = session.user.user_metadata.username || 'Пользователь';
+                document.getElementById('profileUsername').textContent = username;
+                restoreProfileSection();
+                loadLikedPostsIntoGrid();
+                document.getElementById('profileModal').classList.add('active');
+            } else {
+                document.getElementById('authModal').classList.add('active');
+                document.getElementById('authMessage').textContent = '';
+            }
+        }
+        function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
+        function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
+        function openProfileSettings() { alert('Настройки профиля (в разработке)'); }
+
+        function openProfileSection(section, btnEl, save) {
+            document.querySelectorAll('.profile-section-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            else {
+                const fallback = document.querySelector('.profile-section-btn[data-section="' + section + '"]');
+                if (fallback) fallback.classList.add('active');
+            }
+            document.querySelectorAll('.profile-panel').forEach(p => p.classList.remove('active'));
+            const panel = document.querySelector('.profile-panel[data-panel="' + section + '"]');
+            if (panel) panel.classList.add('active');
+
+            const panelsWrap = document.querySelector('.profile-section-panels');
+            if (panelsWrap) panelsWrap.classList.toggle('has-likes-border', section === 'likes');
+
+            if (save !== false) {
+                try { localStorage.setItem('profileActiveSection', section); } catch (e) {}
+            }
+        }
+
+        function restoreProfileSection() {
+            let saved = 'likes';
+            try {
+                const s = localStorage.getItem('profileActiveSection');
+                if (s === 'likes' || s === 'posts' || s === 'tasks') saved = s;
+            } catch (e) {}
+            openProfileSection(saved, null, false);
+        }
+
+        const POSTS_MAP = {
+            'post-1': { title: 'ДИСТАНТ 27 октября — 7 ноября' }
+        };
+
+                function formatLikeDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '';
+
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const likeDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            const diffDays = Math.round((today - likeDay) / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) return 'Сегодня';
+            if (diffDays === 1) return 'Вчера';
+            if (diffDays === 2) return 'Позавчера';
+
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+
+            if (yyyy === now.getFullYear()) return dd + '.' + mm;
+            return dd + '.' + mm + '.' + yyyy;
+        }
+
+                async function loadLikedPostsIntoGrid() {
+            const grid = document.getElementById('likesGrid');
+            const empty = document.getElementById('likesEmpty');
+            const loader = document.getElementById('likesLoader');
+            const countLabel = document.getElementById('likesCountLabel');
+            const panelsWrap = document.querySelector('.profile-section-panels');
+            if (!grid || !empty) return;
+
+            const setCount = (n) => {
+                if (!countLabel) return;
+                countLabel.textContent = 'Ваши лайки: ' + n;
+                countLabel.style.display = n > 0 ? 'block' : 'none';
+            };
+
+            const setNoLikes = (flag) => {
+                if (panelsWrap) panelsWrap.classList.toggle('no-likes', flag);
+            };
+
+            if (loader) loader.classList.remove('hidden');
+            empty.classList.add('hidden');
+            grid.innerHTML = '';
+            setCount(0);
+
+            const hideLoader = () => { if (loader) loader.classList.add('hidden'); };
+
+                        if (!supabaseClient) {
+                hideLoader();
+                empty.classList.remove('hidden');
+                setNoLikes(true);
+                return;
+            }
+
+            let userId = currentUserId;
+            if (!userId) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                userId = session ? session.user.id : null;
+                currentUserId = userId;
+            }
+            if (!userId) {
+                hideLoader();
+                empty.classList.remove('hidden');
+                setNoLikes(true);
+                return;
+            }
+
+                        const { data: likes, error } = await supabaseClient
+                .from('likes')
+                .select('post_id, created_at')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Ошибка загрузки лайков пользователя:', error);
+                hideLoader();
+                empty.classList.remove('hidden');
+                setNoLikes(true);
+                return;
+            }
+
+                        const uniqueLikesMap = new Map();
+            (likes || []).forEach(l => {
+                if (!uniqueLikesMap.has(l.post_id)) {
+                    uniqueLikesMap.set(l.post_id, l);
+                }
+            });
+            const uniqueLikes = [...uniqueLikesMap.values()];
+            const uniquePostIds = uniqueLikes.map(l => l.post_id);
+
+            if (uniquePostIds.length === 0) {
+                hideLoader();
+                empty.classList.remove('hidden');
+                grid.innerHTML = '';
+                setCount(0);
+                setNoLikes(true);
+                return;
+            }
+
+            hideLoader();
+            empty.classList.add('hidden');
+            setCount(uniquePostIds.length);
+            setNoLikes(false);
+
+                                    uniqueLikes.forEach(like => {
+                const postId = like.post_id;
+                const likeDate = like.created_at;
+                const meta = POSTS_MAP[postId] || { title: 'Пост' };
+
+                // Обёртка: квадрат + дата под ним
+                const cell = document.createElement('div');
+                cell.className = 'likes-grid-cell';
+
+                const item = document.createElement('div');
+                item.className = 'likes-grid-item';
+                item.setAttribute('data-post-id', postId);
+                item.setAttribute('title', meta.title);
+
+                                const thumb = document.createElement('div');
+                thumb.className = 'likes-grid-thumb';
+                thumb.innerHTML =
+                    '<svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+                        '<rect x="3" y="5" width="18" height="16" rx="2"/>' +
+                        '<line x1="3" y1="9" x2="21" y2="9"/>' +
+                        '<line x1="8" y1="3" x2="8" y2="7"/>' +
+                        '<line x1="16" y1="3" x2="16" y2="7"/>' +
+                        '<line x1="-1" y1="25" x2="25" y2="-1"/>' +
+                    '</svg>' +
+                    '<div class="thumb-text">' + meta.title + '</div>';
+                item.appendChild(thumb);
+
+                // Мини-автор в левом верхнем углу
+                const authorBox = document.createElement('div');
+                authorBox.className = 'likes-grid-author';
+                authorBox.innerHTML =
+                    '<span class="likes-grid-author-avatar">' +
+                        '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+                            '<circle cx="12" cy="12" r="9"/>' +
+                            '<ellipse cx="12" cy="12" rx="4" ry="9"/>' +
+                            '<line x1="3" y1="12" x2="21" y2="12"/>' +
+                        '</svg>' +
+                    '</span>' +
+                    '<span class="likes-grid-author-name">География 0251</span>';
+                item.appendChild(authorBox);
+
+                // Кнопка «убрать лайк»
+                const unlikeBtn = document.createElement('button');
+                unlikeBtn.type = 'button';
+                unlikeBtn.className = 'likes-grid-unlike';
+                unlikeBtn.setAttribute('aria-label', 'Убрать лайк');
+                unlikeBtn.innerHTML =
+                    '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                        '<path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/>' +
+                        '<line x1="3" y1="3" x2="21" y2="21"/>' +
+                    '</svg>';
+                unlikeBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (!supabaseClient || !currentUserId) return;
+
+                    unlikeBtn.disabled = true;
+                    const { error } = await supabaseClient
+                        .from('likes')
+                        .delete()
+                        .match({ user_id: currentUserId, post_id: postId });
+
+                    if (error) {
+                        console.error('Ошибка удаления лайка:', error);
+                        unlikeBtn.disabled = false;
+                        return;
+                    }
+
+                    const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+                    if (heartBtn) heartBtn.classList.remove('liked');
+
+                    loadLikedPostsIntoGrid();
+                });
+                item.appendChild(unlikeBtn);
+
+                item.addEventListener('click', () => {
+                    closeProfileModal();
+                    goToTab(0);
+                    const postEl = document.querySelector('.card-block .card-19x6');
+                    if (postEl) postEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+
+                                // Дата под квадратом
+                const dateText = formatLikeDate(likeDate);
+                if (dateText) {
+                    const dateBox = document.createElement('div');
+                    dateBox.className = 'likes-grid-date';
+                    dateBox.textContent = dateText;
+                    cell.appendChild(item);
+                    cell.appendChild(dateBox);
+                } else {
+                    cell.appendChild(item);
+                }
+
+                grid.appendChild(cell);
+            });
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').textContent = isLoginMode ? 'Вход' : 'Регистрация';
+            document.getElementById('authSubmitBtn').textContent = isLoginMode ? 'Войти' : 'Зарегистрироваться';
+            document.getElementById('authToggle').textContent = isLoginMode ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти';
+            document.getElementById('authMessage').textContent = '';
+        }
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            closeProfileModal();
+            window.location.reload();
+        }
+        async function handleAuth() {
+            if (!supabaseClient) return;
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const msg = document.getElementById('authMessage');
+            msg.textContent = 'Загрузка...'; msg.className = 'auth-message';
+            if (!username || !password) { msg.textContent = 'Заполните все поля'; msg.classList.add('error'); return; }
+            const safeUsername = username.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const fakeEmail = `${safeUsername}@example.com`;
+            if (isLoginMode) {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email: fakeEmail, password: password });
+                if (error) { msg.textContent = 'Неверное имя или пароль'; msg.classList.add('error'); }
+                else {
+                    msg.textContent = 'Вход выполнен!'; msg.classList.add('success');
+                    setTimeout(() => { closeAuthModal(); window.location.reload(); }, 1000);
+                }
+            } else {
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email: fakeEmail, password: password, options: { data: { username: username } } });
+                if (authError) {
+                    if (authError.message.includes('already registered')) { msg.textContent = 'Это имя уже занято'; }
+                    else { msg.textContent = authError.message; }
+                    msg.classList.add('error'); return;
+                }
+                if (authData.user) {
+                    const { error: profileError } = await supabaseClient.from('profiles').insert([{ id: authData.user.id, username: username }]);
+                    if (profileError) { console.error(profileError); msg.textContent = 'Ошибка при создании профиля.'; msg.classList.add('error'); }
+                    else {
+                        msg.textContent = 'Регистрация успешна! Теперь вы можете войти.'; msg.classList.add('success');
+                        setTimeout(() => { toggleAuthMode(); msg.textContent = ''; }, 2000);
+                    }
+                }
+            }
+        }
+
+        // ==========================================
+        // 5. ПЛАШКА MAX
+        // ==========================================
+        const maxSheet = document.getElementById('maxSheet');
+        const maxSheetContent = document.getElementById('maxSheetContent');
+        const maxSheetHandle = document.getElementById('maxSheetHandle');
+
+        function openMaxSheet() {
+            maxSheet.classList.add('active');
+            maxSheetContent.style.transform = 'translateY(0)';
+        }
+        function closeMaxSheet() {
+            maxSheet.classList.remove('active');
+            maxSheetContent.style.transform = 'translateY(100%)';
+        }
+                function openMaxLink() {
+            closeMaxSheet();
+            setTimeout(() => {
+                window.open('https://max.ru/join/fWtDGxMWIn-9Q9K2fMGUEFI8wmJ3FsHGLyrE9pyYViM', '_blank');
+            }, 300);
+        }
+        function handleMaxSheetBackdropClick(event) {
+            if (event.target === maxSheet) closeMaxSheet();
+        }
+
+        let startYSheet = 0, currentYSheet = 0, isDraggingSheet = false;
+        function startDrag(e) {
+            isDraggingSheet = true;
+            startYSheet = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            currentYSheet = startYSheet;
+            maxSheetContent.style.transition = 'none';
+        }
+        function onDrag(e) {
+            if (!isDraggingSheet) return;
+            currentYSheet = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            const deltaY = currentYSheet - startYSheet;
+            if (deltaY > 0) {
+                maxSheetContent.style.transform = `translateY(${deltaY}px)`;
+                maxSheet.style.backgroundColor = `rgba(0, 0, 0, ${0.4 - (deltaY / 300) * 0.4})`;
+                maxSheet.style.backdropFilter = `blur(${3 - (deltaY / 300) * 3}px)`;
+                maxSheet.style.webkitBackdropFilter = `blur(${3 - (deltaY / 300) * 3}px)`;
+            }
+        }
+        function endDrag() {
+            if (!isDraggingSheet) return;
+            isDraggingSheet = false;
+            maxSheetContent.style.transition = 'transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)';
+            const deltaY = currentYSheet - startYSheet;
+            if (deltaY > 100) {
+                closeMaxSheet();
+            } else {
+                maxSheetContent.style.transform = 'translateY(0)';
+            }
+            maxSheet.style.backgroundColor = '';
+            maxSheet.style.backdropFilter = '';
+            maxSheet.style.webkitBackdropFilter = '';
+        }
+
+        maxSheetHandle.addEventListener('mousedown', startDrag);
+        maxSheetContent.addEventListener('mousedown', startDrag);
+        window.addEventListener('mousemove', onDrag);
+        window.addEventListener('mouseup', endDrag);
+        maxSheetHandle.addEventListener('touchstart', startDrag, { passive: true });
+        maxSheetContent.addEventListener('touchstart', startDrag, { passive: true });
+        window.addEventListener('touchmove', onDrag, { passive: false });
+        window.addEventListener('touchend', endDrag);
+
+        // ==========================================
+        // 6. ЛОГИКА САЙТА (Вкладки, Скролл, Свайпы)
+        // ==========================================
+        document.addEventListener('touchstart', function initVibrate() {
+            if (navigator.vibrate) { try { navigator.vibrate(1); } catch (e) {} }
+            document.removeEventListener('touchstart', initVibrate);
+        }, { once: true });
+
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const track = document.getElementById('tabsTrack');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const main = document.querySelector('main');
+        const totalTabs = tabContents.length;
+        let currentIndex = 0;
+
+        function goToTab(index) {
+            index = Math.max(0, Math.min(index, totalTabs - 1));
+            if (index === currentIndex) return;
+            currentIndex = index;
+            track.classList.add('animating');
+            track.style.transform = `translateX(-${index * (100 / totalTabs)}%)`;
+            tabButtons.forEach((b, i) => b.classList.toggle('active', i === index));
+            if (index !== 0) resetPull();
+            const onEnd = () => {
+                track.classList.remove('animating');
+                track.removeEventListener('transitionend', onEnd);
+                updateCustomScrollbar();
+            };
+            track.addEventListener('transitionend', onEnd);
+        }
+
+        tabButtons.forEach((btn, i) => { btn.addEventListener('click', () => goToTab(i)); });
+
+        let tStartX = 0, tStartY = 0, tDeltaX = 0, tDeltaY = 0, swipeMode = null;
+        main.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            tStartX = e.touches[0].clientX; tStartY = e.touches[0].clientY;
+            tDeltaX = 0; tDeltaY = 0; swipeMode = null;
+        }, { passive: true });
+
+        main.addEventListener('touchmove', (e) => {
+            if (e.touches.length !== 1) return;
+            tDeltaX = e.touches[0].clientX - tStartX;
+            tDeltaY = e.touches[0].clientY - tStartY;
+            if (swipeMode === null) {
+                if (Math.abs(tDeltaX) > 10 || Math.abs(tDeltaY) > 10) {
+                    swipeMode = Math.abs(tDeltaX) > Math.abs(tDeltaY) ? 'h' : 'v';
+                }
+            }
+            if (swipeMode === 'h') {
+                if (pulling) return;
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        main.addEventListener('touchend', () => {
+            if (swipeMode === 'h') {
+                const threshold = Math.max(50, main.clientWidth * 0.15);
+                if (tDeltaX > threshold && currentIndex > 0) goToTab(currentIndex - 1);
+                else if (tDeltaX < -threshold && currentIndex < totalTabs - 1) goToTab(currentIndex + 1);
+            }
+            swipeMode = null; tDeltaX = 0; tDeltaY = 0;
+        });
+
+        const feedTitle = document.getElementById('feedTitle');
+        const tabInner = document.getElementById('tabInnerHome');
+        const pullBg = document.getElementById('pullBg');
+        const homeTab = document.getElementById('tab-home');
+        const MAX_PULL = 120;
+        let startY = 0, pulling = false, currentPull = 0, pullDecided = false, vibrated = false;
+
+        function setPull(value) {
+            currentPull = Math.max(0, Math.min(value, MAX_PULL));
+            if (currentPull > 0) {
+                feedTitle.classList.remove('hidden');
+                feedTitle.classList.add('pulled');
+                tabInner.classList.add('pulling');
+                tabInner.style.transform = `translateY(${currentPull}px)`;
+                pullBg.classList.add('pulling');
+                pullBg.classList.add('show-dots');
+                pullBg.style.height = currentPull + 'px';
+                if (currentPull >= MAX_PULL && !vibrated && navigator.vibrate) { navigator.vibrate(30); vibrated = true; }
+            } else { resetPull(); }
+        }
+
+        function resetPull() {
+            feedTitle.classList.add('hidden');
+            feedTitle.classList.remove('pulled');
+            tabInner.classList.remove('pulling');
+            tabInner.style.transform = 'translateY(0)';
+            pullBg.classList.remove('pulling');
+            pullBg.classList.remove('show-dots');
+            pullBg.style.height = '0px';
+            currentPull = 0;
+        }
+
+        homeTab.addEventListener('touchstart', (e) => {
+            if (currentIndex !== 0) return;
+            if (homeTab.scrollTop > 0) return;
+            startY = e.touches[0].clientY;
+            pulling = false; pullDecided = false; vibrated = false;
+            if (navigator.vibrate) { try { navigator.vibrate(1); } catch (e) {} }
+        }, { passive: true });
+
+        homeTab.addEventListener('touchmove', (e) => {
+            if (currentIndex !== 0) return;
+            if (swipeMode === 'h') return;
+            const delta = e.touches[0].clientY - startY;
+            if (delta < -5) { pulling = false; pullDecided = true; resetPull(); return; }
+            if (homeTab.scrollTop > 0) { if (pulling) { pulling = false; resetPull(); } return; }
+            if (!pullDecided && delta > 12) { pullDecided = true; pulling = true; }
+            if (pulling) { setPull(delta * 0.6); if (delta > 10) e.preventDefault(); }
+        }, { passive: false });
+
+        homeTab.addEventListener('touchend', () => { if (pulling) { pulling = false; resetPull(); } });
+
+        const customScrollbar = document.getElementById('customScrollbar');
+        const customThumb = document.getElementById('customScrollbarThumb');
+        let activeScrollEl = null;
+
+        function updateCustomScrollbar() {
+            activeScrollEl = tabContents[currentIndex];
+            if (!activeScrollEl) return;
+            const scrollHeight = activeScrollEl.scrollHeight;
+            const clientHeight = activeScrollEl.clientHeight;
+            if (scrollHeight <= clientHeight + 1) { customScrollbar.classList.remove('visible'); return; }
+            customScrollbar.classList.add('visible');
+            const trackHeight = customScrollbar.clientHeight;
+            const ratio = clientHeight / scrollHeight;
+            let thumbHeight = Math.max(30, trackHeight * ratio);
+            const maxScrollTop = scrollHeight - clientHeight;
+            const scrollTop = activeScrollEl.scrollTop;
+            const maxThumbTop = trackHeight - thumbHeight;
+            const thumbTop = maxScrollTop > 0 ? (scrollTop / maxScrollTop) * maxThumbTop : 0;
+            customThumb.style.height = thumbHeight + 'px';
+            customThumb.style.top = thumbTop + 'px';
+        }
+
+        tabContents.forEach(tab => {
+            tab.addEventListener('scroll', () => { if (tab === tabContents[currentIndex]) updateCustomScrollbar(); }, { passive: true });
+        });
+
+        setTimeout(updateCustomScrollbar, 600);
+        window.addEventListener('resize', updateCustomScrollbar);
+
+        let thumbDrag = false, thumbStartY = 0, thumbStartScroll = 0;
+        customThumb.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            if (!activeScrollEl) return;
+            thumbDrag = true;
+            thumbStartY = e.clientY;
+            thumbStartScroll = activeScrollEl.scrollTop;
+            document.body.style.userSelect = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!thumbDrag || !activeScrollEl) return;
+            const trackHeight = customScrollbar.clientHeight;
+            const thumbHeight = customThumb.clientHeight;
+            const maxThumbTop = trackHeight - thumbHeight;
+            const deltaY = e.clientY - thumbStartY;
+            const scrollRatio = (activeScrollEl.scrollHeight - activeScrollEl.clientHeight) / maxThumbTop;
+            activeScrollEl.scrollTop = thumbStartScroll + deltaY * scrollRatio;
+        });
+
+        document.addEventListener('mouseup', () => { if (thumbDrag) { thumbDrag = false; document.body.style.userSelect = ''; } });
+
+        // ==========================================
+        // 7. СВОРАЧИВАНИЕ РАСПИСАНИЯ
+        // ==========================================
+        const scheduleToggleBtn = document.getElementById('scheduleToggleBtn');
+        const scheduleWrap = document.querySelector('.schedule-iframe-wrap');
+        if (scheduleToggleBtn && scheduleWrap) {
+            scheduleToggleBtn.addEventListener('click', (e) => {
+                if (e.target.closest('.schedule-toggle-info-btn')) return;
+                const collapsed = scheduleWrap.classList.toggle('collapsed');
+                scheduleToggleBtn.setAttribute('aria-expanded', String(!collapsed));
+                const label = scheduleToggleBtn.querySelector('.schedule-toggle-label');
+                if (label) {
+                    label.textContent = collapsed ? 'Развернуть расписание' : 'Свернуть расписание';
+                }
+            });
+        }
+
+        const scheduleOpenBtn = document.getElementById('scheduleOpenBtn');
+        if (scheduleOpenBtn) {
+            scheduleOpenBtn.addEventListener('click', () => {
+                const iframeEl = document.querySelector('.schedule-iframe');
+                if (iframeEl && iframeEl.src) {
+                    window.open(iframeEl.src, '_blank', 'noopener');
+                }
+            });
+        }
+
+        // ==========================================
+        // 8. ЛОАДЕР И ОШИБКА РАСПИСАНИЯ
+        // ==========================================
+        const scheduleIframe = document.querySelector('.schedule-iframe');
+        const scheduleLoader = document.getElementById('scheduleLoader');
+        const scheduleError = document.getElementById('scheduleError');
+        const scheduleRefreshBtn = document.getElementById('scheduleRefreshBtn');
+
+        let scheduleLoadTimeout = null;
+
+        function showScheduleError() {
+            if (scheduleLoader) scheduleLoader.classList.add('hidden');
+            if (scheduleError) scheduleError.classList.add('visible');
+        }
+
+        function showScheduleLoader() {
+            if (scheduleError) scheduleError.classList.remove('visible');
+            if (scheduleLoader) scheduleLoader.classList.remove('hidden');
+        }
+
+        function reloadSchedule() {
+            if (!scheduleIframe) return;
+            showScheduleLoader();
+            scheduleIframe.src = scheduleIframe.src;
+            clearTimeout(scheduleLoadTimeout);
+            scheduleLoadTimeout = setTimeout(() => {
+                showScheduleError();
+            }, 12000);
+        }
+
+        if (scheduleIframe && scheduleLoader) {
+            scheduleIframe.addEventListener('load', () => {
+                clearTimeout(scheduleLoadTimeout);
+                let ok = false;
+                try {
+                    const doc = scheduleIframe.contentDocument || scheduleIframe.contentWindow.document;
+                    if (doc && doc.body && doc.body.innerHTML.trim() !== '') ok = true;
+                } catch (e) {
+                    ok = true;
+                }
+                if (ok) {
+                    scheduleLoader.classList.add('hidden');
+                    if (scheduleError) scheduleError.classList.remove('visible');
+                } else {
+                    showScheduleError();
+                }
+            });
+
+            scheduleIframe.addEventListener('error', () => {
+                clearTimeout(scheduleLoadTimeout);
+                showScheduleError();
+            });
+
+            scheduleLoadTimeout = setTimeout(() => {
+                showScheduleError();
+            }, 12000);
+        }
+
+        if (scheduleRefreshBtn) {
+            scheduleRefreshBtn.addEventListener('click', reloadSchedule);
+        }
+
+        // ==========================================
+        // 8.1 ПЛАШКА «О СЕРВИСЕ РАСПИСАНИЯ»
+        // ==========================================
+        const scheduleInfoSheet = document.getElementById('scheduleInfoSheet');
+        const scheduleInfoContent = document.getElementById('scheduleInfoContent');
+        const scheduleInfoHandle = document.getElementById('scheduleInfoHandle');
+        const scheduleInfoBtn = document.getElementById('scheduleInfoBtn');
+        const scheduleToggleInfoBtn = document.getElementById('scheduleToggleInfoBtn');
+        const scheduleInfoOpenBtn = document.getElementById('scheduleInfoOpenBtn');
+
+        function openScheduleInfoSheet() {
+            if (!scheduleInfoSheet) return;
+            scheduleInfoSheet.classList.add('active');
+            scheduleInfoContent.style.transform = 'translateY(0)';
+        }
+
+        function closeScheduleInfoSheet() {
+            if (!scheduleInfoSheet) return;
+            scheduleInfoSheet.classList.remove('active');
+            scheduleInfoContent.style.transform = 'translateY(100%)';
+        }
+
+        if (scheduleInfoBtn) {
+            scheduleInfoBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openScheduleInfoSheet();
+            });
+        }
+
+        if (scheduleToggleInfoBtn) {
+            scheduleToggleInfoBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                openScheduleInfoSheet();
+            });
+        }
+
+        if (scheduleInfoOpenBtn) {
+            scheduleInfoOpenBtn.addEventListener('click', () => {
+                const iframeEl = document.querySelector('.schedule-iframe');
+                const url = iframeEl && iframeEl.src ? iframeEl.src : 'https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1';
+                window.open(url, '_blank', 'noopener');
+                closeScheduleInfoSheet();
+            });
+        }
+
+        function handleScheduleInfoBackdropClick(event) {
+            if (event.target === scheduleInfoSheet) {
+                closeScheduleInfoSheet();
+            }
+        }
+
+        let startYInfo = 0, currentYInfo = 0, isDraggingInfo = false;
+
+        function startDragInfo(e) {
+            isDraggingInfo = true;
+            startYInfo = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            currentYInfo = startYInfo;
+            scheduleInfoContent.style.transition = 'none';
+        }
+
+        function onDragInfo(e) {
+            if (!isDraggingInfo) return;
+            currentYInfo = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            const deltaY = currentYInfo - startYInfo;
+            if (deltaY > 0) {
+                scheduleInfoContent.style.transform = `translateY(${deltaY}px)`;
+                scheduleInfoSheet.style.backgroundColor = `rgba(0, 0, 0, ${0.4 - (deltaY / 300) * 0.4})`;
+                scheduleInfoSheet.style.backdropFilter = `blur(${3 - (deltaY / 300) * 3}px)`;
+                scheduleInfoSheet.style.webkitBackdropFilter = `blur(${3 - (deltaY / 300) * 3}px)`;
+            }
+        }
+
+        function endDragInfo() {
+            if (!isDraggingInfo) return;
+            isDraggingInfo = false;
+            scheduleInfoContent.style.transition = 'transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)';
+            const deltaY = currentYInfo - startYInfo;
+            if (deltaY > 100) {
+                closeScheduleInfoSheet();
+            } else {
+                scheduleInfoContent.style.transform = 'translateY(0)';
+            }
+            scheduleInfoSheet.style.backgroundColor = '';
+            scheduleInfoSheet.style.backdropFilter = '';
+            scheduleInfoSheet.style.webkitBackdropFilter = '';
+        }
+
+        if (scheduleInfoHandle && scheduleInfoContent) {
+            scheduleInfoHandle.addEventListener('mousedown', startDragInfo);
+            scheduleInfoContent.addEventListener('mousedown', startDragInfo);
+            window.addEventListener('mousemove', onDragInfo);
+            window.addEventListener('mouseup', endDragInfo);
+            scheduleInfoHandle.addEventListener('touchstart', startDragInfo, { passive: true });
+            scheduleInfoContent.addEventListener('touchstart', startDragInfo, { passive: true });
+            window.addEventListener('touchmove', onDragInfo, { passive: false });
+            window.addEventListener('touchend', endDragInfo);
+        }
+
+        // ==========================================
+        // 9. КАРТОЧКА ЛАЙКНУВШИХ
+        // ==========================================
+        const likesPopover = document.getElementById('likesPopover');
+        let likesHideTimer = null;
+        let likesShowTimer = null;
+        let currentHoverBtn = null;
+        let longPressTimer = null;
+        let longPressTriggered = false;
+
+        async function getLikersForPost(postId) {
+            if (!supabaseClient) return [];
+            const { data: likes, error } = await supabaseClient
+                .from('likes')
+                .select('user_id')
+                .eq('post_id', postId);
+            if (error) { console.error('Ошибка загрузки лайкнувших:', error); return []; }
+            if (!likes || likes.length === 0) return [];
+
+            const userIds = [...new Set(likes.map(l => l.user_id))];
+            const { data: profiles, error: pErr } = await supabaseClient
+                .from('profiles')
+                .select('id, username')
+                .in('id', userIds);
+            if (pErr) {
+                console.error('Ошибка загрузки профилей:', pErr);
+                return userIds.map(id => ({ id, username: 'Пользователь', isMe: false }));
+            }
+            const map = {};
+            (profiles || []).forEach(p => { map[p.id] = p.username; });
+
+            let myId = currentUserId;
+            if (!myId) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                myId = session ? session.user.id : null;
+                currentUserId = myId;
+            }
+
+            return userIds.map(id => {
+                const baseName = map[id] || 'Пользователь';
+                const isMe = myId && id === myId;
+                return { id, username: baseName, isMe };
+            });
+        }
+
+        function renderLikesPopover(likers) {
+            if (!likesPopover) return;
+            likesPopover.innerHTML = '';
+            if (!likers || likers.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'likes-popover-empty';
+                empty.textContent = 'Пока никто не лайкнул';
+                likesPopover.appendChild(empty);
+                return;
+            }
+            likers.forEach(u => {
+                const row = document.createElement('div');
+                row.className = 'likes-popover-row';
+
+                const name = document.createElement('span');
+                name.className = 'likes-popover-name';
+                name.textContent = u.username;
+                if (u.isMe) {
+                    const you = document.createElement('span');
+                    you.className = 'likes-popover-you';
+                    you.textContent = ' (Вы)';
+                    name.appendChild(you);
+                }
+
+                const heart = document.createElement('span');
+                heart.className = 'likes-popover-heart';
+                heart.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg>';
+
+                row.appendChild(name);
+                row.appendChild(heart);
+                likesPopover.appendChild(row);
+            });
+        }
+
+        function positionLikesPopover(btn) {
+            if (!btn || !likesPopover) return;
+            const rect = btn.getBoundingClientRect();
+            likesPopover.style.visibility = 'hidden';
+            likesPopover.classList.add('visible');
+            const popRect = likesPopover.getBoundingClientRect();
+            const gap = 8;
+            let top = rect.bottom + gap;
+            let left = rect.left;
+            if (top + popRect.height > window.innerHeight - 8) {
+                top = rect.top - popRect.height - gap;
+            }
+            if (left + popRect.width > window.innerWidth - 8) {
+                left = window.innerWidth - popRect.width - 8;
+            }
+            if (left < 8) left = 8;
+            if (top < 8) top = 8;
+            likesPopover.style.top = top + 'px';
+            likesPopover.style.left = left + 'px';
+            likesPopover.style.visibility = '';
+        }
+
+        async function showLikesPopover(btn) {
+            const postId = btn.getAttribute('data-post-id');
+            if (!postId) return;
+            if (likesPopover) {
+                likesPopover.innerHTML = '<div class="likes-popover-empty">Загрузка…</div>';
+                positionLikesPopover(btn);
+            }
+            const likers = await getLikersForPost(postId);
+            if (currentHoverBtn !== btn) return;
+            renderLikesPopover(likers);
+            positionLikesPopover(btn);
+        }
+
+        function hideLikesPopover() {
+            if (!likesPopover) return;
+            likesPopover.classList.remove('visible');
+        }
+
+        function clearLikesTimers() {
+            if (likesShowTimer) { clearTimeout(likesShowTimer); likesShowTimer = null; }
+            if (likesHideTimer) { clearTimeout(likesHideTimer); likesHideTimer = null; }
+        }
+
+        document.querySelectorAll('.heart-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                    clearLikesTimers();
+                    currentHoverBtn = btn;
+                    likesShowTimer = setTimeout(() => showLikesPopover(btn), 200);
+                }
+            });
+            btn.addEventListener('mouseleave', () => {
+                if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                    clearLikesTimers();
+                    if (currentHoverBtn === btn) {
+                        currentHoverBtn = null;
+                        likesHideTimer = setTimeout(() => {
+                            if (!likesPopover || !likesPopover.matches(':hover')) {
+                                hideLikesPopover();
+                            }
+                        }, 200);
+                    }
+                }
+            });
+
+            btn.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                clearLikesTimers();
+                currentHoverBtn = btn;
+                showLikesPopover(btn);
+            });
+
+            btn.addEventListener('touchstart', (e) => {
+                clearLikesTimers();
+                longPressTriggered = false;
+                currentHoverBtn = btn;
+                longPressTimer = setTimeout(() => {
+                    longPressTriggered = true;
+                    showLikesPopover(btn);
+                }, 500);
+            }, { passive: true });
+
+            btn.addEventListener('touchmove', () => {
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+            }, { passive: true });
+
+            btn.addEventListener('touchend', () => {
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+                if (longPressTriggered) {
+                    setTimeout(() => { longPressTriggered = false; }, 50);
+                }
+            });
+
+            btn.addEventListener('touchcancel', () => {
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+            });
+        });
+
+        if (likesPopover) {
+            likesPopover.addEventListener('mouseenter', () => { clearLikesTimers(); });
+            likesPopover.addEventListener('mouseleave', () => { clearLikesTimers(); hideLikesPopover(); });
+        }
+
+        document.querySelectorAll('.heart-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (longPressTriggered) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    longPressTriggered = false;
+                }
+            }, true);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!likesPopover) return;
+            if (!likesPopover.contains(e.target) && !e.target.closest('.heart-btn')) {
+                hideLikesPopover();
+            }
+        });
+
+        document.querySelectorAll('.tab-content').forEach(tc => {
+            tc.addEventListener('scroll', () => { hideLikesPopover(); }, { passive: true });
+        });
+
+                // === Мобильное меню квадрата (долгое нажатие) ===
+        (function initLikesMobileMenu() {
+            const menu = document.getElementById('likesMobileMenu');
+            const btn = document.getElementById('likesMobileUnlikeBtn');
+            if (!menu || !btn) return;
+
+            let pressTimer = null;
+            let activeItem = null;
+            let activePostId = null;
+            let longPressTriggered = false;
+
+                       function openMenu(item, postId) {
+                activeItem = item;
+                activePostId = postId;
+                longPressTriggered = true;
+
+                item.classList.add('likes-mobile-active');
+                const cell = item.closest('.likes-grid-cell');
+                if (cell) cell.classList.add('likes-mobile-active-cell');
+                menu.classList.add('active');
+
+                // Позиционируем кнопку рядом с квадратом
+                const rect = item.getBoundingClientRect();
+                const btnSize = 52;
+                const gap = 12;
+                const padding = 8;
+
+                let left = rect.right + gap;      // сначала справа
+                // если не влезает справа — слева
+                if (left + btnSize > window.innerWidth - padding) {
+                    left = rect.left - btnSize - gap;
+                }
+                // если и слева не влезает (квадрат на всю ширину) — под квадратом
+                if (left < padding) {
+                    left = rect.left + (rect.width - btnSize) / 2;
+                    const top = rect.bottom + gap;
+                    btn.style.top = Math.min(window.innerHeight - btnSize - padding, top) + 'px';
+                } else {
+                    const top = rect.top + (rect.height - btnSize) / 2;
+                    btn.style.top = Math.max(padding, Math.min(window.innerHeight - btnSize - padding, top)) + 'px';
+                }
+                btn.style.left = Math.max(padding, Math.min(window.innerWidth - btnSize - padding, left)) + 'px';
+
+                if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) {} }
+            }
+
+                        function closeMenu() {
+                if (activeItem) {
+                    activeItem.classList.remove('likes-mobile-active');
+                    const cell = activeItem.closest('.likes-grid-cell');
+                    if (cell) cell.classList.remove('likes-mobile-active-cell');
+                }
+                menu.classList.remove('active');
+                activeItem = null;
+                activePostId = null;
+                longPressTriggered = false;
+            }
+
+            // Клик вне кнопки — закрыть
+            menu.addEventListener('click', (e) => {
+                if (e.target.closest('.likes-mobile-btn')) return;
+                closeMenu();
+            });
+
+            // Клик по кнопке — убрать лайк
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!activePostId || !supabaseClient || !currentUserId) { closeMenu(); return; }
+
+                const postId = activePostId;
+                closeMenu();
+
+                const { error } = await supabaseClient
+                    .from('likes')
+                    .delete()
+                    .match({ user_id: currentUserId, post_id: postId });
+
+                if (error) {
+                    console.error('Ошибка удаления лайка:', error);
+                    return;
+                }
+
+                const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+                if (heartBtn) heartBtn.classList.remove('liked');
+
+                loadLikedPostsIntoGrid();
+            });
+
+            // Навешиваем обработчики на все квадраты (после рендера)
+            function bindItems() {
+                document.querySelectorAll('.likes-grid-item').forEach(item => {
+                    if (item.dataset.mobileMenuBound === '1') return;
+                    item.dataset.mobileMenuBound = '1';
+
+                    item.addEventListener('touchstart', (e) => {
+                        if (!window.matchMedia('(hover: none)').matches) return;
+                        if (e.touches.length !== 1) return;
+                        const postId = item.getAttribute('data-post-id');
+                        if (!postId) return;
+
+                        longPressTriggered = false;
+                        pressTimer = setTimeout(() => openMenu(item, postId), 500);
+                    }, { passive: true });
+
+                    item.addEventListener('touchmove', () => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                    }, { passive: true });
+
+                    item.addEventListener('touchend', (e) => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                        // если меню не открыли — обычный клик по квадрату сработает
+                        if (longPressTriggered) e.preventDefault();
+                    });
+
+                    item.addEventListener('touchcancel', () => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                    });
+                });
+            }
+
+            // Перебиндить после перерисовки сетки
+            const observer = new MutationObserver(bindItems);
+            const grid = document.getElementById('likesGrid');
+            if (grid) observer.observe(grid, { childList: true, subtree: true });
+
+            bindItems();
+
+            // Закрытие при скролле/повороте — на всякий случай
+            window.addEventListener('scroll', () => { if (menu.classList.contains('active')) closeMenu(); }, { passive: true });
+            window.addEventListener('resize', () => { if (menu.classList.contains('active')) closeMenu(); });
+        })();
+    </script>
+</body>
+</html>
