@@ -1008,26 +1008,6 @@
             overflow: visible;
         }
 
-                /* Обёртка: квадрат + дата под ним */
-        .likes-grid-cell {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-
-        /* Дата под квадратом — по центру */
-        .likes-grid-date {
-            margin-top: 4px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            color: #666;
-            line-height: 1;
-            white-space: nowrap;
-            text-align: center;
-            pointer-events: none;
-        }
-
         .likes-grid-item {
             position: relative;
             width: 100%;
@@ -1201,20 +1181,56 @@
             }
 
         /* === Мобильное меню квадрата === */
-                        /* Оверлей: 4 «шторки» с блюром, между ними — прозрачный «прямоугольник» вокруг квадрата */
+                                /* Оверлей (блюр всего) */
         .likes-mobile-menu {
             display: none;
             position: fixed;
             inset: 0;
             z-index: 10020;
-            pointer-events: none;
+            background: rgba(0, 0, 0, 0.35);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
             opacity: 0;
             transition: opacity 0.2s ease;
+            pointer-events: none;
         }
         .likes-mobile-menu.active {
             display: block !important;
             opacity: 1;
             pointer-events: auto;
+        }
+
+        /* Оригинальный квадрат в сетке — невидим, пока открыто меню */
+        .likes-grid-item.likes-mobile-hidden {
+            visibility: hidden;
+        }
+
+        /* Дубликат квадрата — поверх оверлея */
+        .likes-mobile-floater {
+            position: fixed;
+            z-index: 10025;
+            pointer-events: auto;
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.2s ease;
+            opacity: 0;
+            border-radius: 8px;
+            overflow: visible;
+        }
+        .likes-mobile-floater.active {
+            opacity: 1;
+        }
+        .likes-mobile-floater .likes-grid-item {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #f5f5f5;
+            transform: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
         }
 
         /* Общая шторка */
@@ -1226,23 +1242,10 @@
         }
 
                 /* Поднятая ячейка (квадрат + дата) — поверх блюра */
-        .likes-grid-cell.likes-mobile-active-cell {
-            position: relative;
-            z-index: 10025;
-        }
+       
+        
 
-        /* Поднятый квадрат */
-        .likes-grid-item.likes-mobile-active {
-            transform: scale(1.1);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-
-        /* Дата под квадратом не размывается (она внутри ячейки) */
-        .likes-grid-cell.likes-mobile-active-cell .likes-grid-date {
-            position: relative;
-            z-index: 10026;
-        }
+     
 
         /* Белый круг с перечёркнутым сердечком */
         .likes-mobile-btn {
@@ -2886,15 +2889,150 @@
         });
 
                 // === Мобильное меню квадрата (долгое нажатие) ===
-        (function initLikesMobileMenu() {
+                (function initLikesMobileMenu() {
             const menu = document.getElementById('likesMobileMenu');
             const btn = document.getElementById('likesMobileUnlikeBtn');
-            if (!menu || !btn) return;
+            const floater = document.getElementById('likesMobileFloater');
+            if (!menu || !btn || !floater) return;
 
             let pressTimer = null;
             let activeItem = null;
             let activePostId = null;
             let longPressTriggered = false;
+
+            function openMenu(item, postId) {
+                activeItem = item;
+                activePostId = postId;
+                longPressTriggered = true;
+
+                const rect = item.getBoundingClientRect();
+
+                // Скрыть оригинал в сетке
+                item.classList.add('likes-mobile-hidden');
+
+                // Очистить флоатер и склонировать квадрат
+                floater.innerHTML = '';
+                const clone = item.cloneNode(true);
+                clone.classList.remove('likes-mobile-hidden');
+                clone.removeAttribute('data-post-id'); // чтобы не срабатывало как обычный клик
+                // Кнопку «убрать лайк» внутри клона убираем — она не нужна, есть отдельная
+                const cloneUnlike = clone.querySelector('.likes-grid-unlike');
+                if (cloneUnlike) cloneUnlike.remove();
+
+                floater.appendChild(clone);
+
+                // Позиционируем флоатер по координатам оригинала
+                floater.style.top = rect.top + 'px';
+                floater.style.left = rect.left + 'px';
+                floater.style.width = rect.width + 'px';
+                floater.style.height = rect.height + 'px';
+
+                // Показать меню
+                menu.classList.add('active');
+                floater.classList.add('active');
+
+                // Кнопка «убрать лайк» рядом с флоатером
+                const btnSize = 52;
+                const gap = 12;
+                const padding = 8;
+
+                let left = rect.right + gap;
+                if (left + btnSize > window.innerWidth - padding) {
+                    left = rect.left - btnSize - gap;
+                }
+
+                let top;
+                if (left < padding) {
+                    left = rect.left + (rect.width - btnSize) / 2;
+                    top = rect.bottom + gap;
+                } else {
+                    top = rect.top + (rect.height - btnSize) / 2;
+                }
+
+                btn.style.top = Math.max(padding, Math.min(window.innerHeight - btnSize - padding, top)) + 'px';
+                btn.style.left = Math.max(padding, Math.min(window.innerWidth - btnSize - padding, left)) + 'px';
+
+                if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) {} }
+            }
+
+            function closeMenu() {
+                if (activeItem) activeItem.classList.remove('likes-mobile-hidden');
+                floater.classList.remove('active');
+                menu.classList.remove('active');
+                // Очистить флоатер
+                setTimeout(() => { floater.innerHTML = ''; }, 200);
+                activeItem = null;
+                activePostId = null;
+                longPressTriggered = false;
+            }
+
+            menu.addEventListener('click', (e) => {
+                if (e.target.closest('.likes-mobile-btn')) return;
+                closeMenu();
+            });
+
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!activePostId || !supabaseClient || !currentUserId) { closeMenu(); return; }
+
+                const postId = activePostId;
+                closeMenu();
+
+                const { error } = await supabaseClient
+                    .from('likes')
+                    .delete()
+                    .match({ user_id: currentUserId, post_id: postId });
+
+                if (error) {
+                    console.error('Ошибка удаления лайка:', error);
+                    return;
+                }
+
+                const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+                if (heartBtn) heartBtn.classList.remove('liked');
+
+                loadLikedPostsIntoGrid();
+            });
+
+            function bindItems() {
+                document.querySelectorAll('.likes-grid-item').forEach(item => {
+                    if (item.dataset.mobileMenuBound === '1') return;
+                    item.dataset.mobileMenuBound = '1';
+
+                    item.addEventListener('touchstart', (e) => {
+                        if (!window.matchMedia('(hover: none)').matches) return;
+                        if (e.touches.length !== 1) return;
+                        const postId = item.getAttribute('data-post-id');
+                        if (!postId) return;
+
+                        longPressTriggered = false;
+                        pressTimer = setTimeout(() => openMenu(item, postId), 500);
+                    }, { passive: true });
+
+                    item.addEventListener('touchmove', () => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                    }, { passive: true });
+
+                    item.addEventListener('touchend', (e) => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                        if (longPressTriggered) e.preventDefault();
+                    });
+
+                    item.addEventListener('touchcancel', () => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                    });
+                });
+            }
+
+            const observer = new MutationObserver(bindItems);
+            const grid = document.getElementById('likesGrid');
+            if (grid) observer.observe(grid, { childList: true, subtree: true });
+
+            bindItems();
+
+            window.addEventListener('scroll', () => { if (menu.classList.contains('active')) closeMenu(); }, { passive: true });
+            window.addEventListener('resize', () => { if (menu.classList.contains('active')) closeMenu(); });
+        })();
 
                        function openMenu(item, postId) {
                 activeItem = item;
@@ -3057,5 +3195,9 @@
             window.addEventListener('resize', () => { if (menu.classList.contains('active')) closeMenu(); });
         })();
     </script>
+
+        <!-- Слой для поднятого квадрата поверх блюра -->
+    <div class="likes-mobile-floater" id="likesMobileFloater"></div>
+    
 </body>
 </html>
