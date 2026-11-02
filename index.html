@@ -1201,22 +1201,28 @@
             }
 
         /* === Мобильное меню квадрата === */
-                .likes-mobile-menu {
+                        /* Оверлей: 4 «шторки» с блюром, между ними — прозрачный «прямоугольник» вокруг квадрата */
+        .likes-mobile-menu {
             display: none;
             position: fixed;
             inset: 0;
             z-index: 10020;
-            background: rgba(0, 0, 0, 0.35);
-            -webkit-backdrop-filter: blur(8px);
-            backdrop-filter: blur(8px);
+            pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s ease;
-            pointer-events: none;
         }
         .likes-mobile-menu.active {
             display: block !important;
             opacity: 1;
             pointer-events: auto;
+        }
+
+        /* Общая шторка */
+        .likes-mobile-menu .blur-part {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.35);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
         }
 
                 /* Поднятая ячейка (квадрат + дата) — поверх блюра */
@@ -1741,7 +1747,11 @@
     <div class="likes-popover" id="likesPopover"></div>
 
       <!-- Оверлей для мобильного меню квадрата -->
-    <div class="likes-mobile-menu" id="likesMobileMenu">
+       <div class="likes-mobile-menu" id="likesMobileMenu">
+        <div class="blur-part" id="blurTop"></div>
+        <div class="blur-part" id="blurBottom"></div>
+        <div class="blur-part" id="blurLeft"></div>
+        <div class="blur-part" id="blurRight"></div>
         <button type="button" class="likes-mobile-btn" id="likesMobileUnlikeBtn" aria-label="Убрать лайк">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/>
@@ -2891,13 +2901,53 @@
                 activePostId = postId;
                 longPressTriggered = true;
 
-                item.classList.add('likes-mobile-active');
+                                item.classList.add('likes-mobile-active');
                 const cell = item.closest('.likes-grid-cell');
                 if (cell) cell.classList.add('likes-mobile-active-cell');
                 menu.classList.add('active');
 
-                // Позиционируем кнопку рядом с квадратом
+                // Позиционируем кнопку и «шторки» вокруг квадрата
                 const rect = item.getBoundingClientRect();
+                const cellRect = cell ? cell.getBoundingClientRect() : rect;
+
+                // «Окно» = квадрат + место под дату (снизу чуть больше)
+                const holeTop = cellRect.top - 8;
+                const holeLeft = cellRect.left - 8;
+                const holeRight = cellRect.right + 8;
+                const holeBottom = cellRect.bottom + 8;
+
+                const bTop = document.getElementById('blurTop');
+                const bBottom = document.getElementById('blurBottom');
+                const bLeft = document.getElementById('blurLeft');
+                const bRight = document.getElementById('blurRight');
+
+                if (bTop) {
+                    bTop.style.top = '0';
+                    bTop.style.left = '0';
+                    bTop.style.right = '0';
+                    bTop.style.height = Math.max(0, holeTop) + 'px';
+                }
+                if (bBottom) {
+                    bBottom.style.top = holeBottom + 'px';
+                    bBottom.style.left = '0';
+                    bBottom.style.right = '0';
+                    bBottom.style.bottom = '0';
+                    bBottom.style.height = 'auto';
+                }
+                if (bLeft) {
+                    bLeft.style.top = holeTop + 'px';
+                    bLeft.style.left = '0';
+                    bLeft.style.width = Math.max(0, holeLeft) + 'px';
+                    bLeft.style.height = (holeBottom - holeTop) + 'px';
+                }
+                if (bRight) {
+                    bRight.style.top = holeTop + 'px';
+                    bRight.style.left = holeRight + 'px';
+                    bRight.style.right = '0';
+                    bRight.style.height = (holeBottom - holeTop) + 'px';
+                    bRight.style.width = 'auto';
+                }
+
                 const btnSize = 52;
                 const gap = 12;
                 const padding = 8;
