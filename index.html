@@ -2093,16 +2093,13 @@
 
             hideLoader();
             empty.classList.add('hidden');
-            setCount(uniquePostIds.length);
                         setCount(uniquePostIds.length);
             setNoLikes(false);
 
             uniqueLikes.forEach(like => {
                 const postId = like.post_id;
                 const likeDate = like.created_at;
-                const meta = POSTS_MAP[postId] || { title: 'Пост' };
-
-                const cell = document.createElement('div');
+            
                 cell.className = 'likes-grid-cell';
 
                 const item = document.createElement('div');
@@ -2161,7 +2158,7 @@
                         return;
                     }
 
-                    const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+                                        const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
                     if (heartBtn) heartBtn.classList.remove('liked');
 
                     loadLikedPostsIntoGrid();
@@ -2188,6 +2185,8 @@
 
                 grid.appendChild(cell);
             });
+
+            if (typeof window.__bindLikesMenuItems === 'function') window.__bindLikesMenuItems();
         }
 
         function toggleAuthMode() {
@@ -2942,80 +2941,65 @@
             }
 
             function closeMenu() {
-                menuOpen = false;
-                if (activeItem) {
-                    activeItem.classList.remove('likes-mobile-hidden');
-                    activeItem = null;
-                }
-                floater.classList.remove('active');
-                menu.classList.remove('active');
-                setTimeout(() => { floater.innerHTML = ''; }, 200);
-                resetState();
-            }
+    if (!menuOpen && !activeItem) return;
+    menuOpen = false;
+    if (activeItem) {
+        activeItem.classList.remove('likes-mobile-hidden');
+    }
+    activeItem = null;
+    activePostId = null;
+    floater.classList.remove('active');
+    menu.classList.remove('active');
+    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    setTimeout(() => {
+        floater.innerHTML = '';
+        longPressTriggered = false;
+    }, 200);
+}
 
-            // Клик по оверлею вне кнопки — закрыть
-            menu.addEventListener('click', (e) => {
-                if (e.target.closest('.likes-mobile-btn')) return;
-                if (menuOpen) closeMenu();
-            });
+function bindItems() {
+    document.querySelectorAll('.likes-grid-item').forEach(item => {
+        if (item.dataset.mobileMenuBound === '1') return;
+        item.dataset.mobileMenuBound = '1';
 
-            // Кнопка «убрать лайк»
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                if (!activePostId || !supabaseClient || !currentUserId) { closeMenu(); return; }
-                const postId = activePostId;
-                closeMenu();
+        let localPressTimer = null;
 
-                const { error } = await supabaseClient
-                    .from('likes')
-                    .delete()
-                    .match({ user_id: currentUserId, post_id: postId });
-                if (error) { console.error('Ошибка удаления лайка:', error); return; }
+        item.addEventListener('touchstart', (e) => {
+            if (!window.matchMedia('(hover: none)').matches) return;
+            if (e.touches.length !== 1) return;
+            const postId = item.getAttribute('data-post-id');
+            if (!postId) return;
 
-                const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
-                if (heartBtn) heartBtn.classList.remove('liked');
-                loadLikedPostsIntoGrid();
-            });
+            if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
+            longPressTriggered = false;
 
-            function bindItems() {
-                document.querySelectorAll('.likes-grid-item').forEach(item => {
-                    if (item.dataset.mobileMenuBound === '1') return;
-                    item.dataset.mobileMenuBound = '1';
+            localPressTimer = setTimeout(() => {
+                localPressTimer = null;
+                longPressTriggered = true;
+                openMenu(item, postId);
+            }, 500);
+        }, { passive: true });
 
-                    item.addEventListener('touchstart', (e) => {
-                        if (!window.matchMedia('(hover: none)').matches) return;
-                        if (e.touches.length !== 1) return;
-                        if (menuOpen) return; // если меню открыто — не открываем снова
-                        const postId = item.getAttribute('data-post-id');
-                        if (!postId) return;
+        item.addEventListener('touchmove', () => {
+            if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
+        }, { passive: true });
 
-                        resetState();  // сбрасываем перед новым нажатием
-                        pressTimer = setTimeout(() => openMenu(item, postId), 500);
-                    }, { passive: true });
+        item.addEventListener('touchend', () => {
+            if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
+        });
 
-                    item.addEventListener('touchmove', () => {
-                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-                    }, { passive: true });
-
-                    item.addEventListener('touchend', () => {
-                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-                        // preventDefault не нужен — даём обычному клику пройти
-                        if (longPressTriggered) {
-                            setTimeout(() => { longPressTriggered = false; }, 50);
-                        }
-                    });
-
-                    item.addEventListener('touchcancel', () => {
-                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-                    });
-                });
-            }
+        item.addEventListener('touchcancel', () => {
+            if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
+        });
+    });
+}
 
             const observer = new MutationObserver(bindItems);
             const grid = document.getElementById('likesGrid');
             if (grid) observer.observe(grid, { childList: true, subtree: true });
 
             bindItems();
+window.__bindLikesMenuItems = bindItems;
 
             // Закрытие при скролле/повороте
             window.addEventListener('scroll', () => { if (menuOpen) closeMenu(); }, { passive: true });
