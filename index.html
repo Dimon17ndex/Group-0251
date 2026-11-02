@@ -1219,13 +1219,23 @@
             pointer-events: auto;
         }
 
-        /* Поднятый квадрат */
-        .likes-grid-item.likes-mobile-active {
+                /* Поднятая ячейка (квадрат + дата) — поверх блюра */
+        .likes-grid-cell.likes-mobile-active-cell {
             position: relative;
             z-index: 10025;
+        }
+
+        /* Поднятый квадрат */
+        .likes-grid-item.likes-mobile-active {
             transform: scale(1.1);
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
             transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        /* Дата под квадратом не размывается (она внутри ячейки) */
+        .likes-grid-cell.likes-mobile-active-cell .likes-grid-date {
+            position: relative;
+            z-index: 10026;
         }
 
         /* Белый круг с перечёркнутым сердечком */
@@ -2876,12 +2886,14 @@
             let activePostId = null;
             let longPressTriggered = false;
 
-            function openMenu(item, postId) {
+                       function openMenu(item, postId) {
                 activeItem = item;
                 activePostId = postId;
                 longPressTriggered = true;
 
                 item.classList.add('likes-mobile-active');
+                const cell = item.closest('.likes-grid-cell');
+                if (cell) cell.classList.add('likes-mobile-active-cell');
                 menu.classList.add('active');
 
                 // Позиционируем кнопку рядом с квадратом
@@ -2909,8 +2921,12 @@
                 if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) {} }
             }
 
-            function closeMenu() {
-                if (activeItem) activeItem.classList.remove('likes-mobile-active');
+                        function closeMenu() {
+                if (activeItem) {
+                    activeItem.classList.remove('likes-mobile-active');
+                    const cell = activeItem.closest('.likes-grid-cell');
+                    if (cell) cell.classList.remove('likes-mobile-active-cell');
+                }
                 menu.classList.remove('active');
                 activeItem = null;
                 activePostId = null;
