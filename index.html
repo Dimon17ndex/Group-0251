@@ -2878,17 +2878,155 @@
             tc.addEventListener('scroll', () => { hideLikesPopover(); }, { passive: true });
         });
 
-        // === Мобильное меню квадрата (floater) ===
+                // === Мобильное меню квадрата (floater) ===
         (function initLikesMobileMenu() {
             const menu = document.getElementById('likesMobileMenu');
             const btn = document.getElementById('likesMobileUnlikeBtn');
             const floater = document.getElementById('likesMobileFloater');
-            if (!menu || !btn || !floater) return;
+            if (!menu || !btn || !floater) {
+                console.warn('initLikesMobileMenu: элементы меню не найдены');
+                return;
+            }
 
             let pressTimer = null;
             let activeItem = null;
             let activePostId = null;
             let longPressTriggered = false;
+            let menuOpen = false;
+
+            function resetState() {
+                if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                longPressTriggered = false;
+                activePostId = null;
+                if (activeItem) {
+                    activeItem.classList.remove('likes-mobile-hidden');
+                    activeItem = null;
+                }
+            }
+
+            function openMenu(item, postId) {
+                activeItem = item;
+                activePostId = postId;
+                longPressTriggered = true;
+                menuOpen = true;
+
+                const rect = item.getBoundingClientRect();
+                item.classList.add('likes-mobile-hidden');
+
+                floater.innerHTML = '';
+                const clone = item.cloneNode(true);
+                clone.classList.remove('likes-mobile-hidden');
+                clone.removeAttribute('data-post-id');
+                const cloneUnlike = clone.querySelector('.likes-grid-unlike');
+                if (cloneUnlike) cloneUnlike.remove();
+                floater.appendChild(clone);
+
+                floater.style.top = rect.top + 'px';
+                floater.style.left = rect.left + 'px';
+                floater.style.width = rect.width + 'px';
+                floater.style.height = rect.height + 'px';
+
+                menu.classList.add('active');
+                floater.classList.add('active');
+
+                const btnSize = 52;
+                const gap = 12;
+                const padding = 8;
+
+                let left = rect.right + gap;
+                if (left + btnSize > window.innerWidth - padding) {
+                    left = rect.left - btnSize - gap;
+                }
+                let top;
+                if (left < padding) {
+                    left = rect.left + (rect.width - btnSize) / 2;
+                    top = rect.bottom + gap;
+                } else {
+                    top = rect.top + (rect.height - btnSize) / 2;
+                }
+                btn.style.top = Math.max(padding, Math.min(window.innerHeight - btnSize - padding, top)) + 'px';
+                btn.style.left = Math.max(padding, Math.min(window.innerWidth - btnSize - padding, left)) + 'px';
+
+                if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) {} }
+            }
+
+            function closeMenu() {
+                menuOpen = false;
+                if (activeItem) {
+                    activeItem.classList.remove('likes-mobile-hidden');
+                    activeItem = null;
+                }
+                floater.classList.remove('active');
+                menu.classList.remove('active');
+                setTimeout(() => { floater.innerHTML = ''; }, 200);
+                resetState();
+            }
+
+            // Клик по оверлею вне кнопки — закрыть
+            menu.addEventListener('click', (e) => {
+                if (e.target.closest('.likes-mobile-btn')) return;
+                if (menuOpen) closeMenu();
+            });
+
+            // Кнопка «убрать лайк»
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!activePostId || !supabaseClient || !currentUserId) { closeMenu(); return; }
+                const postId = activePostId;
+                closeMenu();
+
+                const { error } = await supabaseClient
+                    .from('likes')
+                    .delete()
+                    .match({ user_id: currentUserId, post_id: postId });
+                if (error) { console.error('Ошибка удаления лайка:', error); return; }
+
+                const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+                if (heartBtn) heartBtn.classList.remove('liked');
+                loadLikedPostsIntoGrid();
+            });
+
+            function bindItems() {
+                document.querySelectorAll('.likes-grid-item').forEach(item => {
+                    if (item.dataset.mobileMenuBound === '1') return;
+                    item.dataset.mobileMenuBound = '1';
+
+                    item.addEventListener('touchstart', (e) => {
+                        if (!window.matchMedia('(hover: none)').matches) return;
+                        if (e.touches.length !== 1) return;
+                        if (menuOpen) return; // если меню открыто — не открываем снова
+                        const postId = item.getAttribute('data-post-id');
+                        if (!postId) return;
+
+                        resetState();  // сбрасываем перед новым нажатием
+                        pressTimer = setTimeout(() => openMenu(item, postId), 500);
+                    }, { passive: true });
+
+                    item.addEventListener('touchmove', () => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                    }, { passive: true });
+
+                    item.addEventListener('touchend', (e) => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                        // НЕ вызываем preventDefault — даём клику пройти нормально
+                    });
+
+                    item.addEventListener('touchcancel', () => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                    });
+                });
+            }
+
+            const observer = new MutationObserver(bindItems);
+            const grid = document.getElementById('likesGrid');
+            if (grid) observer.observe(grid, { childList: true, subtree: true });
+
+            bindItems();
+
+            // Закрытие при скролле/повороте
+            window.addEventListener('scroll', () => { if (menuOpen) closeMenu(); }, { passive: true });
+            window.addEventListener('resize', () => { if (menuOpen) closeMenu(); });
+        })();
 
             function openMenu(item, postId) {
                 activeItem = item;
