@@ -2871,11 +2871,11 @@
         // ==========================================
         // 10. МОБИЛЬНОЕ МЕНЮ КВАДРАТА (Лайки)
         // ==========================================
-        (function initLikesMobileMenu() {
+                (function initLikesMobileMenu() {
             const menu = document.getElementById('likesMobileMenu');
             const btn = document.getElementById('likesMobileUnlikeBtn');
             const floater = document.getElementById('likesMobileFloater');
-                        if (!menu || !btn || !floater) {
+            if (!menu || !btn || !floater) {
                 console.warn('initLikesMobileMenu: элементы меню не найдены');
                 return;
             }
@@ -2943,81 +2943,110 @@
             }
 
             function closeMenu() {
-    if (!menuOpen && !activeItem) return;
-    menuOpen = false;
-    if (activeItem) {
-        activeItem.classList.remove('likes-mobile-hidden');
-    }
-    activeItem = null;
-    activePostId = null;
-    floater.classList.remove('active');
-    menu.classList.remove('active');
-    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-    setTimeout(() => {
-        floater.innerHTML = '';
-        longPressTriggered = false;
-    }, 200);
-}
+                if (!menuOpen && !activeItem) return;
+                menuOpen = false;
+                if (activeItem) {
+                    activeItem.classList.remove('likes-mobile-hidden');
+                }
+                activeItem = null;
+                activePostId = null;
+                floater.classList.remove('active');
+                menu.classList.remove('active');
+                if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                setTimeout(() => {
+                    floater.innerHTML = '';
+                    longPressTriggered = false;
+                }, 200);
+            }
 
-function bindItems() {
-    document.querySelectorAll('.likes-grid-item').forEach(item => {
-        if (item.dataset.mobileMenuBound === '1') return;
-        item.dataset.mobileMenuBound = '1';
+            function bindItems() {
+                document.querySelectorAll('.likes-grid-item').forEach(item => {
+                    if (item.dataset.mobileMenuBound === '1') return;
+                    item.dataset.mobileMenuBound = '1';
 
-        let localPressTimer = null;
-        let startX = 0, startY = 0;
+                    let localPressTimer = null;
+                    let startX = 0, startY = 0;
 
-        const startPress = (postId, x, y) => {
-            startX = x; startY = y;
-            if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
-            longPressTriggered = false;
+                    const startPress = (postId, x, y) => {
+                        startX = x; startY = y;
+                        if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
+                        longPressTriggered = false;
 
-            localPressTimer = setTimeout(() => {
-                localPressTimer = null;
-                longPressTriggered = true;
-                openMenu(item, postId);
-            }, 500);
-        };
+                        localPressTimer = setTimeout(() => {
+                            localPressTimer = null;
+                            longPressTriggered = true;
+                            openMenu(item, postId);
+                        }, 500);
+                    };
 
-        const cancelPress = () => {
-            if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
-        };
+                    const cancelPress = () => {
+                        if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
+                    };
 
-        // === Основной путь: touch events ===
-        item.addEventListener('touchstart', (e) => {
-            console.log('[likes] touchstart');
-            if (e.touches.length !== 1) return;
-            const postId = item.getAttribute('data-post-id');
-            if (!postId) return;
-            startPress(postId, e.touches[0].clientX, e.touches[0].clientY);
-        }, { passive: true });
+                    item.addEventListener('touchstart', (e) => {
+                        if (e.touches.length !== 1) return;
+                        const postId = item.getAttribute('data-post-id');
+                        if (!postId) return;
+                        startPress(postId, e.touches[0].clientX, e.touches[0].clientY);
+                    }, { passive: true });
 
-        item.addEventListener('touchmove', (e) => {
-            if (!localPressTimer) return;
-            const t = e.touches[0];
-            if (!t) return cancelPress();
-            const dx = Math.abs(t.clientX - startX);
-            const dy = Math.abs(t.clientY - startY);
-            if (dx > 15 || dy > 15) cancelPress();
-        }, { passive: true });
+                    item.addEventListener('touchmove', (e) => {
+                        if (!localPressTimer) return;
+                        const t = e.touches[0];
+                        if (!t) return cancelPress();
+                        const dx = Math.abs(t.clientX - startX);
+                        const dy = Math.abs(t.clientY - startY);
+                        if (dx > 15 || dy > 15) cancelPress();
+                    }, { passive: true });
 
-        item.addEventListener('touchend', cancelPress);
-        item.addEventListener('touchcancel', cancelPress);
+                    item.addEventListener('touchend', cancelPress);
+                    item.addEventListener('touchcancel', cancelPress);
 
-        // === Fallback: pointer events (если touch не сработал) ===
-        item.addEventListener('pointerdown', (e) => {
-            if (e.pointerType !== 'touch') return;
-            if (localPressTimer) return; // уже запущено touchstart'ом
-            console.log('[likes] pointerdown');
-            const postId = item.getAttribute('data-post-id');
-            if (!postId) return;
-            startPress(postId, e.clientX, e.clientY);
-        });
-        item.addEventListener('pointerup', cancelPress);
-        item.addEventListener('pointercancel', cancelPress);
-        item.addEventListener('pointerleave', cancelPress);
-    });
-}
+                    item.addEventListener('pointerdown', (e) => {
+                        if (e.pointerType !== 'touch') return;
+                        if (localPressTimer) return;
+                        const postId = item.getAttribute('data-post-id');
+                        if (!postId) return;
+                        startPress(postId, e.clientX, e.clientY);
+                    });
+                    item.addEventListener('pointerup', cancelPress);
+                    item.addEventListener('pointercancel', cancelPress);
+                    item.addEventListener('pointerleave', cancelPress);
+                });
+            }
+
+            menu.addEventListener('click', (e) => {
+                if (e.target.closest('.likes-mobile-btn')) return;
+                if (menuOpen) closeMenu();
+            });
+
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!activePostId || !supabaseClient || !currentUserId) { closeMenu(); return; }
+                const postId = activePostId;
+                closeMenu();
+
+                const { error } = await supabaseClient
+                    .from('likes')
+                    .delete()
+                    .match({ user_id: currentUserId, post_id: postId });
+                if (error) { console.error('Ошибка удаления лайка:', error); return; }
+
+                const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+                if (heartBtn) heartBtn.classList.remove('liked');
+                loadLikedPostsIntoGrid();
+            });
+
+            const observer = new MutationObserver(bindItems);
+            const grid = document.getElementById('likesGrid');
+            if (grid) observer.observe(grid, { childList: true, subtree: true });
+
+            bindItems();
+            window.__bindLikesMenuItems = bindItems;
+
+            window.addEventListener('scroll', () => { if (menuOpen) closeMenu(); }, { passive: true });
+            window.addEventListener('resize', () => { if (menuOpen) closeMenu(); });
+        })();
     </script>
 </body>
 </html>
