@@ -2965,13 +2965,10 @@ function bindItems() {
         item.dataset.mobileMenuBound = '1';
 
         let localPressTimer = null;
+        let startX = 0, startY = 0;
 
-        item.addEventListener('touchstart', (e) => {
-            if (!window.matchMedia('(hover: none)').matches) return;
-            if (e.touches.length !== 1) return;
-            const postId = item.getAttribute('data-post-id');
-            if (!postId) return;
-
+        const startPress = (postId, x, y) => {
+            startX = x; startY = y;
             if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
             longPressTriggered = false;
 
@@ -2980,33 +2977,47 @@ function bindItems() {
                 longPressTriggered = true;
                 openMenu(item, postId);
             }, 500);
+        };
+
+        const cancelPress = () => {
+            if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
+        };
+
+        // === Основной путь: touch events ===
+        item.addEventListener('touchstart', (e) => {
+            console.log('[likes] touchstart');
+            if (e.touches.length !== 1) return;
+            const postId = item.getAttribute('data-post-id');
+            if (!postId) return;
+            startPress(postId, e.touches[0].clientX, e.touches[0].clientY);
         }, { passive: true });
 
-        item.addEventListener('touchmove', () => {
-            if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
+        item.addEventListener('touchmove', (e) => {
+            if (!localPressTimer) return;
+            const t = e.touches[0];
+            if (!t) return cancelPress();
+            const dx = Math.abs(t.clientX - startX);
+            const dy = Math.abs(t.clientY - startY);
+            if (dx > 15 || dy > 15) cancelPress();
         }, { passive: true });
 
-        item.addEventListener('touchend', () => {
-            if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
-        });
+        item.addEventListener('touchend', cancelPress);
+        item.addEventListener('touchcancel', cancelPress);
 
-        item.addEventListener('touchcancel', () => {
-            if (localPressTimer) { clearTimeout(localPressTimer); localPressTimer = null; }
+        // === Fallback: pointer events (если touch не сработал) ===
+        item.addEventListener('pointerdown', (e) => {
+            if (e.pointerType !== 'touch') return;
+            if (localPressTimer) return; // уже запущено touchstart'ом
+            console.log('[likes] pointerdown');
+            const postId = item.getAttribute('data-post-id');
+            if (!postId) return;
+            startPress(postId, e.clientX, e.clientY);
         });
+        item.addEventListener('pointerup', cancelPress);
+        item.addEventListener('pointercancel', cancelPress);
+        item.addEventListener('pointerleave', cancelPress);
     });
 }
-
-            const observer = new MutationObserver(bindItems);
-            const grid = document.getElementById('likesGrid');
-            if (grid) observer.observe(grid, { childList: true, subtree: true });
-
-            bindItems();
-window.__bindLikesMenuItems = bindItems;
-
-            // Закрытие при скролле/повороте
-            window.addEventListener('scroll', () => { if (menuOpen) closeMenu(); }, { passive: true });
-            window.addEventListener('resize', () => { if (menuOpen) closeMenu(); });
-        })();
     </script>
 </body>
 </html>
