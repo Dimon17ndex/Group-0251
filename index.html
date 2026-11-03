@@ -159,6 +159,25 @@
             line-height: 1.5;
         }
 
+/* Скрытые (неактивные) дисциплины — плавно гаснут.
+   Высоту/отступы НЕ трогаем: переезд компенсирует FLIP через transform. */
+.discipline-item.acc-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Активная карточка поверх остальных при переезде */
+.discipline-item.acc-active {
+    position: relative;
+    z-index: 2;
+}
+
+/* Общая плавность для карточек */
+.discipline-item {
+    transition: box-shadow 0.25s ease, opacity 0.35s ease;
+    will-change: transform;
+}
+
         /* Цвета дисциплин */
         .discipline-item[data-discipline="history-geo"]  .discipline-toggle { background: #2e7d32; }  /* зелёный */
         .discipline-item[data-discipline="methods-geo"]  .discipline-toggle { background: #c77800; }  /* охровый */
@@ -1626,6 +1645,7 @@
             .max-sheet-title { font-size: 1.4rem; margin-bottom: 24px; }
             .max-sheet-text { font-size: 0.95rem; }
         }
+        
     </style>
 </head>
 <body>
@@ -3397,42 +3417,189 @@
             window.addEventListener('resize', () => { if (menuOpen) closeMenu(); });
         })();
 
-                // === Раскрытие дисциплин ===
-        (function initDisciplinesAccordion() {
-            const list = document.getElementById('disciplinesList');
-            if (!list) return;
 
-            list.addEventListener('click', (e) => {
-                const btn = e.target.closest('.discipline-toggle');
-                if (!btn) return;
-                const item = btn.closest('.discipline-item');
-                if (!item) return;
-                const body = item.querySelector('.discipline-body');
-                if (!body) return;
+                // === Раскрытие дисциплин (режим "одна открытая", плавно через FLIP + перестановку) ===
+(function initDisciplinesAccordion() {
+    const list = document.getElementById('disciplinesList');
+    const tabEl = document.getElementById('tab-disciplines');
+    if (!list || !tabEl) return;
 
-                const isOpen = item.classList.contains('open');
-                if (isOpen) {
-                    // Закрываем
-                    body.style.maxHeight = '0px';
-                    item.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                } else {
-                    // Открываем: сначала задаём высоту 0, потом реальную scrollHeight
-                    body.style.maxHeight = body.scrollHeight + 'px';
-                    item.classList.add('open');
-                    btn.setAttribute('aria-expanded', 'true');
+    let isAnimating = false;
+    // запоминаем исходное место открытой карточки: nextSibling (элемент, перед которым она стояла)
+    let openItemOriginalNext = null;
 
-                    // После анимации снимаем ограничение — чтобы контент мог расти
-                    const onEnd = () => {
+    function snapshot(items) {
+        const map = new Map();
+        items.forEach(it => {
+            const r = it.getBoundingClientRect();
+            map.set(it, { top: r.top, height: r.height });
+        });
+        return map;
+    }
+
+    function playFlip(items, before) {
+        items.forEach(it => {
+            const after = it.getBoundingClientRect();
+            const prev = before.get(it);
+            if (!prev) return;
+            const dy = prev.top - after.top;
+            if (Math.abs(dy) < 0.5) return;
+
+            it.style.transition = 'none';
+            it.style.transform = `translateY(${dy}px)`;
+            void it.offsetHeight;
+
+            it.style.transition = 'transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.35s ease';
+            it.style.transform = 'translateY(0)';
+        });
+    }
+
+    function cleanup(items) {
+        items.forEach(it => {
+            it.style.transition = '';
+            it.style.transform = '';
+        });
+    }
+
+    function openItem(item, body, items) {
+        isAnimating = true;
+
+        // 1. Раскрываем body
+        const targetH = body.scrollHeight;
+        body.style.transition = 'none';
+        body.style.maxHeight = '0px';
+        void body.offsetHeight;
+        body.style.transition = 'max-height 0.38s cubic-bezier(0.22, 0.61, 0.36, 1)';
+        body.style.maxHeight = targetH + 'px';
+
+        item.classList.add('open');
+        const btn = item.querySelector('.discipline-toggle');
+        if (btn) btn.setAttribute('aria-expanded', 'true');
+
+        // 2. Ждём раскрытия body
+        setTimeout(() => {
+            // 3. Снимок ДО перестановки
+            const before = snapshot(items);
+
+            // Запоминаем исходного соседа, чтобы потом вернуть на место
+            openItemOriginalNext = item.nextElementSibling;
+
+            // 4. Физически переставляем активную карточку в начало списка
+            list.prepend(item);
+
+            // 5. Прячем остальные, помечаем активную
+            items.forEach(it => {
+                if (it !== item) it.classList.add('acc-hidden');
+            });
+            item.classList.add('acc-active');
+
+            // 6. Запускаем FLIP-анимацию переезда
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    playFlip(items, before);
+                    tabEl.scrollTo({ top: 0, behavior: 'smooth' });
+
+                    setTimeout(() => {
+                        cleanup(items);
                         if (item.classList.contains('open')) {
                             body.style.maxHeight = 'none';
+                            body.style.transition = '';
                         }
+                        isAnimating = false;
+                    }, 500);
+                });
+            });
+        }, 380);
+    }
+
+    function closeItem(item, body, items) {
+        isAnimating = true;
+
+        // Снимок ДО возврата на место
+        const before = snapshot(items);
+
+        // Возвращаем карточку на её исходное место в списке
+        if (openItemOriginalNext && openItemOriginalNext.parentNode === list) {
+            list.insertBefore(item, openItemOriginalNext);
+        } else {
+            // если соседа нет — в конец
+            list.appendChild(item);
+        }
+        openItemOriginalNext = null;
+
+        // Убираем active, возвращаем остальные
+        item.classList.remove('acc-active');
+        items.forEach(it => {
+            if (it !== item) it.classList.remove('acc-hidden');
+        });
+
+        // FLIP: карточки плавно едут на свои места
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                playFlip(items, before);
+
+                setTimeout(() => {
+                    // Теперь закрываем body — карточка плавно зарывается уже на своём месте
+                    const currentH = body.scrollHeight;
+                    body.style.transition = 'none';
+                    body.style.maxHeight = currentH + 'px';
+                    void body.offsetHeight;
+
+                    body.style.transition = 'max-height 0.38s cubic-bezier(0.22, 0.61, 0.36, 1)';
+                    body.style.maxHeight = '0px';
+                    item.classList.remove('open');
+                    const btn = item.querySelector('.discipline-toggle');
+                    if (btn) btn.setAttribute('aria-expanded', 'false');
+
+                    tabEl.scrollTo({ top: 0, behavior: 'smooth' });
+
+                    const onEnd = () => {
+                        body.style.maxHeight = '';
+                        body.style.transition = '';
                         body.removeEventListener('transitionend', onEnd);
+                        cleanup(items);
+                        isAnimating = false;
                     };
                     body.addEventListener('transitionend', onEnd);
-                }
+                    setTimeout(() => {
+                        if (isAnimating) {
+                            body.style.maxHeight = '';
+                            body.style.transition = '';
+                            cleanup(items);
+                            isAnimating = false;
+                        }
+                    }, 480);
+                }, 300);
             });
-        })();
+        });
+    }
+
+    list.addEventListener('click', (e) => {
+        const btn = e.target.closest('.discipline-toggle');
+        if (!btn) return;
+        const item = btn.closest('.discipline-item');
+        if (!item) return;
+        if (isAnimating) return;
+
+        const body = item.querySelector('.discipline-body');
+        if (!body) return;
+
+        const items = [...list.querySelectorAll('.discipline-item')];
+        const isOpen = item.classList.contains('open');
+
+        if (isOpen) {
+            closeItem(item, body, items);
+        } else {
+            const currentlyOpen = items.find(it => it.classList.contains('open') && it !== item);
+            if (currentlyOpen) {
+                currentlyOpen.classList.add('acc-shake');
+                setTimeout(() => currentlyOpen.classList.remove('acc-shake'), 350);
+                return;
+            }
+            openItem(item, body, items);
+        }
+    });
+})();
     </script>
 </body>
 </html>
