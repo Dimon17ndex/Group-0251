@@ -3593,6 +3593,481 @@
         }
     });
 })();
+
+// ==========================================
+// 10. Отдельные объекты: линия, кружок, сетка, дата, красные маркеры
+// ==========================================
+(function initDisciplineLine() {
+    // --- Объекты ---
+    const grid = document.createElement('div');
+    grid.id = 'discGrid';
+    grid.style.cssText = `
+        position: fixed;
+        pointer-events: none;
+        z-index: 890;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        background-color: transparent;
+        background-image:
+            linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
+        background-size: 24px 24px;
+        background-position: 0 0;
+    `;
+
+    const line = document.createElement('div');
+    line.id = 'discLine';
+    line.style.cssText = `
+        position: fixed;
+        width: 3px;
+        height: 0;
+        background: transparent;
+        border-radius: 2px;
+        pointer-events: none;
+        z-index: 900;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    `;
+
+    const dot = document.createElement('div');
+    dot.id = 'discDot';
+    dot.style.cssText = `
+        position: fixed;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: transparent;
+        box-shadow: 0 0 0 3px #fff;
+        pointer-events: none;
+        z-index: 901;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        transition: opacity 0.25s ease,
+                    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    `;
+
+    // Маленький красный кружок на линии
+    const midDot = document.createElement('div');
+    midDot.id = 'discMidDot';
+    midDot.style.cssText = `
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #e53935;
+        box-shadow: 0 0 0 2px #fff;
+        pointer-events: none;
+        z-index: 902;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        transition: opacity 0.25s ease,
+                    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    `;
+
+    // Красный пунктир вправо от кружка
+    const midLine = document.createElement('div');
+    midLine.id = 'discMidLine';
+    midLine.style.cssText = `
+        position: fixed;
+        height: 0;
+        border-top: 2px dashed #e53935;
+        pointer-events: none;
+        z-index: 902;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+
+    // Красная плашка с текстом
+    const badge = document.createElement('div');
+    badge.id = 'discBadge';
+    badge.textContent = 'Пока заданий нет, все в процессе публикации';
+    badge.style.cssText = `
+        position: fixed;
+        background: #e53935;
+        color: #ffffff;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        line-height: 1.2;
+        padding: 10px 16px;
+        border-radius: 10px;
+        text-align: center;
+        pointer-events: none;
+        z-index: 903;
+        opacity: 0;
+        transform: translate(-50%, -50%);
+        transition: opacity 0.3s ease;
+        max-width: 260px;
+        box-shadow: 0 2px 10px rgba(229, 57, 53, 0.25);
+    `;
+
+    document.body.appendChild(grid);
+    document.body.appendChild(line);
+    document.body.appendChild(dot);
+    document.body.appendChild(midDot);
+    document.body.appendChild(midLine);
+    document.body.appendChild(badge);
+
+    const dateEl = document.createElement('div');
+    dateEl.id = 'discDate';
+    dateEl.style.cssText = `
+        position: fixed;
+        pointer-events: none;
+        z-index: 895;
+        opacity: 0;
+        transform: translateX(-50%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #444;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+        transition: opacity 0.3s ease;
+    `;
+    document.body.appendChild(dateEl);
+
+    // --- Константы ---
+    const LINE_HEIGHT = 220;     // удлинённая линия
+    const MID_DOT_RATIO = 0.62;  // положение красного кружка на линии
+
+    // --- Состояние ---
+    let activeItem = null;
+    let shownHeight = 0;
+    let currentColor = '#0066ff';
+    let currentDate = null;
+    let growTimer = null;
+    let dotShowTimer = null;
+    let showTimer = null;
+    let rafId = null;
+    let growStart = 0;
+    let dotShown = false;
+    let midShown = false;
+
+    function colorOf(item) {
+        const btn = item.querySelector('.discipline-toggle');
+        if (!btn) return '#0066ff';
+        return getComputedStyle(btn).backgroundColor || '#0066ff';
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return '';
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const diffDays = Math.round((today - target) / (1000 * 60 * 60 * 24));
+        if (diffDays === 0) return 'Сегодня';
+        if (diffDays === 1) return 'Вчера';
+        if (diffDays === 2) return 'Позавчера';
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        if (yyyy === now.getFullYear()) return dd + '.' + mm;
+        return dd + '.' + mm + '.' + yyyy;
+    }
+
+    // --- Позиционирование ---
+    function syncPosition(item) {
+        const btn = item.querySelector('.discipline-toggle');
+        if (!btn) return;
+        const rect = btn.getBoundingClientRect();
+
+        const tabs = document.querySelector('.tabs');
+        const mainEl = document.querySelector('main');
+        const topLimit = tabs ? tabs.getBoundingClientRect().bottom : 0;
+        const bottomLimit = mainEl ? mainEl.getBoundingClientRect().bottom : window.innerHeight;
+
+        const lineX = rect.left + 36;
+        const top = rect.bottom;
+        const lineBottom = top + shownHeight;
+
+        const fullyAbove = lineBottom <= topLimit;
+        const fullyBelow = top >= bottomLimit;
+
+        if (fullyAbove || fullyBelow) {
+            line.style.opacity = '0';
+            dot.style.opacity = '0';
+            midDot.style.opacity = '0';
+            midLine.style.opacity = '0';
+            badge.style.opacity = '0';
+            grid.style.opacity = '0';
+            dateEl.style.opacity = '0';
+            return;
+        }
+
+        line.style.opacity = '1';
+        if (dotShown) dot.style.opacity = '1';
+
+        const visibleTop = Math.max(top, topLimit);
+        const visibleBottom = Math.min(lineBottom, bottomLimit);
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+        line.style.left = (lineX - 1.5) + 'px';
+        line.style.top = visibleTop + 'px';
+        line.style.height = visibleHeight + 'px';
+        line.style.background = currentColor;
+
+        dot.style.left = lineX + 'px';
+        dot.style.top = lineBottom + 'px';
+        dot.style.background = currentColor;
+
+        if (lineBottom < topLimit || lineBottom > bottomLimit) {
+            dot.style.opacity = '0';
+        } else if (dotShown) {
+            dot.style.opacity = '1';
+        }
+
+        // === Красный кружок + пунктир + плашка ===
+        const midY = top + LINE_HEIGHT * MID_DOT_RATIO; // при полной длине
+
+        if (midShown && midY >= topLimit && midY <= bottomLimit && shownHeight > LINE_HEIGHT * MID_DOT_RATIO) {
+            midDot.style.left = lineX + 'px';
+            midDot.style.top = midY + 'px';
+            midDot.style.opacity = '1';
+            midDot.style.transform = 'translate(-50%, -50%) scale(1)';
+
+            // Пунктир от кружка вправо
+            const dashStart = lineX + 8;
+            const dashEnd = rect.left + rect.width - 12;
+            midLine.style.left = dashStart + 'px';
+            midLine.style.top = midY + 'px';
+            midLine.style.width = Math.max(0, dashEnd - dashStart) + 'px';
+            midLine.style.opacity = '1';
+
+            // Плашка — по центру сетки, на уровне пунктира
+            const gridCenterX = rect.left + rect.width / 2;
+            // Сдвигаем плашку так, чтобы её правый край не вылезал
+            const badgeWidth = badge.offsetWidth || 200;
+            let badgeX = gridCenterX;
+            // Вправо от пунктира — плашка, проверим, влезает ли
+            const badgeLeft = Math.max(dashStart + 12, gridCenterX - badgeWidth / 2);
+            const badgeRight = badgeLeft + badgeWidth;
+            const maxRight = rect.left + rect.width - 4;
+            if (badgeRight > maxRight) {
+                badgeX = Math.max(badgeLeft, maxRight - badgeWidth / 2);
+            } else {
+                badgeX = badgeLeft + badgeWidth / 2;
+            }
+            badge.style.left = badgeX + 'px';
+            badge.style.top = midY + 'px';
+            badge.style.opacity = '1';
+        } else {
+            midDot.style.opacity = '0';
+            midDot.style.transform = 'translate(-50%, -50%) scale(0)';
+            midLine.style.opacity = '0';
+            badge.style.opacity = '0';
+        }
+
+        // === Клеточная сетка ===
+        const gridTop = Math.max(top, topLimit);
+        const gridBottom = bottomLimit;
+        const gridHeight = Math.max(0, gridBottom - gridTop);
+
+        if (gridHeight > 0) {
+            grid.style.top = gridTop + 'px';
+            grid.style.left = rect.left + 'px';
+            grid.style.width = rect.width + 'px';
+            grid.style.height = gridHeight + 'px';
+            grid.style.backgroundPosition = '0px 0px';
+            grid.style.opacity = '1';
+        } else {
+            grid.style.opacity = '0';
+        }
+
+        // === Дата ===
+        if (gridHeight > 0 && dateEl.textContent) {
+            const gridCenterX = rect.left + rect.width / 2;
+            const dateTop = gridTop + 24;
+            dateEl.style.left = gridCenterX + 'px';
+            dateEl.style.top = dateTop + 'px';
+            if (dateTop >= topLimit && dateTop <= bottomLimit) {
+                dateEl.style.opacity = '1';
+            } else {
+                dateEl.style.opacity = '0';
+            }
+        } else {
+            dateEl.style.opacity = '0';
+        }
+    }
+
+    // --- Анимация роста линии ---
+    function startGrow(item) {
+        if (growTimer) cancelAnimationFrame(growTimer);
+        shownHeight = 0;
+        growStart = performance.now();
+        const duration = 500;
+        const targetH = LINE_HEIGHT;
+
+        function step(now) {
+            if (activeItem !== item) { growTimer = null; return; }
+            const t = Math.min(1, (now - growStart) / duration);
+            const eased = 1 - Math.pow(1 - t, 3);
+            shownHeight = targetH * eased;
+
+            // Включаем mid-маркеры, когда линия дошла до уровня кружка
+            if (!midShown && shownHeight >= targetH * MID_DOT_RATIO) {
+                midShown = true;
+                midDot.style.transform = 'translate(-50%, -50%) scale(1)';
+            }
+
+            syncPosition(item);
+
+            if (t < 1) {
+                growTimer = requestAnimationFrame(step);
+            } else {
+                growTimer = null;
+            }
+        }
+        growTimer = requestAnimationFrame(step);
+    }
+
+    // --- Показ / скрытие ---
+    function show(item) {
+        activeItem = item;
+        currentColor = colorOf(item);
+        dotShown = false;
+        midShown = false;
+
+        currentDate = item.getAttribute('data-date') || null;
+        dateEl.textContent = formatDate(currentDate);
+
+        if (growTimer) { cancelAnimationFrame(growTimer); growTimer = null; }
+        if (dotShowTimer) { clearTimeout(dotShowTimer); dotShowTimer = null; }
+        if (showTimer) { clearTimeout(showTimer); showTimer = null; }
+
+        line.style.transition = 'none';
+        line.style.height = '0px';
+        line.style.opacity = '0';
+        dot.style.transition = 'none';
+        dot.style.opacity = '0';
+        dot.style.transform = 'translate(-50%, -50%) scale(0)';
+        midDot.style.transition = 'none';
+        midDot.style.opacity = '0';
+        midDot.style.transform = 'translate(-50%, -50%) scale(0)';
+        midLine.style.opacity = '0';
+        badge.style.opacity = '0';
+        grid.style.opacity = '0';
+        dateEl.style.opacity = '0';
+        shownHeight = 0;
+        syncPosition(item);
+
+        showTimer = setTimeout(() => {
+            showTimer = null;
+            if (activeItem !== item) return;
+
+            requestAnimationFrame(() => {
+                if (activeItem !== item) return;
+
+                line.style.transition = 'opacity 0.2s ease';
+                line.style.opacity = '1';
+                grid.style.opacity = '1';
+                if (dateEl.textContent) dateEl.style.opacity = '1';
+
+                // Восстанавливаем transition у mid-объектов
+                midDot.style.transition = 'opacity 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                midDot.style.opacity = '0';
+                midDot.style.transform = 'translate(-50%, -50%) scale(0)';
+
+                startGrow(item);
+
+                // Верхний кружок
+                dot.style.transition = 'opacity 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                dotShowTimer = setTimeout(() => {
+                    dotShowTimer = null;
+                    if (activeItem !== item) return;
+                    dotShown = true;
+                    dot.style.opacity = '1';
+                    dot.style.transform = 'translate(-50%, -50%) scale(1)';
+                }, 350);
+
+                // Пунктир и плашка — после появления mid-кружка
+                setTimeout(() => {
+                    if (activeItem !== item) return;
+                    if (midShown) {
+                        midLine.style.opacity = '1';
+                        badge.style.opacity = '1';
+                    }
+                }, 550);
+            });
+        }, 200);
+
+        startFollow();
+    }
+
+    function hide() {
+        activeItem = null;
+        dotShown = false;
+        midShown = false;
+        currentDate = null;
+        if (showTimer) { clearTimeout(showTimer); showTimer = null; }
+        if (growTimer) { cancelAnimationFrame(growTimer); growTimer = null; }
+        if (dotShowTimer) { clearTimeout(dotShowTimer); dotShowTimer = null; }
+        line.style.opacity = '0';
+        dot.style.opacity = '0';
+        dot.style.transform = 'translate(-50%, -50%) scale(0)';
+        midDot.style.opacity = '0';
+        midDot.style.transform = 'translate(-50%, -50%) scale(0)';
+        midLine.style.opacity = '0';
+        badge.style.opacity = '0';
+        grid.style.opacity = '0';
+        dateEl.style.opacity = '0';
+        stopFollow();
+    }
+
+    function startFollow() {
+        stopFollow();
+        let lastShow = 0;
+        function loop(now) {
+            if (!activeItem) { rafId = null; return; }
+            if (now - lastShow > 33) {
+                syncPosition(activeItem);
+                lastShow = now;
+            }
+            rafId = requestAnimationFrame(loop);
+        }
+        rafId = requestAnimationFrame(loop);
+    }
+
+    function stopFollow() {
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    }
+
+    // --- Слушатели ---
+    document.querySelectorAll('.discipline-item').forEach(item => {
+        const btn = item.querySelector('.discipline-toggle');
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    const opened = item.classList.contains('open');
+                    if (opened) {
+                        show(item);
+                    } else {
+                        hide();
+                    }
+                });
+            });
+        });
+    });
+
+    const tabEl = document.getElementById('tab-disciplines');
+    if (tabEl) {
+        tabEl.addEventListener('scroll', () => {
+            if (activeItem) syncPosition(activeItem);
+        }, { passive: true });
+    }
+
+    window.addEventListener('resize', () => {
+        if (activeItem) syncPosition(activeItem);
+    }, { passive: true });
+
+    document.querySelectorAll('.discipline-item').forEach(item => {
+        item.addEventListener('transitionend', () => {
+            if (activeItem === item) syncPosition(item);
+        });
+    });
+})();
     </script>
 </body>
 </html>
