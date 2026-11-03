@@ -60,6 +60,24 @@
 
         .tab-content { position: relative; width: 33.3333%; height: 100%; overflow-y: auto; padding: 0; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; -ms-overflow-style: none; }
         .tab-content::-webkit-scrollbar { width: 0; height: 0; }
+                /* Скролл для вкладки «Дисциплины» */
+        #tab-disciplines {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        #disciplinesPlatform {
+            min-height: 100%;
+            padding-bottom: 80px;   /* запас снизу, чтобы последний элемент не прилипал к краю */
+        }
+
+        .disciplines-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
         .tabs-track.animating .tab-content { scrollbar-width: none; -ms-overflow-style: none; }
         .tabs-track.animating .tab-content::-webkit-scrollbar { width: 0; height: 0; }
 
@@ -137,6 +155,15 @@
         .tab-content p { font-size: 1.1rem; color: #555; line-height: 1.6; }
         .btn-disciplines { display: inline-block; margin-top: 10px; padding: 18px 48px; font-size: 1.4rem; font-weight: 600; letter-spacing: 1.5px; text-decoration: none; color: #fff; background-color: #0066ff; border: 2px solid #0066ff; border-radius: 10px; transition: all 0.25s ease; box-shadow: none; }
         .schedule-link { display: inline-block; margin-top: 10px; padding: 16px 32px; font-size: 1.1rem; font-weight: 600; text-decoration: none; color: #0066ff; border: 2px solid #0066ff; border-radius: 10px; transition: all 0.2s ease; box-shadow: none; }
+
+        body.post-highlight-lock {
+            overflow: hidden !important;
+            touch-action: none;
+        }
+        body.post-highlight-lock .tab-content {
+            overflow: hidden !important;
+            touch-action: none;
+        }
 
         /* === Встроенное расписание (iframe) === */
         .schedule-iframe-wrap {
@@ -1586,11 +1613,9 @@
                 </div>
             </section>
 
-            <section class="tab-content" id="tab-disciplines">
-                <div class="tab-platform">
-                    <h2>Дисциплины</h2>
-                    <p>Здесь будет список предметов и конспектов группы.</p>
-                    <a href="disciplines.html" class="btn-disciplines">ДИСЦИПЛИНЫ</a>
+                        <section class="tab-content" id="tab-disciplines">
+                <div class="tab-platform" id="disciplinesPlatform">
+                    <div class="disciplines-list" id="disciplinesList"></div>
                 </div>
             </section>
 
@@ -2076,9 +2101,12 @@
             return dd + '.' + mm + '.' + yyyy;
         }
 
-                                function flashPostHighlight() {
+                                        function flashPostHighlight() {
             const postEl = document.querySelector('.card-block');
             if (!postEl) return;
+
+            // Блокируем скролл и жесты на время анимации
+            document.body.classList.add('post-highlight-lock');
 
             const rect = postEl.getBoundingClientRect();
             const overlay = document.createElement('div');
@@ -2109,14 +2137,15 @@
                 overlay.style.top = (heartCenterY - size / 2) + 'px';
             }, 500);
 
-                        // 2. Ещё через 0.9 с (итого 1.4 с) — начинаем исчезновение 2 с
+            // 2. Ещё через 0.9 с (итого 1.4 с) — начинаем исчезновение 2 с
             setTimeout(() => {
                 overlay.classList.add('fade-out');
             }, 1400);
 
-            // 3. Удаляем после исчезновения
+            // 3. Удаляем после исчезновения и снимаем блокировку
             setTimeout(() => {
                 overlay.remove();
+                document.body.classList.remove('post-highlight-lock');
             }, 3400);
         }
 
