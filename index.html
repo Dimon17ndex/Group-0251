@@ -3418,21 +3418,34 @@
         })();
 
 
-                // === Раскрытие дисциплин (режим "одна открытая", плавно через FLIP + перестановку) ===
+                // === Раскрытие дисциплин (одна открытая, FLIP + перестановка) ===
 (function initDisciplinesAccordion() {
     const list = document.getElementById('disciplinesList');
     const tabEl = document.getElementById('tab-disciplines');
     if (!list || !tabEl) return;
 
     let isAnimating = false;
-    // запоминаем исходное место открытой карточки: nextSibling (элемент, перед которым она стояла)
     let openItemOriginalNext = null;
+    let safetyTimer = null;
+
+    function finishAnimation() {
+        isAnimating = false;
+        if (safetyTimer) { clearTimeout(safetyTimer); safetyTimer = null; }
+    }
+
+    function armSafety(ms) {
+        if (safetyTimer) clearTimeout(safetyTimer);
+        safetyTimer = setTimeout(() => {
+            isAnimating = false;
+            safetyTimer = null;
+        }, ms);
+    }
 
     function snapshot(items) {
         const map = new Map();
         items.forEach(it => {
             const r = it.getBoundingClientRect();
-            map.set(it, { top: r.top, height: r.height });
+            map.set(it, { top: r.top });
         });
         return map;
     }
@@ -3462,9 +3475,10 @@
     }
 
     function openItem(item, body, items) {
+        if (isAnimating) return;
         isAnimating = true;
+        armSafety(1400);
 
-        // 1. Раскрываем body
         const targetH = body.scrollHeight;
         body.style.transition = 'none';
         body.style.maxHeight = '0px';
@@ -3476,24 +3490,18 @@
         const btn = item.querySelector('.discipline-toggle');
         if (btn) btn.setAttribute('aria-expanded', 'true');
 
-        // 2. Ждём раскрытия body
         setTimeout(() => {
-            // 3. Снимок ДО перестановки
             const before = snapshot(items);
 
-            // Запоминаем исходного соседа, чтобы потом вернуть на место
             openItemOriginalNext = item.nextElementSibling;
 
-            // 4. Физически переставляем активную карточку в начало списка
             list.prepend(item);
 
-            // 5. Прячем остальные, помечаем активную
             items.forEach(it => {
                 if (it !== item) it.classList.add('acc-hidden');
             });
             item.classList.add('acc-active');
 
-            // 6. Запускаем FLIP-анимацию переезда
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     playFlip(items, before);
@@ -3505,7 +3513,7 @@
                             body.style.maxHeight = 'none';
                             body.style.transition = '';
                         }
-                        isAnimating = false;
+                        finishAnimation();
                     }, 500);
                 });
             });
@@ -3513,33 +3521,29 @@
     }
 
     function closeItem(item, body, items) {
+        if (isAnimating) return;
         isAnimating = true;
+        armSafety(1400);
 
-        // Снимок ДО возврата на место
         const before = snapshot(items);
 
-        // Возвращаем карточку на её исходное место в списке
         if (openItemOriginalNext && openItemOriginalNext.parentNode === list) {
             list.insertBefore(item, openItemOriginalNext);
         } else {
-            // если соседа нет — в конец
             list.appendChild(item);
         }
         openItemOriginalNext = null;
 
-        // Убираем active, возвращаем остальные
         item.classList.remove('acc-active');
         items.forEach(it => {
             if (it !== item) it.classList.remove('acc-hidden');
         });
 
-        // FLIP: карточки плавно едут на свои места
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 playFlip(items, before);
 
                 setTimeout(() => {
-                    // Теперь закрываем body — карточка плавно зарывается уже на своём месте
                     const currentH = body.scrollHeight;
                     body.style.transition = 'none';
                     body.style.maxHeight = currentH + 'px';
@@ -3553,22 +3557,13 @@
 
                     tabEl.scrollTo({ top: 0, behavior: 'smooth' });
 
-                    const onEnd = () => {
+                    // Финальная очистка — строго по таймеру, без transitionend
+                    setTimeout(() => {
                         body.style.maxHeight = '';
                         body.style.transition = '';
-                        body.removeEventListener('transitionend', onEnd);
                         cleanup(items);
-                        isAnimating = false;
-                    };
-                    body.addEventListener('transitionend', onEnd);
-                    setTimeout(() => {
-                        if (isAnimating) {
-                            body.style.maxHeight = '';
-                            body.style.transition = '';
-                            cleanup(items);
-                            isAnimating = false;
-                        }
-                    }, 480);
+                        finishAnimation();
+                    }, 400);
                 }, 300);
             });
         });
@@ -3579,7 +3574,6 @@
         if (!btn) return;
         const item = btn.closest('.discipline-item');
         if (!item) return;
-        if (isAnimating) return;
 
         const body = item.querySelector('.discipline-body');
         if (!body) return;
