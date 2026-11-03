@@ -78,6 +78,98 @@
             flex-direction: column;
             gap: 12px;
         }
+
+                /* Заголовок вкладки «Дисциплины» */
+        .disciplines-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: #000;
+            text-align: center;
+            margin: 0 0 24px;
+        }
+
+        /* Карточка дисциплины */
+        .discipline-item {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: box-shadow 0.25s ease, transform 0.15s ease;
+        }
+        .discipline-item.open {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+        }
+
+        /* Кнопка-прямоугольник */
+        .discipline-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-align: left;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            transition: filter 0.15s ease;
+        }
+        .discipline-toggle:hover { filter: brightness(1.08); }
+        .discipline-toggle:active { filter: brightness(0.94); }
+
+        .discipline-toggle-label {
+            flex: 1 1 auto;
+            line-height: 1.25;
+        }
+
+        .discipline-toggle-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        .discipline-toggle-arrow svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .discipline-item.open .discipline-toggle-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Раскрывающийся контент */
+        .discipline-body {
+            max-height: 0;
+            overflow: hidden;
+            background: #ffffff;
+            transition: max-height 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        .discipline-body-inner {
+            padding: 16px 20px;
+            font-size: 0.95rem;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        /* Цвета дисциплин */
+        .discipline-item[data-discipline="history-geo"]  .discipline-toggle { background: #2e7d32; }  /* зелёный */
+        .discipline-item[data-discipline="methods-geo"]  .discipline-toggle { background: #c77800; }  /* охровый */
+        .discipline-item[data-discipline="meteorology"]  .discipline-toggle { background: #1565c0; }  /* синий */
+        .discipline-item[data-discipline="geology"]      .discipline-toggle { background: #6d4c41; }  /* коричневый */
+        .discipline-item[data-discipline="history-ru"]   .discipline-toggle { background: #c62828; }  /* красный */
+        .discipline-item[data-discipline="russian-state"].discipline-item .discipline-toggle { background: #ef6c00; } /* морковный */
+        .discipline-item[data-discipline="russian-lang"] .discipline-toggle { background: #d81b60; }  /* розовый */
+        .discipline-item[data-discipline="english-lang"] .discipline-toggle { background: #111111; }  /* чёрный */
+        .discipline-item[data-discipline="biogeocenology"] .discipline-toggle { background: #8e0000; } /* рубиновый */
+        .discipline-item[data-discipline="medical-basics"] .discipline-toggle { background: #00acc1; } /* бирюзовый */
         .tabs-track.animating .tab-content { scrollbar-width: none; -ms-overflow-style: none; }
         .tabs-track.animating .tab-content::-webkit-scrollbar { width: 0; height: 0; }
 
@@ -1613,9 +1705,112 @@
                 </div>
             </section>
 
-                        <section class="tab-content" id="tab-disciplines">
+                                    <section class="tab-content" id="tab-disciplines">
                 <div class="tab-platform" id="disciplinesPlatform">
-                    <div class="disciplines-list" id="disciplinesList"></div>
+                    <h2 class="disciplines-title">Дисциплины</h2>
+                    <div class="disciplines-list" id="disciplinesList">
+
+                        <div class="discipline-item" data-discipline="history-geo">
+                            <button type="button" class="discipline-toggle" aria-expanded="false">
+                                <span class="discipline-toggle-label">История географических открытий</span>
+                                <span class="discipline-toggle-arrow">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                </span>
+                            </button>
+                            <div class="discipline-body"></div>
+                        </div>
+
+                        <div class="discipline-item" data-discipline="methods-geo">
+                            <button type="button" class="discipline-toggle" aria-expanded="false">
+                                <span class="discipline-toggle-label">Методы географических исследований</span>
+                                <span class="discipline-toggle-arrow">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                </span>
+                            </button>
+                            <div class="discipline-body"></div>
+                        </div>
+
+                        <div class="discipline-item" data-discipline="meteorology">
+                            <button type="button" class="discipline-toggle" aria-expanded="false">
+                                <span class="discipline-toggle-label">Метеорология и климатология, гидрология</span>
+                                <span class="discipline-toggle-arrow">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                </span>
+                            </button>
+                            <div class="discipline-body"></div>
+                        </div>
+
+                        <div class="discipline-item" data-discipline="geology">
+                            <button type="button" class="discipline-toggle" aria-expanded="false">
+                                <span class="discipline-toggle-label">Геология и эволюционная география</span>
+                                <span class="discipline-toggle-arrow">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                </span>
+                            </button>
+                            <div class="discipline-body"></div>
+                        </div>
+
+                        <div class="discipline-item" data-discipline="history-ru">
+                            <button type="button" class="discipline-toggle" aria-expanded="false">
+                                <span class="discipline-toggle-label">История России</span>
+                                <span class="discipline-toggle-arrow">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                </span>
+                            </button>
+                            <div class="discipline-body"></div>
+                        </div>
+
+                        <div class="discipline-item" data-discipline="russian-state">
+                            <button type="button" class="discipline-toggle" aria-expanded="false">
+                                <span class="discipline-toggle-label">Основы российской государственности</span>
+                                <span class="discipline-toggle-arrow">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                </span>
+                            </button>
+                            <div class="discipline-body"></div>
+                        </div>
+
+                        <div class="discipline-item" data-discipline="russian-lang">
+                            <button type="button" class="discipline-toggle" aria-expanded="false">
+                                <span class="discipline-toggle-label">Русский язык</span>
+                                <span class="discipline-toggle-arrow">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                </span>
+                            </button>
+                            <div class="discipline-body"></div>
+                        </div>
+
+                        <div class="discipline-item" data-discipline="english-lang">
+                            <button type="button" class="discipline-toggle" aria-expanded="false">
+                                <span class="discipline-toggle-label">Английский язык</span>
+                                <span class="discipline-toggle-arrow">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                </span>
+                            </button>
+                            <div class="discipline-body"></div>
+                        </div>
+
+                        <div class="discipline-item" data-discipline="biogeocenology">
+                            <button type="button" class="discipline-toggle" aria-expanded="false">
+                                <span class="discipline-toggle-label">Основы биогеоценологии</span>
+                                <span class="discipline-toggle-arrow">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                </span>
+                            </button>
+                            <div class="discipline-body"></div>
+                        </div>
+
+                        <div class="discipline-item" data-discipline="medical-basics">
+                            <button type="button" class="discipline-toggle" aria-expanded="false">
+                                <span class="discipline-toggle-label">Основы медицинских знаний</span>
+                                <span class="discipline-toggle-arrow">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                </span>
+                            </button>
+                            <div class="discipline-body"></div>
+                        </div>
+
+                    </div>
                 </div>
             </section>
 
@@ -3200,6 +3395,43 @@
 
             window.addEventListener('scroll', () => { if (menuOpen) closeMenu(); }, { passive: true });
             window.addEventListener('resize', () => { if (menuOpen) closeMenu(); });
+        })();
+
+                // === Раскрытие дисциплин ===
+        (function initDisciplinesAccordion() {
+            const list = document.getElementById('disciplinesList');
+            if (!list) return;
+
+            list.addEventListener('click', (e) => {
+                const btn = e.target.closest('.discipline-toggle');
+                if (!btn) return;
+                const item = btn.closest('.discipline-item');
+                if (!item) return;
+                const body = item.querySelector('.discipline-body');
+                if (!body) return;
+
+                const isOpen = item.classList.contains('open');
+                if (isOpen) {
+                    // Закрываем
+                    body.style.maxHeight = '0px';
+                    item.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                } else {
+                    // Открываем: сначала задаём высоту 0, потом реальную scrollHeight
+                    body.style.maxHeight = body.scrollHeight + 'px';
+                    item.classList.add('open');
+                    btn.setAttribute('aria-expanded', 'true');
+
+                    // После анимации снимаем ограничение — чтобы контент мог расти
+                    const onEnd = () => {
+                        if (item.classList.contains('open')) {
+                            body.style.maxHeight = 'none';
+                        }
+                        body.removeEventListener('transitionend', onEnd);
+                    };
+                    body.addEventListener('transitionend', onEnd);
+                }
+            });
         })();
     </script>
 </body>
