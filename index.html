@@ -3637,7 +3637,7 @@
         })();
 
 
-                // === Раскрытие дисциплин (одна открытая, FLIP без перестановки DOM) ===
+                                // === Раскрытие дисциплин (одна открытая, FLIP без перестановки DOM) ===
 (function initDisciplinesAccordion() {
     const list = document.getElementById('disciplinesList');
     const tabEl = document.getElementById('tab-disciplines');
@@ -3654,7 +3654,6 @@
         return map;
     }
 
-    // плавно переводим карточки из старых позиций в новые
     function playFlip(items, before, duration = 450) {
         items.forEach(it => {
             const after = it.getBoundingClientRect();
@@ -3679,22 +3678,22 @@
         });
     }
 
-    // Считаем, на сколько нужно поднять открытую карточку,
-    // чтобы она встала на место первой (учёт заголовка "Дисциплины" не нужен,
-    // т.к. карточка двигается относительно своей позиции в списке).
     function getLiftDistance(item, items) {
         const itemRect = item.getBoundingClientRect();
         const firstRect = items[0].getBoundingClientRect();
-        return itemRect.top - firstRect.top; // положительное число
+        return itemRect.top - firstRect.top;
     }
 
     function openItem(item, body, items) {
         isAnimating = true;
 
-        // 1. Снимок ДО любых изменений
+        // Закрываем плашку при открытии новой дисциплины
+        if (window.isBadgeSheetOpenFn && window.isBadgeSheetOpenFn()) {
+            window.forceCloseBadgeSheet();
+        }
+
         const before = snapshot(items);
 
-        // 2. Сразу раскрываем body (высота анимируется собственной transition)
         const targetH = body.scrollHeight;
         body.style.transition = 'none';
         body.style.maxHeight = '0px';
@@ -3706,36 +3705,23 @@
         const btn = item.querySelector('.discipline-toggle');
         if (btn) btn.setAttribute('aria-expanded', 'true');
 
-        // 3. Сразу же прячем остальные и помечаем активную
         items.forEach(it => {
             if (it !== item) it.classList.add('acc-hidden');
         });
         item.classList.add('acc-active');
 
-        // 4. Считаем, куда должна "уехать" открытая карточка, чтобы встать наверх
-        //    (после скрытия остальных её позиция в потоке не меняется,
-        //     поэтому lift считаем от исходных координат до координат первой карточки)
-        //    Для этого даём браузеру применить классы, затем меряем.
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                // FLIP для остальных: они плавно гаснут (это делает CSS opacity)
-                // FLIP для открытой: поднимаем её визуально наверх
                 const lift = getLiftDistance(item, items);
 
-                // Открытая карточка — отдельный transform translateY(-lift)
                 item.style.transition = 'none';
                 item.style.transform = 'translateY(0px)';
                 void item.offsetHeight;
                 item.style.transition = 'transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1)';
                 item.style.transform = `translateY(${-lift}px)`;
 
-                // Остальные — FLIP к их новым позициям (они сжались из-за скрытия)
-                // Но мы их скрываем только через opacity, а высоту не меняем,
-                // поэтому их позиции не изменились. Значит FLIP для них не нужен.
-                // Прокручиваем вкладку к верху, чтобы визуально всё встало на место.
                 tabEl.scrollTo({ top: 0, behavior: 'smooth' });
 
-                // завершение
                 setTimeout(() => {
                     if (item.classList.contains('open')) {
                         body.style.maxHeight = 'none';
@@ -3750,16 +3736,18 @@
     function closeItem(item, body, items) {
         isAnimating = true;
 
-        // 1. Возвращаем карточку на её место визуально
+        // Закрываем плашку при закрытии дисциплины
+        if (window.isBadgeSheetOpenFn && window.isBadgeSheetOpenFn()) {
+            window.forceCloseBadgeSheet();
+        }
+
         item.style.transition = 'transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1)';
         item.style.transform = 'translateY(0px)';
 
-        // 2. Возвращаем остальные
         items.forEach(it => {
             if (it !== item) it.classList.remove('acc-hidden');
         });
 
-        // 3. Закрываем body
         const currentH = body.scrollHeight;
         body.style.transition = 'none';
         body.style.maxHeight = currentH + 'px';
@@ -3770,13 +3758,10 @@
         const btn = item.querySelector('.discipline-toggle');
         if (btn) btn.setAttribute('aria-expanded', 'false');
 
-        // 4. Убираем active у карточки
         item.classList.remove('acc-active');
 
-        // 5. Прокрутка к верху
         tabEl.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // 6. Очистка
         setTimeout(() => {
             body.style.maxHeight = '';
             body.style.transition = '';
@@ -4287,14 +4272,13 @@
         });
     });
 
-                                        // === Открытие страницы-плашки при клике на #discBadge ===
+                                                // === Открытие страницы-плашки при клике на #discBadge ===
 const badgeSheet = document.getElementById('badgeSheet');
 const badgeSheetHandle = document.getElementById('badgeSheetHandle');
 const badgeSheetBadge = document.getElementById('badgeSheetBadge');
 const badgeSheetContent = document.getElementById('badgeSheetContent');
 const badgeSheetTitle = document.getElementById('badgeSheetTitle');
 
-// Под каким элементом открывать страницу — всегда от самого верха экрана
 function getBadgeSheetTop() {
     return 0;
 }
@@ -4378,11 +4362,13 @@ let isBadgeSheetOpen = false;
 
 function openBadgeSheet(badgeEl, disciplineName) {
     if (!badgeSheet) return;
+    if (!disciplineName) return; // не открываем без названия
+
     const text = (badgeEl && badgeEl.textContent) || 'Пока заданий нет, все в процессе публикации';
     if (badgeSheetBadge) badgeSheetBadge.textContent = text;
 
     if (badgeSheetTitle) {
-        const name = (disciplineName || '').trim();
+        const name = disciplineName.trim();
         const span = badgeSheetTitle.querySelector('span');
         if (span) span.textContent = name;
         else badgeSheetTitle.textContent = name;
@@ -4414,6 +4400,7 @@ function closeBadgeSheet() {
     isBadgeSheetOpen = false;
     badgeSheet.classList.remove('active');
     setClosedTop();
+    badgeSheet.style.opacity = '';
     if (badgeSheetTitle) {
         const span = badgeSheetTitle.querySelector('span');
         if (span) span.textContent = '';
@@ -4436,6 +4423,7 @@ badge.addEventListener('click', (e) => {
         const label = activeItem.querySelector('.discipline-toggle-label');
         if (label) disciplineName = label.textContent.trim();
     }
+    if (!disciplineName) return; // нет открытой дисциплины — не открываем
     openBadgeSheet(badge, disciplineName);
 });
 
@@ -4454,7 +4442,6 @@ function getScrollEl() {
 function onPullStart(e) {
     if (!isBadgeSheetOpen) return;
     const target = e.target;
-    // Если тянем за ручку — обрабатываем как раньше (там своя логика)
     if (badgeSheetHandle && (target === badgeSheetHandle || badgeSheetHandle.contains(target))) {
         return;
     }
@@ -4475,7 +4462,6 @@ function onPullStart(e) {
 function onPullMove(e) {
     if (!isBadgeSheetOpen) return;
     if (pullSheetBlocked) {
-        // если пользователь докрутил до верха — разблокируем
         const scrollEl = getScrollEl();
         if (scrollEl && scrollEl.scrollTop === 0) {
             pullSheetBlocked = false;
@@ -4486,7 +4472,6 @@ function onPullMove(e) {
     if (!pullSheetActive) return;
     const scrollEl = getScrollEl();
     if (scrollEl && scrollEl.scrollTop > 0) {
-        // пользователь начал скроллить контент — отменяем закрытие
         pullSheetActive = false;
         badgeSheet.style.transition = '';
         setOpenTop();
@@ -4495,14 +4480,11 @@ function onPullMove(e) {
     const y = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
     const dy = y - pullSheetStartY;
     if (dy > 0) {
-        // Тянем вниз — двигаем всю плашку
         badgeSheet.style.top = (pullSheetStartTop + dy) + 'px';
-        // Слегка гасим фон
         const ratio = Math.min(1, dy / 300);
         badgeSheet.style.opacity = String(1 - ratio * 0.2);
         if (e.cancelable) e.preventDefault();
     } else {
-        // Вверх — возвращаем на место
         badgeSheet.style.top = pullSheetStartTop + 'px';
         badgeSheet.style.opacity = '1';
     }
@@ -4528,7 +4510,6 @@ function onPullEnd() {
     }
 }
 
-// Навешиваем на всю плашку (включая контент)
 if (badgeSheet) {
     badgeSheet.addEventListener('mousedown', onPullStart);
     badgeSheet.addEventListener('touchstart', onPullStart, { passive: true });
@@ -4540,7 +4521,7 @@ if (badgeSheet) {
 }
 
 // ==========================================
-// Закрытие за ручку (старая логика, оставляем)
+// Закрытие за ручку
 // ==========================================
 let dragSActive = false;
 let dragSStartY = 0;
@@ -4619,6 +4600,11 @@ const bodyObserver = new MutationObserver(() => {
     }
 });
 bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+// Закрываем плашку при переключении/закрытии дисциплины:
+// выставляем глобальную функцию, которую вызовет аккордеон
+window.forceCloseBadgeSheet = closeBadgeSheet;
+window.isBadgeSheetOpenFn = () => isBadgeSheetOpen;
 })();
     </script>
 </body>
