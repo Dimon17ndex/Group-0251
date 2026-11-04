@@ -1773,6 +1773,14 @@
     padding: 0 20px 40px;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    position: relative;
+    background-color: #fff;
+    background-image:
+        linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: 0 0;
+    background-attachment: local;
 }
 .badge-sheet-content::-webkit-scrollbar { width: 0; height: 0; }
 
@@ -1782,12 +1790,6 @@
     display: block;
     height: 24px;
     margin-bottom: 12px;
-    background-image:
-        linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
-    background-size: 24px 24px;
-    border-radius: 8px;
-    opacity: 0.6;
 }
 
 /* Название дисциплины в открытой плашке */
@@ -1937,9 +1939,9 @@
                                     <section class="tab-content" id="tab-disciplines">
                 <div class="tab-platform" id="disciplinesPlatform">
                     <h2 class="disciplines-title">Дисциплины</h2>
-                    <div class="disciplines-list" id="disciplinesList">
+                                                            <div class="disciplines-list" id="disciplinesList">
 
-                        <div class="discipline-item" data-discipline="history-geo">
+                        <div class="discipline-item" data-discipline="history-geo" data-content="В скором времени мы собираемся добавить сюда задания и материалы, которые нам выдали на момент дистанционного обучения с 27 октября по 7 ноября.">
                             <button type="button" class="discipline-toggle" aria-expanded="false">
                                 <span class="discipline-toggle-label">История географических открытий</span>
                                 <span class="discipline-toggle-arrow">
@@ -1949,7 +1951,7 @@
                             <div class="discipline-body"></div>
                         </div>
 
-                        <div class="discipline-item" data-discipline="methods-geo">
+                        <div class="discipline-item" data-discipline="methods-geo" data-content="В скором времени мы собираемся добавить сюда задания и материалы, которые нам выдали на момент дистанционного обучения с 27 октября по 7 ноября.">
                             <button type="button" class="discipline-toggle" aria-expanded="false">
                                 <span class="discipline-toggle-label">Методы географических исследований</span>
                                 <span class="discipline-toggle-arrow">
@@ -1959,7 +1961,7 @@
                             <div class="discipline-body"></div>
                         </div>
 
-                        <div class="discipline-item" data-discipline="meteorology">
+                        <div class="discipline-item" data-discipline="meteorology" data-content="В скором времени мы собираемся добавить сюда задания и материалы, которые нам выдали на момент дистанционного обучения с 27 октября по 7 ноября.">
                             <button type="button" class="discipline-toggle" aria-expanded="false">
                                 <span class="discipline-toggle-label">Метеорология и климатология, гидрология</span>
                                 <span class="discipline-toggle-arrow">
@@ -1969,7 +1971,7 @@
                             <div class="discipline-body"></div>
                         </div>
 
-                        <div class="discipline-item" data-discipline="geology">
+                        <div class="discipline-item" data-discipline="geology" data-content="В скором времени мы собираемся добавить сюда задания и материалы, которые нам выдали на момент дистанционного обучения с 27 октября по 7 ноября.">
                             <button type="button" class="discipline-toggle" aria-expanded="false">
                                 <span class="discipline-toggle-label">Геология и эволюционная география</span>
                                 <span class="discipline-toggle-arrow">
@@ -1979,7 +1981,7 @@
                             <div class="discipline-body"></div>
                         </div>
 
-                        <div class="discipline-item" data-discipline="history-ru">
+                        <div class="discipline-item" data-discipline="history-ru" data-content="В скором времени мы собираемся добавить сюда задания и материалы, которые нам выдали на момент дистанционного обучения с 27 октября по 7 ноября.">
                             <button type="button" class="discipline-toggle" aria-expanded="false">
                                 <span class="discipline-toggle-label">История России</span>
                                 <span class="discipline-toggle-arrow">
@@ -1989,7 +1991,7 @@
                             <div class="discipline-body"></div>
                         </div>
 
-                        <div class="discipline-item" data-discipline="russian-state">
+                        <div class="discipline-item" data-discipline="russian-state" data-content="В скором времени мы собираемся добавить сюда задания и материалы, которые нам выдали на момент дистанционного обучения с 27 октября по 7 ноября.">
                             <button type="button" class="discipline-toggle" aria-expanded="false">
                                 <span class="discipline-toggle-label">Основы российской государственности</span>
                                 <span class="discipline-toggle-arrow">
@@ -1999,7 +2001,7 @@
                             <div class="discipline-body"></div>
                         </div>
 
-                        <div class="discipline-item" data-discipline="russian-lang">
+                        <div class="discipline-item" data-discipline="russian-lang" data-content="В скором времени мы собираемся добавить сюда задания и материалы, которые нам выдали на момент дистанционного обучения с 27 октября по 7 ноября.">
                             <button type="button" class="discipline-toggle" aria-expanded="false">
                                 <span class="discipline-toggle-label">Русский язык</span>
                                 <span class="discipline-toggle-arrow">
@@ -2009,7 +2011,7 @@
                             <div class="discipline-body"></div>
                         </div>
 
-                        <div class="discipline-item" data-discipline="english-lang">
+                        <div class="discipline-item" data-discipline="english-lang" data-content="В скором времени мы собираемся добавить сюда задания и материалы, которые нам выдали на момент дистанционного обучения с 27 октября по 7 ноября.">
                             <button type="button" class="discipline-toggle" aria-expanded="false">
                                 <span class="discipline-toggle-label">Английский язык</span>
                                 <span class="discipline-toggle-arrow">
@@ -2019,7 +2021,7 @@
                             <div class="discipline-body"></div>
                         </div>
 
-                        <div class="discipline-item" data-discipline="biogeocenology">
+                        <div class="discipline-item" data-discipline="biogeocenology" data-content="В скором времени мы собираемся добавить сюда задания и материалы, которые нам выдали на момент дистанционного обучения с 27 октября по 7 ноября.">
                             <button type="button" class="discipline-toggle" aria-expanded="false">
                                 <span class="discipline-toggle-label">Основы биогеоценологии</span>
                                 <span class="discipline-toggle-arrow">
@@ -2029,7 +2031,7 @@
                             <div class="discipline-body"></div>
                         </div>
 
-                        <div class="discipline-item" data-discipline="medical-basics">
+                        <div class="discipline-item" data-discipline="medical-basics" data-content="В скором времени мы собираемся добавить сюда задания и материалы, которые нам выдали на момент дистанционного обучения с 27 октября по 7 ноября.">
                             <button type="button" class="discipline-toggle" aria-expanded="false">
                                 <span class="discipline-toggle-label">Основы медицинских знаний</span>
                                 <span class="discipline-toggle-arrow">
@@ -3975,8 +3977,20 @@
             shrinkBadgeTitleToFit();
         }
 
-        if (badgeSheetContent) {
+                if (badgeSheetContent) {
             badgeSheetContent.innerHTML = '';
+            
+            // Добавляем контент из data-content активной дисциплины
+            if (activeItem) {
+                const contentText = activeItem.getAttribute('data-content');
+                if (contentText) {
+                    const p = document.createElement('p');
+                    p.textContent = contentText;
+                    p.style.cssText = 'font-size: 1rem; line-height: 1.6; color: #333; text-align: center; margin-top: 16px; margin-bottom: 0;';
+                    badgeSheetContent.appendChild(p);
+                }
+            }
+            
             badgeSheetContent.scrollTop = 0;
         }
 
