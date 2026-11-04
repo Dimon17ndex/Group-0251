@@ -72,6 +72,27 @@
             overscroll-behavior: contain;
         }
 
+        /* Наведение на красную плашку (только для мыши) */
+@media (hover: hover) and (pointer: fine) {
+    #discBadge {
+        transition: opacity 0.3s ease,
+                    transform 0.2s cubic-bezier(0.22, 0.61, 0.36, 1),
+                    box-shadow 0.25s ease,
+                    filter 0.2s ease;
+    }
+
+    #discBadge:hover {
+        transform: translate(-50%, -50%) scale(1.05);
+        filter: brightness(1.08);
+        box-shadow: 0 4px 16px rgba(229, 57, 53, 0.45);
+    }
+
+    #discBadge:active {
+        transform: translate(-50%, -50%) scale(0.98);
+        filter: brightness(0.95);
+    }
+}
+
         #disciplinesPlatform {
             min-height: 100%;
             padding-bottom: 80px;   /* запас снизу, чтобы последний элемент не прилипал к краю */
@@ -1651,6 +1672,95 @@
             .max-sheet-text { font-size: 0.95rem; }
         }
         
+        /* === Страница-плашка (открывается сверху) === */
+.badge-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 100%; /* закрытое состояние — за нижней границей экрана */
+    z-index: 10015;
+    visibility: hidden;
+    transition: top 0.4s cubic-bezier(0.22, 0.61, 0.36, 1),
+                visibility 0.4s ease;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+    will-change: top;
+}
+
+.badge-sheet.active {
+    visibility: visible;
+    /* top задаётся в JS — см. openBadgeSheet */
+}
+
+.badge-sheet-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+}
+
+.badge-sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 20px auto 14px;
+    flex-shrink: 0;
+    cursor: grab;
+}
+
+.badge-sheet-handle:active { cursor: grabbing; }
+
+/* Копия плашки на верху страницы */
+.badge-sheet-badge {
+    margin: 0 auto 16px;
+    background: #e53935;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.2;
+    padding: 10px 16px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 260px;
+    box-shadow: 0 2px 10px rgba(229, 57, 53, 0.25);
+    flex-shrink: 0;
+}
+
+/* Контент страницы — скроллится */
+.badge-sheet-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 0 20px 40px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.badge-sheet-content::-webkit-scrollbar { width: 0; height: 0; }
+
+/* Тонкая линия вверху — визуальное продолжение сетки */
+.badge-sheet-content::before {
+    content: "";
+    display: block;
+    height: 24px;
+    margin-bottom: 12px;
+    background-image:
+        linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+    border-radius: 8px;
+    opacity: 0.6;
+}
+
     </style>
 </head>
 <body>
@@ -2032,6 +2142,15 @@
             <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.06L2 22l4.94-1.38C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.54 0-3-.4-4.28-1.1l-.32-.18-3.1.86.86-3.1-.18-.32C4.4 15 4 13.54 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
         </svg>
     </button>
+
+<!-- Страница-плашка (открывается сверху) -->
+<div id="badgeSheet" class="badge-sheet">
+    <div class="badge-sheet-inner" id="badgeSheetInner">
+        <div class="badge-sheet-handle" id="badgeSheetHandle"></div>
+        <div class="badge-sheet-badge" id="badgeSheetBadge">Пока заданий нет, все в процессе публикации</div>
+        <div class="badge-sheet-content" id="badgeSheetContent"></div>
+    </div>
+</div>
 
     <div class="likes-popover" id="likesPopover"></div>
 
@@ -3611,7 +3730,7 @@
         pointer-events: none;
         z-index: 890;
         opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.3s ease, transform 0.2s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.25s ease, filter 0.2s ease;
         background-color: transparent;
         background-image:
             linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
@@ -4072,6 +4191,134 @@
             if (activeItem === item) syncPosition(item);
         });
     });
+
+        // === Открытие страницы-плашки при клике на #discBadge ===
+const badgeSheet = document.getElementById('badgeSheet');
+const badgeSheetHandle = document.getElementById('badgeSheetHandle');
+const badgeSheetBadge = document.getElementById('badgeSheetBadge');
+const badgeSheetContent = document.getElementById('badgeSheetContent');
+
+// Под каким элементом открывать страницу (null = под шапкой)
+function getBadgeSheetTop() {
+    const header = document.querySelector('header');
+    return header ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+}
+
+// Применяем «закрытое» положение
+function setClosedTop() {
+    if (!badgeSheet) return;
+    badgeSheet.style.top = '100%';
+}
+
+// Применяем «открытое» положение
+function setOpenTop() {
+    if (!badgeSheet) return;
+    badgeSheet.style.top = getBadgeSheetTop() + 'px';
+}
+
+let isBadgeSheetOpen = false;
+
+function openBadgeSheet(badgeEl) {
+    if (!badgeSheet) return;
+    const text = (badgeEl && badgeEl.textContent) || 'Пока заданий нет, все в процессе публикации';
+    if (badgeSheetBadge) badgeSheetBadge.textContent = text;
+    if (badgeSheetContent) {
+        badgeSheetContent.innerHTML = '';
+        badgeSheetContent.scrollTop = 0;
+    }
+
+    isBadgeSheetOpen = true;
+    // Сначала ставим закрытое положение, затем через кадр — открытое,
+    // чтобы transition сработал (иначе может «прыгнуть»).
+    setClosedTop();
+    badgeSheet.classList.add('active');
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            setOpenTop();
+        });
+    });
+
+    if (navigator.vibrate) { try { navigator.vibrate(10); } catch (e) {} }
+}
+
+function closeBadgeSheet() {
+    if (!badgeSheet) return;
+    isBadgeSheetOpen = false;
+    badgeSheet.classList.remove('active');
+    setClosedTop(); // всегда сбрасываем top — даже если закрыли кнопкой
+}
+
+// Клик по красной плашке (только она становится кликабельной)
+badge.style.pointerEvents = 'auto';
+badge.style.cursor = 'pointer';
+badge.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openBadgeSheet(badge);
+});
+
+// Закрытие свайпом вниз по ручке — только если движение началось по ручке
+let dragSActive = false;
+let dragSStartY = 0;
+let dragSStartTop = 0;
+
+function startDragS(e) {
+    if (!badgeSheet) return;
+    dragSActive = true;
+    dragSStartY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+    dragSStartTop = getBadgeSheetTop();
+    badgeSheet.style.transition = 'none';
+}
+
+function onDragS(e) {
+    if (!dragSActive) return;
+    const y = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+    const dy = y - dragSStartY;
+    if (dy > 0) {
+        badgeSheet.style.top = (dragSStartTop + dy) + 'px';
+    }
+}
+
+function endDragS() {
+    if (!dragSActive) return;
+    dragSActive = false;
+    badgeSheet.style.transition = '';
+    const y = (event && (event.changedTouches ? event.changedTouches[0].clientY : event.clientY)) || 0;
+    const dy = y - dragSStartY;
+    if (dy > 100) {
+        closeBadgeSheet();
+    } else {
+        setOpenTop();
+    }
+}
+
+if (badgeSheetHandle && badgeSheet) {
+    badgeSheetHandle.addEventListener('mousedown', startDragS);
+    badgeSheetHandle.addEventListener('touchstart', startDragS, { passive: true });
+    window.addEventListener('mousemove', onDragS);
+    window.addEventListener('mouseup', endDragS);
+    window.addEventListener('touchmove', onDragS, { passive: false });
+    window.addEventListener('touchend', endDragS);
+}
+
+// Пересчёт позиции при resize и при изменениях шапки (например, баннер «плохой интернет»)
+window.addEventListener('resize', () => {
+    if (isBadgeSheetOpen) setOpenTop();
+});
+// Следим за `header` — если её высота меняется (баннер сети), обновляем
+if ('ResizeObserver' in window) {
+    const headerEl = document.querySelector('header');
+    if (headerEl) {
+        const ro = new ResizeObserver(() => {
+            if (isBadgeSheetOpen) setOpenTop();
+        });
+        ro.observe(headerEl);
+    }
+}
+// Дополнительно — на сдвиг body.net-offline
+const bodyObserver = new MutationObserver(() => {
+    if (isBadgeSheetOpen) setOpenTop();
+});
+bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 })();
     </script>
 </body>
