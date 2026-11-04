@@ -1687,8 +1687,8 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
     box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
     will-change: top;
 }
@@ -1711,7 +1711,7 @@
     height: 4px;
     background: #ddd;
     border-radius: 2px;
-    margin: 20px auto 14px;
+    margin: calc(env(safe-area-inset-top, 0px) + 20px) auto 14px;
     flex-shrink: 0;
     cursor: grab;
 }
@@ -4200,8 +4200,7 @@ const badgeSheetContent = document.getElementById('badgeSheetContent');
 
 // Под каким элементом открывать страницу (null = под шапкой)
 function getBadgeSheetTop() {
-    const header = document.querySelector('header');
-    return header ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+    return 0;
 }
 
 // Применяем «закрытое» положение
