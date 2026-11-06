@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>География — 2611-0251.1</title>
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
@@ -10,7 +10,6 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2" defer></script>
 
     <style>
-
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
                 html, body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-touch-callout: none; }
                         input, textarea, [contenteditable="true"] {
@@ -20,11 +19,6 @@
             user-select: text;
         }
         html, body { height: 100%; }
-        
-        html, body {
-    height: 100%;
-    touch-action: manipulation;
-}
         body { background: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #222; display: flex; flex-direction: column; overflow: hidden; }
 
         button, a, .tab-btn, .heart-btn, .btn-disciplines, .schedule-link, .post-menu-btn { -webkit-tap-highlight-color: transparent; outline: none; box-shadow: none; }
@@ -66,68 +60,6 @@
 
         .tab-content { position: relative; width: 33.3333%; height: 100%; overflow-y: auto; padding: 0; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; -ms-overflow-style: none; }
         .tab-content::-webkit-scrollbar { width: 0; height: 0; }
-                /* Скролл для вкладки «Дисциплины» */
-        #tab-disciplines {
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
-        }
-
-        #disciplinesPlatform {
-            min-height: 100%;
-            padding-bottom: 80px;   /* запас снизу, чтобы последний элемент не прилипал к краю */
-        }
-
-        .disciplines-list {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-                /* Заголовок вкладки «Дисциплины» */
-        .disciplines-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-            color: #000;
-            text-align: center;
-            margin: 0 0 24px;
-        }
-
-/* Дисциплины — просто кнопки */
-.discipline-item {
-    width: 100%;
-    display: block;
-    padding: 16px 20px;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    text-align: left;
-    color: #ffffff;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.25s ease;
-    line-height: 1.25;
-}
-
-.discipline-item:hover { filter: brightness(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
-.discipline-item:active { filter: brightness(0.94); transform: scale(0.995); }
-
-        /* Цвета дисциплин */
-.discipline-item[data-discipline="history-geo"]   { background: #2e7d32; }  /* зелёный */
-.discipline-item[data-discipline="methods-geo"]   { background: #c77800; }  /* охровый */
-.discipline-item[data-discipline="meteorology"]   { background: #1565c0; }  /* синий */
-.discipline-item[data-discipline="geology"]       { background: #6d4c41; }  /* коричневый */
-.discipline-item[data-discipline="history-ru"]    { background: #c62828; }  /* красный */
-.discipline-item[data-discipline="russian-state"] { background: #ef6c00; }  /* морковный */
-.discipline-item[data-discipline="russian-lang"]  { background: #d81b60; }  /* розовый */
-.discipline-item[data-discipline="english-lang"]  { background: #111111; }  /* чёрный */
-.discipline-item[data-discipline="biogeocenology"]{ background: #00a86b; }  /* изумрудный */
-.discipline-item[data-discipline="medical-basics"]{ background: #8e0000; }  /* рубиновый */
         .tabs-track.animating .tab-content { scrollbar-width: none; -ms-overflow-style: none; }
         .tabs-track.animating .tab-content::-webkit-scrollbar { width: 0; height: 0; }
 
@@ -205,15 +137,6 @@
         .tab-content p { font-size: 1.1rem; color: #555; line-height: 1.6; }
         .btn-disciplines { display: inline-block; margin-top: 10px; padding: 18px 48px; font-size: 1.4rem; font-weight: 600; letter-spacing: 1.5px; text-decoration: none; color: #fff; background-color: #0066ff; border: 2px solid #0066ff; border-radius: 10px; transition: all 0.25s ease; box-shadow: none; }
         .schedule-link { display: inline-block; margin-top: 10px; padding: 16px 32px; font-size: 1.1rem; font-weight: 600; text-decoration: none; color: #0066ff; border: 2px solid #0066ff; border-radius: 10px; transition: all 0.2s ease; box-shadow: none; }
-
-        body.post-highlight-lock {
-            overflow: hidden !important;
-            touch-action: none;
-        }
-        body.post-highlight-lock .tab-content {
-            overflow: hidden !important;
-            touch-action: none;
-        }
 
         /* === Встроенное расписание (iframe) === */
         .schedule-iframe-wrap {
@@ -709,9 +632,72 @@
             .post-menu-btn:hover { background: #f0f0f0; }
         }
 
+/* === Дисциплины === */
+#tab-disciplines {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+#disciplinesPlatform {
+    min-height: 100%;
+    padding-bottom: 80px;
+}
+
+.disciplines-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: #000;
+    text-align: center;
+    margin: 0 0 24px;
+}
+
+.disciplines-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.discipline-item {
+    width: 100%;
+    display: block;
+    padding: 16px 20px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-align: left;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.25s ease;
+    line-height: 1.25;
+}
+
+.discipline-item:hover { filter: brightness(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
+.discipline-item:active { filter: brightness(0.94); transform: scale(0.995); }
+
+/* Цвета дисциплин */
+.discipline-item[data-discipline="history-geo"]   { background: #2e7d32; }
+.discipline-item[data-discipline="methods-geo"]   { background: #c77800; }
+.discipline-item[data-discipline="meteorology"]   { background: #1565c0; }
+.discipline-item[data-discipline="geology"]       { background: #6d4c41; }
+.discipline-item[data-discipline="history-ru"]    { background: #c62828; }
+.discipline-item[data-discipline="russian-state"] { background: #ef6c00; }
+.discipline-item[data-discipline="russian-lang"]  { background: #d81b60; }
+.discipline-item[data-discipline="english-lang"]  { background: #111111; }
+.discipline-item[data-discipline="biogeocenology"]{ background: #00a86b; }
+.discipline-item[data-discipline="medical-basics"]{ background: #8e0000; }
+
         @media (max-width: 700px) {
             header { padding: 12px 10px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; width: 100%; box-sizing: border-box; overflow: hidden; }
             .site-logo { position: static; transform: none; width: 36px; height: 36px; margin: 0; flex-shrink: 0; }
+            .disciplines-title { font-size: 1.4rem; letter-spacing: 1px; margin: 0 0 16px; }
+.discipline-item { padding: 14px 16px; font-size: 0.95rem; border-radius: 10px; }
             .site-logo svg { width: 22px; height: 22px; }
             .header-text { display: flex; align-items: center; justify-content: flex-start; flex: 1 1 auto; min-width: 0; overflow: hidden; }
             h1 { font-size: 0.95rem; letter-spacing: 0.2px; line-height: 1.2; white-space: nowrap; text-align: left; color: transparent; position: relative; max-width: 100%; }
@@ -1584,7 +1570,6 @@
             .max-sheet-title { font-size: 1.4rem; margin-bottom: 24px; }
             .max-sheet-text { font-size: 0.95rem; }
         }
-
     </style>
 </head>
 <body>
@@ -1664,7 +1649,7 @@
                 </div>
             </section>
 
-                                    <section class="tab-content" id="tab-disciplines">
+            <section class="tab-content" id="tab-disciplines">
     <div class="tab-platform" id="disciplinesPlatform">
         <h2 class="disciplines-title">Дисциплины</h2>
         <div class="disciplines-list" id="disciplinesList">
@@ -1894,20 +1879,19 @@
     <div class="likes-mobile-floater" id="likesMobileFloater"></div>
 
     <script>
-
         // ==========================================
         // 1. ЛОАДЕР
         // ==========================================
         function hideLoaderAndShowSite() {
-    const loader = document.getElementById('loader');
-    if (loader) loader.classList.add('hidden');
-    setTimeout(() => {
-        document.body.classList.add('loaded');
-        if (loader) loader.style.display = 'none';
-        const feedTitle = document.getElementById('feedTitle');
-        if (feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
-    }, 150);
-}
+            const loader = document.getElementById('loader');
+            if(loader) loader.classList.add('hidden');
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+                if(loader) loader.style.display = 'none';
+                const feedTitle = document.getElementById('feedTitle');
+                if(feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
+            }, 150);
+        }
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
@@ -2167,12 +2151,9 @@
             return dd + '.' + mm + '.' + yyyy;
         }
 
-                                        function flashPostHighlight() {
+                                function flashPostHighlight() {
             const postEl = document.querySelector('.card-block');
             if (!postEl) return;
-
-            // Блокируем скролл и жесты на время анимации
-            document.body.classList.add('post-highlight-lock');
 
             const rect = postEl.getBoundingClientRect();
             const overlay = document.createElement('div');
@@ -2203,15 +2184,14 @@
                 overlay.style.top = (heartCenterY - size / 2) + 'px';
             }, 500);
 
-            // 2. Ещё через 0.9 с (итого 1.4 с) — начинаем исчезновение 2 с
+                        // 2. Ещё через 0.9 с (итого 1.4 с) — начинаем исчезновение 2 с
             setTimeout(() => {
                 overlay.classList.add('fade-out');
             }, 1400);
 
-            // 3. Удаляем после исчезновения и снимаем блокировку
+            // 3. Удаляем после исчезновения
             setTimeout(() => {
                 overlay.remove();
-                document.body.classList.remove('post-highlight-lock');
             }, 3400);
         }
 
@@ -2892,145 +2872,392 @@
             window.addEventListener('touchend', endDragInfo);
         }
 
+        // ==========================================
+        // 9. КАРТОЧКА ЛАЙКНУВШИХ
+        // ==========================================
+        const likesPopover = document.getElementById('likesPopover');
+        let likesHideTimer = null;
+        let likesShowTimer = null;
+        let currentHoverBtn = null;
+        let longPressTimer = null;
+        let longPressTriggered = false;
+
+        async function getLikersForPost(postId) {
+            if (!supabaseClient) return [];
+            const { data: likes, error } = await supabaseClient
+                .from('likes')
+                .select('user_id')
+                .eq('post_id', postId);
+            if (error) { console.error('Ошибка загрузки лайкнувших:', error); return []; }
+            if (!likes || likes.length === 0) return [];
+
+            const userIds = [...new Set(likes.map(l => l.user_id))];
+            const { data: profiles, error: pErr } = await supabaseClient
+                .from('profiles')
+                .select('id, username')
+                .in('id', userIds);
+            if (pErr) {
+                console.error('Ошибка загрузки профилей:', pErr);
+                return userIds.map(id => ({ id, username: 'Пользователь', isMe: false }));
+            }
+            const map = {};
+            (profiles || []).forEach(p => { map[p.id] = p.username; });
+
+            let myId = currentUserId;
+            if (!myId) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                myId = session ? session.user.id : null;
+                currentUserId = myId;
+            }
+
+            return userIds.map(id => {
+                const baseName = map[id] || 'Пользователь';
+                const isMe = myId && id === myId;
+                return { id, username: baseName, isMe };
+            });
+        }
+
+        function renderLikesPopover(likers) {
+            if (!likesPopover) return;
+            likesPopover.innerHTML = '';
+            if (!likers || likers.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'likes-popover-empty';
+                empty.textContent = 'Пока никто не лайкнул';
+                likesPopover.appendChild(empty);
+                return;
+            }
+            likers.forEach(u => {
+                const row = document.createElement('div');
+                row.className = 'likes-popover-row';
+
+                const name = document.createElement('span');
+                name.className = 'likes-popover-name';
+                name.textContent = u.username;
+                if (u.isMe) {
+                    const you = document.createElement('span');
+                    you.className = 'likes-popover-you';
+                    you.textContent = ' (Вы)';
+                    name.appendChild(you);
+                }
+
+                const heart = document.createElement('span');
+                heart.className = 'likes-popover-heart';
+                heart.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg>';
+
+                row.appendChild(name);
+                row.appendChild(heart);
+                likesPopover.appendChild(row);
+            });
+        }
+
+        function positionLikesPopover(btn) {
+            if (!btn || !likesPopover) return;
+            const rect = btn.getBoundingClientRect();
+            likesPopover.style.visibility = 'hidden';
+            likesPopover.classList.add('visible');
+            const popRect = likesPopover.getBoundingClientRect();
+            const gap = 8;
+            let top = rect.bottom + gap;
+            let left = rect.left;
+            if (top + popRect.height > window.innerHeight - 8) {
+                top = rect.top - popRect.height - gap;
+            }
+            if (left + popRect.width > window.innerWidth - 8) {
+                left = window.innerWidth - popRect.width - 8;
+            }
+            if (left < 8) left = 8;
+            if (top < 8) top = 8;
+            likesPopover.style.top = top + 'px';
+            likesPopover.style.left = left + 'px';
+            likesPopover.style.visibility = '';
+        }
+
+        async function showLikesPopover(btn) {
+            const postId = btn.getAttribute('data-post-id');
+            if (!postId) return;
+            if (likesPopover) {
+                likesPopover.innerHTML = '<div class="likes-popover-empty">Загрузка…</div>';
+                positionLikesPopover(btn);
+            }
+            const likers = await getLikersForPost(postId);
+            if (currentHoverBtn !== btn) return;
+            renderLikesPopover(likers);
+            positionLikesPopover(btn);
+        }
+
+        function hideLikesPopover() {
+            if (!likesPopover) return;
+            likesPopover.classList.remove('visible');
+        }
+
+        function clearLikesTimers() {
+            if (likesShowTimer) { clearTimeout(likesShowTimer); likesShowTimer = null; }
+            if (likesHideTimer) { clearTimeout(likesHideTimer); likesHideTimer = null; }
+        }
+
+        document.querySelectorAll('.heart-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                    clearLikesTimers();
+                    currentHoverBtn = btn;
+                    likesShowTimer = setTimeout(() => showLikesPopover(btn), 200);
+                }
+            });
+            btn.addEventListener('mouseleave', () => {
+                if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                    clearLikesTimers();
+                    if (currentHoverBtn === btn) {
+                        currentHoverBtn = null;
+                        likesHideTimer = setTimeout(() => {
+                            if (!likesPopover || !likesPopover.matches(':hover')) {
+                                hideLikesPopover();
+                            }
+                        }, 200);
+                    }
+                }
+            });
+
+            btn.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                clearLikesTimers();
+                currentHoverBtn = btn;
+                showLikesPopover(btn);
+            });
+
+            btn.addEventListener('touchstart', (e) => {
+                clearLikesTimers();
+                longPressTriggered = false;
+                currentHoverBtn = btn;
+                longPressTimer = setTimeout(() => {
+                    longPressTriggered = true;
+                    showLikesPopover(btn);
+                }, 500);
+            }, { passive: true });
+
+            btn.addEventListener('touchmove', () => {
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+            }, { passive: true });
+
+            btn.addEventListener('touchend', () => {
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+                if (longPressTriggered) {
+                    setTimeout(() => { longPressTriggered = false; }, 50);
+                }
+            });
+
+            btn.addEventListener('touchcancel', () => {
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+            });
+        });
+
+        if (likesPopover) {
+            likesPopover.addEventListener('mouseenter', () => { clearLikesTimers(); });
+            likesPopover.addEventListener('mouseleave', () => { clearLikesTimers(); hideLikesPopover(); });
+        }
+
+        document.querySelectorAll('.heart-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (longPressTriggered) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    longPressTriggered = false;
+                }
+            }, true);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!likesPopover) return;
+            if (!likesPopover.contains(e.target) && !e.target.closest('.heart-btn')) {
+                hideLikesPopover();
+            }
+        });
+
+        document.querySelectorAll('.tab-content').forEach(tc => {
+            tc.addEventListener('scroll', () => { hideLikesPopover(); }, { passive: true });
+        });
+
+                        // === Мобильное меню квадрата (долгое нажатие) ===
+        (function initLikesMobileMenu() {
+            const menu = document.getElementById('likesMobileMenu');
+            const btn = document.getElementById('likesMobileUnlikeBtn');
+            const floater = document.getElementById('likesMobileFloater');
+            if (!menu || !btn || !floater) return;
+
+            let pressTimer = null;
+            let activeItem = null;
+            let activePostId = null;
+            let longPressTriggered = false;
+            let menuOpen = false;
+
+            function openMenu(item, postId) {
+                if (menuOpen) return;
+                activeItem = item;
+                activePostId = postId;
+                longPressTriggered = true;
+                menuOpen = true;
+
+                // Прячем оригинал под блюром
+                item.classList.add('likes-mobile-hidden');
+
+                // Клонируем квадрат — встаёт точно на место оригинала
+                const rect = item.getBoundingClientRect();
+                floater.innerHTML = '';
+                const clone = item.cloneNode(true);
+                clone.classList.remove('likes-mobile-hidden');
+                clone.classList.add('likes-grid-item');   // на случай, если потерялся класс
+                clone.removeAttribute('data-post-id');
+                clone.removeAttribute('data-mobile-menu-bound');
+                const cloneUnlike = clone.querySelector('.likes-grid-unlike');
+                if (cloneUnlike) cloneUnlike.remove();
+
+                                // Только квадрат, без даты
+                floater.appendChild(clone);
+
+                // Позиционируем floater точно на место оригинала
+                                floater.style.top = rect.top + 'px';
+                floater.style.left = rect.left + 'px';
+                floater.style.width = rect.width + 'px';
+                floater.style.height = rect.height + 'px';
+
+                clone.style.width = rect.width + 'px';
+                clone.style.height = rect.height + 'px';
+                clone.style.aspectRatio = '1 / 1';
+
+                                menu.classList.add('active');
+                floater.classList.add('active');
+
+                // Фаза 1: появиться в размере оригинала (scale(1))
+                // Фаза 2: через один кадр — плавно увеличиться до scale(1.1)
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        floater.classList.add('enlarged');
+                    });
+                });
+
+                // Позиционируем кнопку рядом с квадратом
+                const btnSize = 52;
+                const gap = 12;
+                const padding = 8;
+
+                let left = rect.right + gap;
+                if (left + btnSize > window.innerWidth - padding) {
+                    left = rect.left - btnSize - gap;
+                }
+                let top;
+                if (left < padding) {
+                    left = rect.left + (rect.width - btnSize) / 2;
+                    top = rect.bottom + gap + 20;
+                } else {
+                    top = rect.top + (rect.height - btnSize) / 2;
+                }
+                btn.style.top = Math.max(padding, Math.min(window.innerHeight - btnSize - padding, top)) + 'px';
+                btn.style.left = Math.max(padding, Math.min(window.innerWidth - btnSize - padding, left)) + 'px';
+
+                if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) {} }
+            }
+
+            function closeMenu() {
+                if (!menuOpen && !activeItem) return;
+                menuOpen = false;
+                longPressTriggered = false;
+                if (activeItem) activeItem.classList.remove('likes-mobile-hidden');
+                activeItem = null;
+                activePostId = null;
+                                                // Уменьшение и исчезновение одновременно
+                floater.classList.remove('enlarged');
+                floater.classList.remove('active');
+                floater.style.pointerEvents = 'none';
+
+                // После завершения анимации очищаем DOM
+                setTimeout(() => {
+                    floater.innerHTML = '';
+                    floater.style.pointerEvents = '';
+                }, 240);
+                menu.classList.remove('active');
+            }
+
+            // Клик по оверлею — закрыть, но только если клик НЕ по кнопке
+            menu.addEventListener('click', (e) => {
+                if (e.target.closest('.likes-mobile-btn')) return;
+                closeMenu();
+            });
+
+            // Клик по кнопке «убрать лайк»
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!activePostId || !supabaseClient || !currentUserId) { closeMenu(); return; }
+                const postId = activePostId;
+                closeMenu();
+                const { error } = await supabaseClient
+                    .from('likes')
+                    .delete()
+                    .match({ user_id: currentUserId, post_id: postId });
+                if (error) { console.error('Ошибка удаления лайка:', error); return; }
+                const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+                if (heartBtn) heartBtn.classList.remove('liked');
+                loadLikedPostsIntoGrid();
+            });
+
+            // Навешиваем обработчики на квадраты
+            function bindItems() {
+                document.querySelectorAll('.likes-grid-item').forEach(item => {
+                    if (item.dataset.mobileMenuBound === '1') return;
+                    item.dataset.mobileMenuBound = '1';
+
+                    item.addEventListener('touchstart', (e) => {
+                        if (!window.matchMedia('(hover: none)').matches) return;
+                        if (e.touches.length !== 1) return;
+                        const postId = item.getAttribute('data-post-id');
+                        if (!postId) return;
+
+                        longPressTriggered = false;
+                        if (pressTimer) clearTimeout(pressTimer);
+                        pressTimer = setTimeout(() => {
+                            pressTimer = null;
+                            openMenu(item, postId);
+                        }, 500);
+                    }, { passive: true });
+
+                    item.addEventListener('touchmove', () => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                    }, { passive: true });
+
+                    item.addEventListener('touchend', (e) => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                        if (longPressTriggered) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setTimeout(() => { longPressTriggered = false; }, 50);
+                        }
+                    });
+
+                    item.addEventListener('touchcancel', () => {
+                        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                    });
+                });
+            }
+
+            const observer = new MutationObserver(bindItems);
+            const grid = document.getElementById('likesGrid');
+            if (grid) observer.observe(grid, { childList: true, subtree: true });
+
+            bindItems();
+
+            window.addEventListener('scroll', () => { if (menuOpen) closeMenu(); }, { passive: true });
+            window.addEventListener('resize', () => { if (menuOpen) closeMenu(); });
+        })();
+
+        // ==========================================
+// 10. ПЕРЕХОД НА ДИСЦИПЛИНУ
+// ==========================================
 document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
     btn.addEventListener('click', () => {
         const id = btn.dataset.discipline;
         if (!id) return;
-        window.open('discipline.html?id=' + encodeURIComponent(id), '_blank', 'noopener');
+        window.open('discipline.html?id=' + encodeURIComponent(id), '_blank');
     });
 });
-
-// ==========================================
-// Мобильное меню «убрать лайк» на квадратах профиля
-// ==========================================
-(function initLikesMobileMenu() {
-    const menu = document.getElementById('likesMobileMenu');
-    const unlikeBtn = document.getElementById('likesMobileUnlikeBtn');
-    const floater = document.getElementById('likesMobileFloater');
-    const grid = document.getElementById('likesGrid');
-    if (!menu || !unlikeBtn || !floater || !grid) return;
-
-    // Только для тач-устройств (на десктопе работает hover-кнопка .likes-grid-unlike)
-    const isTouch = window.matchMedia('(hover: none)').matches;
-    if (!isTouch) return;
-
-    let activeItem = null;
-    let activePostId = null;
-    let activeOriginalEl = null;
-
-    function openMenu(item) {
-        const postId = item.getAttribute('data-post-id');
-        if (!postId) return;
-
-        activeItem = item;
-        activePostId = postId;
-        activeOriginalEl = item;
-
-        // Клонируем квадрат в floater
-        const rect = item.getBoundingClientRect();
-        floater.innerHTML = '';
-        const clone = item.cloneNode(true);
-        clone.classList.remove('likes-mobile-hidden');
-        floater.appendChild(clone);
-
-        floater.style.left = rect.left + 'px';
-        floater.style.top = rect.top + 'px';
-        floater.style.width = rect.width + 'px';
-        floater.style.height = rect.height + 'px';
-
-        // Скрываем оригинал под блюром
-        item.classList.add('likes-mobile-hidden');
-
-        menu.classList.add('active');
-        floater.classList.add('active');
-
-        // Позиционируем кнопку «убрать лайк» под квадратом
-        positionUnlikeBtn();
-    }
-
-    function positionUnlikeBtn() {
-        if (!activeOriginalEl) return;
-        const rect = activeOriginalEl.getBoundingClientRect();
-        const size = 52;
-        const gap = 16;
-        const left = rect.left + rect.width / 2 - size / 2;
-        const top = rect.bottom + gap;
-        unlikeBtn.style.left = left + 'px';
-        unlikeBtn.style.top = top + 'px';
-    }
-
-    function closeMenu() {
-        menu.classList.remove('active');
-        floater.classList.remove('active');
-        floater.innerHTML = '';
-        if (activeOriginalEl) {
-            activeOriginalEl.classList.remove('likes-mobile-hidden');
-        }
-        activeItem = null;
-        activePostId = null;
-        activeOriginalEl = null;
-    }
-
-    // Тап по квадрату в профиле
-    grid.addEventListener('click', (e) => {
-        if (menu.classList.contains('active')) return;
-        const item = e.target.closest('.likes-grid-item');
-        if (!item) return;
-        // Только если это внутри .likes-grid (панель лайков), а не где-то ещё
-        if (!grid.contains(item)) return;
-        e.preventDefault();
-        e.stopPropagation();
-        openMenu(item);
-    }, true);
-
-    // Кнопка «убрать лайк»
-    unlikeBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        if (!activePostId || !currentUserId || !supabaseClient) {
-            closeMenu();
-            return;
-        }
-        const postId = activePostId;
-
-        const { error } = await supabaseClient
-            .from('likes')
-            .delete()
-            .match({ user_id: currentUserId, post_id: postId });
-
-        if (error) {
-            console.error('Ошибка удаления лайка:', error);
-            closeMenu();
-            return;
-        }
-
-        const heartBtn = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
-        if (heartBtn) heartBtn.classList.remove('liked');
-
-        closeMenu();
-        if (typeof loadLikedPostsIntoGrid === 'function') loadLikedPostsIntoGrid();
-    });
-
-    // Тап по оверлею (вне кнопки) — закрыть
-    menu.addEventListener('click', (e) => {
-        if (e.target === menu) closeMenu();
-    });
-
-    // Тап по клону — тоже закрыть (или можно оставить, чтобы не мешал)
-    floater.addEventListener('click', (e) => {
-        // Если тапнули по кнопке внутри клона — игнорируем (её там нет)
-        if (e.target.closest('.likes-grid-unlike')) return;
-        // Иначе закрываем — тап по пустому месту
-        closeMenu();
-    });
-
-    // При скролле/ресайзе — закрываем (иначе клон «уедет»)
-    window.addEventListener('resize', () => { if (menu.classList.contains('active')) closeMenu(); });
-    const panels = document.querySelector('.profile-section-panels');
-    if (panels) {
-        panels.addEventListener('scroll', () => { if (menu.classList.contains('active')) closeMenu(); }, { passive: true });
-    }
-})();
-
     </script>
 </body>
 </html>
