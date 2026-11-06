@@ -147,7 +147,7 @@
     width: 100%;
     margin-bottom: 24px;
     text-align: center;
-    padding-top: 32px; 
+    padding-top: 32px; /* Место под подложку даты */
 }
 
 /* Дата задания (с подложкой) */
@@ -158,14 +158,14 @@
     transform: translateX(-50%);
     display: inline-block;
     padding: 4px 12px;
-    background: rgba(0, 0, 0, 0.06);
-    border-radius: 20px; 
+    background: rgba(0, 0, 0, 0.06); /* Полупрозрачный серый фон */
+    border-radius: 20px; /* Овальная форма */
     font-size: 0.8rem;
     font-weight: 600;
     color: #666;
     white-space: nowrap;
     line-height: 1.2;
-    margin-top: -10px; 
+    margin-top: -10px; /* Поднимаем дату чуть выше плашки */
 }
 
 /* Обертка для точки и пунктира */
@@ -286,8 +286,295 @@
             text-decoration: none;
         }
 
-        /* На мобильных оставляем только фиксы для шапки, чтобы она не ломалась. 
-           Все размеры контента остаются десктопными. */
+        <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Дисциплина — География 2611-0251.1</title>
+
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body {
+            background: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #222;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        header {
+            padding: 14px 32px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+            border-bottom: 1px solid #eee;
+            background: #fff;
+            z-index: 10;
+        }
+        .site-logo {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: #0066ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .site-logo svg { width: 32px; height: 32px; display: block; }
+        h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1.5px; white-space: nowrap; margin: 0; text-align: left; line-height: 1; }
+
+        .back-btn {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #0066ff;
+            background: #f5f7ff;
+            border: 1px solid #e3e8ff;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s ease;
+            flex-shrink: 0;
+        }
+        .back-btn:hover { background: #e9efff; }
+        .back-btn svg { width: 16px; height: 16px; display: block; }
+
+        main {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            position: relative;
+
+            /* === Клетчатая разметка фона === */
+            background-color: #fff;
+            background-image:
+                linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: 0 0;
+            background-attachment: local;
+        }
+        main::-webkit-scrollbar { width: 0; height: 0; }
+
+/* === Таймлайн для дисциплины === */
+.discipline-timeline-wrap {
+    position: relative;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 20px 60px 32px;
+    --line-x: 56px; 
+    --line-width: 3px;
+}
+
+.discipline-hero {
+    max-width: 760px;
+    padding: 24px 24px 26px;
+    border-radius: 16px;
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    background: #0066ff;
+    position: relative;
+    z-index: 1;
+}
+
+/* Контейнер для заданий */
+.discipline-content {
+    position: relative;
+    max-width: 100%;
+    margin: 0;
+    padding: 80px 0 24px 0; 
+    z-index: 1;
+    text-align: center;
+}
+
+/* Обертка таймлайна */
+.timeline-track {
+    position: absolute;
+    left: var(--line-x); 
+    top: 0;
+    bottom: 0;
+    width: var(--line-width);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.timeline-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 2px;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 50%); 
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    z-index: 0;
+}
+
+/* === Обертка для кнопки и даты === */
+.task-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 24px;
+    text-align: center;
+    padding-top: 32px; /* Место под подложку даты */
+}
+
+/* Дата задания (с подложкой) */
+.task-date {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(0, 0, 0, 0.06); /* Полупрозрачный серый фон */
+    border-radius: 20px; /* Овальная форма */
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #666;
+    white-space: nowrap;
+    line-height: 1.2;
+    margin-top: -10px; /* Поднимаем дату чуть выше плашки */
+}
+
+/* Обертка для точки и пунктира */
+.task-line-wrapper {
+    position: absolute;
+    left: var(--line-x);
+    top: calc(50% + 16px); 
+    transform: translateY(-50%);
+    width: calc(100% - var(--line-x));
+    height: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Точка ровно на основной линии */
+.task-dot-small {
+    position: absolute;
+    left: calc(var(--line-width) / 2);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+/* Пунктирная линия */
+.task-dashed-line {
+    position: absolute;
+    left: calc(var(--line-width) / 2 + 4px);
+    top: 50%;
+    width: calc(100% - (var(--line-width) / 2 + 4px));
+    height: 0;
+    border-bottom: 2px dashed; 
+    z-index: 0;
+}
+
+        .discipline-hero-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            opacity: 0.85;
+            margin-bottom: 8px;
+        }
+        .discipline-hero-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+/* === Компактная плашка задания === */
+.task-card {
+    width: auto;
+    max-width: 100%;
+    display: inline-block;
+    padding: 14px 22px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-align: center;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    line-height: 1.25;
+    transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.25s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.task-card:hover { filter: brightness(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
+.task-card:active { filter: brightness(0.94); transform: scale(0.995); }
+
+        /* === Заглушка и «не найдено» === */
+        .discipline-empty {
+            max-width: 760px;
+            margin: 0 auto;
+            text-align: center;
+            color: #888;
+            font-size: 1rem;
+            line-height: 1.55;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 14px;
+        }
+
+        .not-found {
+            max-width: 760px;
+            margin: 24px auto;
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 14px;
+        }
+        .not-found-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 12px;
+        }
+        .not-found-text {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .not-found-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #0066ff;
+            color: #fff;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+                                                     /* === Мобильная адаптация === */
         @media (max-width: 700px) {
             header { padding: 12px 12px; gap: 10px; }
             .site-logo { width: 36px; height: 36px; }
@@ -296,6 +583,71 @@
             h1::before { content: "ГЕОГРАФИЯ"; color: #222; position: absolute; left: 0; top: 50%; transform: translateY(-50%); white-space: nowrap; max-width: 100%; overflow: hidden; }
             .back-btn { padding: 6px 10px; font-size: 0.78rem; }
             .back-btn svg { width: 14px; height: 14px; }
+
+            /* Таймлайн на мобильных */
+            .discipline-timeline-wrap {
+                padding: 10px 8px 16px 12px;
+                --line-x: 24px;
+                --line-width: 2px;
+            }
+
+                        /* === БОЛЕЕ СКРУГЛЕННЫЙ БЛОК ДИСЦИПЛИНЫ === */
+            .discipline-hero {
+                margin: 0;
+                padding: 12px 10px 14px 20px; /* Добавили padding-left: 20px (было 10px) */
+                border-radius: 16px; 
+            }
+            .discipline-hero-title { font-size: 0.95rem; }
+
+            .discipline-content {
+                padding: 2px 0 12px 0; 
+            }
+
+            .timeline-dot {
+                width: 10px;
+                height: 10px;
+            }
+
+            .task-wrapper {
+                margin-bottom: 20px; 
+                padding-top: 64px; 
+            }
+
+            .task-date {
+                padding: 3px 8px;
+                font-size: 0.65rem;
+                margin-top: 20px; 
+            }
+            
+            .task-line-wrapper {
+                top: calc(50% + 32px); 
+            }
+            
+            .task-dot-small {
+                width: 8px;
+                height: 8px;
+                box-shadow: 0 0 0 2px #fff;
+            }
+            .task-dashed-line {
+                border-bottom-width: 2px;
+            }
+
+            /* === БОЛЕЕ СКРУГЛЕННЫЕ ПЛАШКИ ЗАДАНИЙ === */
+            .task-card {
+                padding: 12px 14px;      
+                font-size: 0.8rem;       
+                border-radius: 12px; /* Увеличили с 8px до 12px */
+                max-width: 200px;        
+                width: 100%;             
+                box-sizing: border-box;  
+                white-space: normal;     
+                line-height: 1.4;        
+                text-align: center;      
+                display: inline-flex;    
+                align-items: center;
+                justify-content: center;
+                min-height: 48px;        
+            }
         }
     </style>
 </head>
@@ -394,7 +746,11 @@
         }
 
         function render() {
-            const id = getParam('id');
+            let id = getParam('id');
+            if (!id) {
+                id = 'history-geo';
+            }
+
             const root = document.getElementById('disciplineRoot');
             if (!root) return;
 
@@ -420,9 +776,9 @@
                 ? data.sections.map((t, index) => {
                     let color = t.color || data.color || '#0066ff';
                     if (t.type === 'lecture') {
-                        color = '#4a90e2'; // Спокойный синий
+                        color = '#4a90e2'; 
                     } else if (t.type === 'practice') {
-                        color = '#43a047'; // Темный, насыщенный зеленый для практики
+                        color = '#43a047'; 
                     }
 
                     const currentDateText = formatTaskDate(t.date);
