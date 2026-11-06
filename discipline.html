@@ -147,7 +147,7 @@
     width: 100%;
     margin-bottom: 24px;
     text-align: center;
-    padding-top: 32px; /* Место под подложку даты */
+    padding-top: 32px; 
 }
 
 /* Дата задания (с подложкой) */
@@ -158,14 +158,14 @@
     transform: translateX(-50%);
     display: inline-block;
     padding: 4px 12px;
-    background: rgba(0, 0, 0, 0.06); /* Полупрозрачный серый фон */
-    border-radius: 20px; /* Овальная форма */
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 20px; 
     font-size: 0.8rem;
     font-weight: 600;
     color: #666;
     white-space: nowrap;
     line-height: 1.2;
-    margin-top: -10px; /* Поднимаем дату чуть выше плашки */
+    margin-top: -10px; 
 }
 
 /* Обертка для точки и пунктира */
@@ -201,46 +201,6 @@
     height: 0;
     border-bottom: 2px dashed; 
     z-index: 0;
-}
-
-/* === Мобильная версия === */
-@media (max-width: 700px) {
-    .discipline-timeline-wrap {
-        padding: 18px 12px 40px 24px;
-        --line-x: 44px; 
-        --line-width: 2px;
-    }
-
-    .discipline-content {
-        padding: 60px 0 20px 0;
-    }
-
-    .timeline-dot {
-        width: 14px;
-        height: 14px;
-    }
-
-    .task-wrapper {
-        margin-bottom: 20px;
-        padding-top: 28px;
-    }
-    
-    .task-line-wrapper {
-        top: calc(50% + 14px);
-    }
-    
-    .task-dot-small {
-        width: 6px;
-        height: 6px;
-    }
-    .task-dashed-line {
-        border-bottom-width: 1.5px;
-    }
-    .task-date {
-        padding: 3px 10px;
-        font-size: 0.75rem;
-        margin-top: -8px;
-    }
 }
 
         .discipline-hero-label {
@@ -326,6 +286,8 @@
             text-decoration: none;
         }
 
+        /* На мобильных оставляем только фиксы для шапки, чтобы она не ломалась. 
+           Все размеры контента остаются десктопными. */
         @media (max-width: 700px) {
             header { padding: 12px 12px; gap: 10px; }
             .site-logo { width: 36px; height: 36px; }
@@ -334,9 +296,6 @@
             h1::before { content: "ГЕОГРАФИЯ"; color: #222; position: absolute; left: 0; top: 50%; transform: translateY(-50%); white-space: nowrap; max-width: 100%; overflow: hidden; }
             .back-btn { padding: 6px 10px; font-size: 0.78rem; }
             .back-btn svg { width: 14px; height: 14px; }
-            .discipline-hero { margin: 18px 12px 18px; padding: 18px 16px 20px; border-radius: 12px; }
-            .discipline-hero-title { font-size: 1.3rem; }
-            .task-card { padding: 14px 16px; font-size: 0.95rem; border-radius: 10px; }
         }
     </style>
 </head>
@@ -389,7 +348,7 @@
                         type: 'practice',
                         color: '#2e7d32',
                         icon: 'map',
-                        date: '2026-11-06T16:00:00', // Та же дата!
+                        date: '2026-11-06T16:00:00',
                         description: 'Нанести маршруты путешественников на контурную карту.',
                         content: 'На контурной карте отметить маршруты 3 путешественников.'
                     }
@@ -461,14 +420,13 @@
                 ? data.sections.map((t, index) => {
                     let color = t.color || data.color || '#0066ff';
                     if (t.type === 'lecture') {
-    color = '#4a90e2'; // Спокойный синий
-} else if (t.type === 'practice') {
-    color = '#43a047'; // Темный, насыщенный зеленый для практики
-}
+                        color = '#4a90e2'; // Спокойный синий
+                    } else if (t.type === 'practice') {
+                        color = '#43a047'; // Темный, насыщенный зеленый для практики
+                    }
 
                     const currentDateText = formatTaskDate(t.date);
                     
-                    // Логика группировки: выводим дату только если она отличается от предыдущей (или это первый элемент)
                     let dateHtml = '';
                     if (currentDateText && currentDateText !== lastDateStr) {
                         dateHtml = `<div class="task-date">${currentDateText}</div>`;
