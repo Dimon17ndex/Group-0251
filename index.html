@@ -89,6 +89,14 @@
         .tab-inner.pulling { transition: none; }
 
         .card-block { display: flex; flex-direction: column; align-items: flex-start; margin: 0 auto; width: 620px; max-width: 100%; }
+
+        /* === Отступы и разделитель между постами === */
+#tabInnerHome .card-block + .card-block {
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid #e5e5e5;
+}
+
         .card-user { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; width: 100%; }
         .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: #0066ff; border: none; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .user-avatar svg { width: 22px; height: 22px; }
@@ -99,6 +107,48 @@
         .post-menu-btn.disabled { cursor: default; }
 
         .card-19x6 { width: 620px; max-width: 100%; height: 420px; background: #f5f5f5; border: 1px solid #ccc; border-radius: 14px; overflow: hidden; }
+
+/* === Оранжевый пост о продлении дистанта === */
+.card-19x6.filled.card-prolonged {
+    background: #ef6c00;   /* оранжевый */
+    gap: 18px;
+}
+
+.card-prolonged .cal-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: nowrap;
+}
+
+.card-prolonged .cal-icon svg,
+.card-prolonged .cal-arrow svg,
+.card-prolonged .cal-warn svg {
+    display: block;
+}
+
+.card-prolonged .cal-icon svg { width: 72px; height: 72px; }
+.card-prolonged .cal-arrow svg { width: 56px; height: 56px; }
+.card-prolonged .cal-warn svg  { width: 64px; height: 64px; }
+
+.card-prolonged .dist-text {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-align: center;
+    color: #ffffff;
+    padding: 0 12px;
+}
+
+@media (max-width: 700px) {
+    .card-prolonged .cal-row { gap: 10px; }
+    .card-prolonged .cal-icon svg { width: 44px; height: 44px; }
+    .card-prolonged .cal-arrow svg { width: 34px; height: 34px; }
+    .card-prolonged .cal-warn svg  { width: 40px; height: 40px; }
+    .card-prolonged .dist-text { font-size: 0.95rem; letter-spacing: 0.5px; padding: 0 10px; }
+}
+
         .card-19x6.filled { background: #e53935; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: #ffffff; }
         .card-19x6.filled .cal-icon svg { width: 72px; height: 72px; display: block; }
         .card-19x6.filled .dist-text { font-size: 1.3rem; font-weight: 700; letter-spacing: 1px; text-align: center; color: #ffffff; }
@@ -711,6 +761,12 @@
             .feed-title.hidden { max-height: 0; margin: 0; opacity: 0; }
             .feed-title.pulled { max-height: 80px; margin: 0 0 14px; opacity: 1; }
             .card-block { margin: 0; width: 100%; }
+
+            #tabInnerHome .card-block + .card-block {
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
             .card-user { gap: 8px; margin-bottom: 8px; }
             .user-avatar { width: 30px; height: 30px; }
             .user-avatar svg { width: 18px; height: 18px; }
@@ -1176,20 +1232,47 @@
             max-width: 90px;
         }
 
-        .likes-grid-thumb {
-            width: 100%;
-            height: 100%;
-            background: #e53935;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            color: #ffffff;
-            padding: 4px;
-            box-sizing: border-box;
-            text-align: center;
-        }
+        /* Мини-версия поста в профиле */
+.likes-grid-thumb {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: #ffffff;
+    padding: 4px;
+    box-sizing: border-box;
+    text-align: center;
+    overflow: hidden;
+}
+
+.thumb-text {
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    line-height: 1.1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.thumb-icons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.thumb-icons svg {
+    display: block;
+}
+.thumb-icons .cal-icon svg { width: 24px; height: 24px; }
+.thumb-icons .cal-arrow svg { width: 16px; height: 16px; }
+.thumb-icons .cal-warn svg  { width: 20px; height: 20px; }
+
         .likes-grid-thumb svg {
             width: 32%;
             height: 32%;
@@ -1614,6 +1697,51 @@
                     </div>
                     <div class="tab-inner" id="tabInnerHome">
                         <div class="feed-title" id="feedTitle">НОВОСТИ ГРУППЫ</div>
+
+                        <div class="card-block">
+    <div class="card-user">
+        <div class="user-avatar">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M5 6.5 C7 8, 17 8, 19 6.5"/><path d="M5 17.5 C7 16, 17 16, 19 17.5"/>
+            </svg>
+        </div>
+        <span class="user-name">География 0251</span>
+        <button class="post-menu-btn disabled" aria-label="Меню"><span></span><span></span><span></span></button>
+    </div>
+    <div class="card-19x6 filled card-prolonged">
+        <div class="cal-row">
+            <div class="cal-icon">
+                <svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="-1" y1="25" x2="25" y2="-1"/>
+                </svg>
+            </div>
+            <div class="cal-arrow">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="4" y1="12" x2="20" y2="12"/>
+                    <polyline points="14 6 20 12 14 18"/>
+                </svg>
+            </div>
+            <div class="cal-warn">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+        </div>
+        <div class="dist-text">ДИСТАНТ ПРОДЛЕН 7 ноября — 14 ноября</div>
+    </div>
+    <div class="post-body">
+        <div class="post-footer">
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <button class="heart-btn" data-post-id="post-2" aria-label="Нравится"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.7-4.35-9.33-8.1C.9 10.2 1.6 6.9 4.1 5.4c2-1.2 4.4-.6 5.9 1.1L12 8.5l2-2c1.5-1.7 3.9-2.3 5.9-1.1 2.5 1.5 3.2 4.8 1.43 7.5C18.7 16.65 12 21 12 21z"/></svg></button>
+                <span class="like-count" id="count-post-2">0</span>
+            </div>
+            <div class="post-date">13:20 06.11.2026</div>
+        </div>
+        <div class="card-caption">Принято решение о продлении дистанционной формы обучения в Мелитопольском государственном университете</div>
+    </div>
+</div>
                         
                         <div class="card-block">
                             <div class="card-user">
@@ -2126,8 +2254,9 @@
         }
 
         const POSTS_MAP = {
-            'post-1': { title: 'ДИСТАНТ 27 октября — 7 ноября' }
-        };
+    'post-2': { title: 'ДИСТАНТ ПРОДЛЕН 7 ноября — 14 ноября' },
+    'post-1': { title: 'ДИСТАНТ 27 октября — 7 ноября' }
+};
 
                 function formatLikeDate(dateStr) {
             if (!dateStr) return '';
@@ -2151,49 +2280,53 @@
             return dd + '.' + mm + '.' + yyyy;
         }
 
-                                function flashPostHighlight() {
-            const postEl = document.querySelector('.card-block');
-            if (!postEl) return;
+                                function flashPostHighlight(postId) {
+    // Ищем пост по data-post-id: у карточки есть .heart-btn[data-post-id]
+    let postEl = null;
+    if (postId) {
+        const heart = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+        if (heart) postEl = heart.closest('.card-block');
+    }
+    if (!postEl) postEl = document.querySelector('.card-block');
+    if (!postEl) return;
 
-            const rect = postEl.getBoundingClientRect();
-            const overlay = document.createElement('div');
-            overlay.className = 'post-highlight';
-            overlay.style.top = rect.top + 'px';
-            overlay.style.left = rect.left + 'px';
-            overlay.style.width = rect.width + 'px';
-            overlay.style.height = rect.height + 'px';
-            overlay.style.borderRadius = '14px';
+    // Дальше — без изменений
+    const rect = postEl.getBoundingClientRect();
+    const overlay = document.createElement('div');
+    overlay.className = 'post-highlight';
+    overlay.style.top = rect.top + 'px';
+    overlay.style.left = rect.left + 'px';
+    overlay.style.width = rect.width + 'px';
+    overlay.style.height = rect.height + 'px';
+    overlay.style.borderRadius = '14px';
 
-            document.body.appendChild(overlay);
-            void overlay.offsetWidth;
+    document.body.appendChild(overlay);
+    void overlay.offsetWidth;
 
-            // 1. Через 0.5 с — уменьшаем и перемещаем к сердечку лайка
-            const heartBtn = postEl.querySelector('.heart-btn');
-            setTimeout(() => {
-                if (!heartBtn) return;
-                const h = heartBtn.getBoundingClientRect();
-                const pad = 4;
-                const size = Math.max(h.width, h.height) + pad * 2;
-                const heartCenterX = h.left + h.width / 2;
-                const heartCenterY = h.top + h.height / 2;
+    const heartBtn = postEl.querySelector('.heart-btn');
+    setTimeout(() => {
+        if (!heartBtn) return;
+        const h = heartBtn.getBoundingClientRect();
+        const pad = 4;
+        const size = Math.max(h.width, h.height) + pad * 2;
+        const heartCenterX = h.left + h.width / 2;
+        const heartCenterY = h.top + h.height / 2;
 
-                overlay.style.borderRadius = '50%';
-                overlay.style.width = size + 'px';
-                overlay.style.height = size + 'px';
-                overlay.style.left = (heartCenterX - size / 2) + 'px';
-                overlay.style.top = (heartCenterY - size / 2) + 'px';
-            }, 500);
+        overlay.style.borderRadius = '50%';
+        overlay.style.width = size + 'px';
+        overlay.style.height = size + 'px';
+        overlay.style.left = (heartCenterX - size / 2) + 'px';
+        overlay.style.top = (heartCenterY - size / 2) + 'px';
+    }, 500);
 
-                        // 2. Ещё через 0.9 с (итого 1.4 с) — начинаем исчезновение 2 с
-            setTimeout(() => {
-                overlay.classList.add('fade-out');
-            }, 1400);
+    setTimeout(() => {
+        overlay.classList.add('fade-out');
+    }, 1400);
 
-            // 3. Удаляем после исчезновения
-            setTimeout(() => {
-                overlay.remove();
-            }, 3400);
-        }
+    setTimeout(() => {
+        overlay.remove();
+    }, 3400);
+}
 
                 function waitForElementVisible(el, callback) {
             const check = () => {
@@ -2313,17 +2446,65 @@
                 item.setAttribute('title', meta.title);
 
                                 const thumb = document.createElement('div');
-                thumb.className = 'likes-grid-thumb';
-                thumb.innerHTML =
-                    '<svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
-                        '<rect x="3" y="5" width="18" height="16" rx="2"/>' +
-                        '<line x1="3" y1="9" x2="21" y2="9"/>' +
-                        '<line x1="8" y1="3" x2="8" y2="7"/>' +
-                        '<line x1="16" y1="3" x2="16" y2="7"/>' +
-                        '<line x1="-1" y1="25" x2="25" y2="-1"/>' +
-                    '</svg>' +
-                    '<div class="thumb-text">' + meta.title + '</div>';
-                item.appendChild(thumb);
+thumb.className = 'likes-grid-thumb';
+
+const realHeart = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+const realCard = realHeart ? realHeart.closest('.card-block') : null;
+const realFace = realCard ? realCard.querySelector('.card-19x6') : null;
+
+if (realFace) {
+    const bgColor = realFace.classList.contains('card-prolonged') ? '#ef6c00' : '#e53935';
+    thumb.style.background = bgColor;
+
+    if (realFace.classList.contains('card-prolonged')) {
+        thumb.innerHTML = `
+            <div class="thumb-icons">
+                <div class="cal-icon">
+                    <svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="-1" y1="25" x2="25" y2="-1"/>
+                    </svg>
+                </div>
+                <div class="cal-arrow">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" y1="12" x2="20" y2="12"/>
+                        <polyline points="14 6 20 12 14 18"/>
+                    </svg>
+                </div>
+                <div class="cal-warn">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="thumb-text">${meta.title}</div>
+        `;
+    } else {
+        thumb.innerHTML = `
+            <div class="thumb-icons">
+                <div class="cal-icon">
+                    <svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="-1" y1="25" x2="25" y2="-1"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="thumb-text">${meta.title}</div>
+        `;
+    }
+} else {
+    thumb.style.background = '#e53935';
+    thumb.innerHTML =
+        '<svg viewBox="-3 -3 30 30" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+            '<rect x="3" y="5" width="18" height="16" rx="2"/>' +
+            '<line x1="3" y1="9" x2="21" y2="9"/>' +
+            '<line x1="8" y1="3" x2="8" y2="7"/>' +
+            '<line x1="16" y1="3" x2="16" y2="7"/>' +
+            '<line x1="-1" y1="25" x2="25" y2="-1"/>' +
+        '</svg>' +
+        '<div class="thumb-text">' + meta.title + '</div>';
+}
+item.appendChild(thumb);
 
                 // Мини-автор в левом верхнем углу
                 const authorBox = document.createElement('div');
@@ -2373,21 +2554,51 @@
                 item.appendChild(unlikeBtn);
 
                                                                item.addEventListener('click', () => {
-                    closeProfileModal();
-                    goToTab(0);
+    closeProfileModal();
+    goToTab(0);
 
-                    const postEl = document.querySelector('.card-block');
-                    if (!postEl) return;
+    let postEl = document.querySelector('.heart-btn[data-post-id="' + postId + '"]');
+    if (postEl) postEl = postEl.closest('.card-block');
+    if (!postEl) postEl = document.querySelector('.card-block');
+    if (!postEl) return;
 
-                    // Ждём, пока переключение вкладок закончится (0.35s анимации + запас)
-                    setTimeout(() => {
-                        postEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+        postEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                        waitForElementVisible(postEl, () => {
-                            flashPostHighlight();
-                        });
-                    }, 380);
-                });
+        // Ждём, пока плавный скролл закончится, и ещё чуть-чуть
+        let scrollDone = false;
+        const container = document.getElementById('tab-home');
+        let lastTop = container ? container.scrollTop : window.scrollY;
+        let stableFrames = 0;
+
+        const checkScrollEnd = () => {
+            const currentTop = container ? container.scrollTop : window.scrollY;
+            if (Math.abs(currentTop - lastTop) < 1) {
+                stableFrames++;
+                if (stableFrames >= 3) {          // 3 кадра подряд не двигается → скролл закончился
+                    scrollDone = true;
+                    setTimeout(() => flashPostHighlight(postId), 200); // ← пауза перед вспышкой
+                    return;
+                }
+            } else {
+                stableFrames = 0;
+            }
+            lastTop = currentTop;
+            if (!scrollDone) requestAnimationFrame(checkScrollEnd);
+        };
+
+        requestAnimationFrame(checkScrollEnd);
+
+        // Предохранитель: если через 1.5 с всё ещё не определили конец — показываем
+        setTimeout(() => {
+            if (!scrollDone) {
+                scrollDone = true;
+                flashPostHighlight(postId);
+            }
+        }, 1500);
+
+    }, 380);
+});
                                 // Дата под квадратом
                 const dateText = formatLikeDate(likeDate);
                 if (dateText) {
