@@ -1653,9 +1653,34 @@
             .max-sheet-title { font-size: 1.4rem; margin-bottom: 24px; }
             .max-sheet-text { font-size: 0.95rem; }
         }
+
+        /* === Эффект затухания при переходе на дисциплину === */
+.discipline-fade-out {
+    opacity: 0 !important;
+    transition: opacity 0.4s ease !important;
+    pointer-events: none !important;
+}
+
+.discipline-fade-veil {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    z-index: 100000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.discipline-fade-veil.active {
+    opacity: 1;
+    pointer-events: auto;
+}
     </style>
 </head>
 <body>
+
+    <div class="discipline-fade-veil" id="disciplineFadeVeil"></div>
+
     <!-- Плашка «Плохой интернет» -->
     <div class="net-banner" id="netBanner" role="status" aria-live="polite">
         <span class="net-banner-center">
@@ -3466,9 +3491,40 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
     btn.addEventListener('click', () => {
         const id = btn.dataset.discipline;
         if (!id) return;
-        window.open('discipline.html?id=' + encodeURIComponent(id), '_blank');
+
+        const veil = document.getElementById('disciplineFadeVeil');
+        if (veil) {
+            veil.style.transition = 'none';
+            veil.style.opacity = '1';
+            veil.style.pointerEvents = 'auto';
+        }
+
+        window.location.href = 'discipline.html?id=' + encodeURIComponent(id);
     });
 });
     </script>
+
+<script>
+    // Плавное проявление страницы при любой загрузке (в т.ч. при возврате)
+    (function () {
+        const veil = document.getElementById('disciplineFadeVeil');
+        if (!veil) return;
+
+        // Мгновенно показываем белое
+        veil.style.transition = 'none';
+        veil.style.opacity = '1';
+        veil.style.pointerEvents = 'auto';
+
+        // Через кадр — плавно убираем
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                veil.style.transition = 'opacity 0.3s ease';
+                veil.style.opacity = '0';
+                veil.style.pointerEvents = 'none';
+            });
+        });
+    })();
+</script>
+
 </body>
 </html>
