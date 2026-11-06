@@ -8,7 +8,17 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
         html, body { height: 100%; }
         body {
             background: #fff;
@@ -29,7 +39,7 @@
             width: 100%;
             border-bottom: 1px solid #eee;
             background: #fff;
-            z-index: 10;
+            z-index: 100001; /* выше .discipline-fade-veil (100000) */
         }
         .site-logo {
             width: 52px; height: 52px; border-radius: 50%;
@@ -76,6 +86,8 @@
             background-size: 24px 24px;
             background-position: 0 0;
             background-attachment: local;
+
+            transition: opacity 0.4s ease;
         }
         main::-webkit-scrollbar { width: 0; height: 0; }
 
@@ -98,6 +110,8 @@
     background: #0066ff;
     position: relative;
     z-index: 1;
+
+    animation: heroIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
 /* Контейнер для заданий */
@@ -121,6 +135,7 @@
     z-index: 0;
 }
 
+/* Линия рисуется сверху вниз */
 .timeline-line {
     position: absolute;
     top: 0;
@@ -128,17 +143,21 @@
     left: 0;
     width: 100%;
     border-radius: 2px;
+    transform-origin: top center;
+    animation: lineDraw 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) 0.35s both;
 }
 
+/* Точка появляется одновременно с окончанием линии (её задержку ставит JS) */
 .timeline-dot {
     position: absolute;
     left: 50%;
     bottom: 0;
-    transform: translate(-50%, 50%); 
+    transform: translate(-50%, 50%) scale(0.01);
     width: 18px;
     height: 18px;
     border-radius: 50%;
     z-index: 0;
+    opacity: 0;
 }
 
 /* === Обертка для кнопки и даты === */
@@ -147,7 +166,16 @@
     width: 100%;
     margin-bottom: 24px;
     text-align: center;
-    padding-top: 32px; /* Место под подложку даты */
+    padding-top: 32px;
+
+    opacity: 0;
+}
+
+.task-wrapper.is-shown {
+    animation: taskIn 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.timeline-dot.is-shown {
+    animation: dotIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 /* Дата задания (с подложкой) */
@@ -158,14 +186,14 @@
     transform: translateX(-50%);
     display: inline-block;
     padding: 4px 12px;
-    background: rgba(0, 0, 0, 0.06); /* Полупрозрачный серый фон */
-    border-radius: 20px; /* Овальная форма */
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
     color: #666;
     white-space: nowrap;
     line-height: 1.2;
-    margin-top: -10px; /* Поднимаем дату чуть выше плашки */
+    margin-top: -10px;
 }
 
 /* Обертка для точки и пунктира */
@@ -254,6 +282,7 @@
             padding: 40px 20px;
             background: rgba(255, 255, 255, 0.9);
             border-radius: 14px;
+            animation: taskIn 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) 0.75s both;
         }
 
         .not-found {
@@ -286,293 +315,46 @@
             text-decoration: none;
         }
 
-        <!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Дисциплина — География 2611-0251.1</title>
-
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
-
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { height: 100%; }
-        body {
-            background: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #222;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            touch-action: manipulation;
+        /* === Анимации === */
+        @keyframes heroIn {
+            0%   { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes lineDraw {
+            0%   { transform: scaleY(0); opacity: 0; }
+            10%  { opacity: 1; }
+            100% { transform: scaleY(1); opacity: 1; }
+        }
+        @keyframes dotIn {
+            0%   { transform: translate(-50%, 50%) scale(0.01); opacity: 0; }
+            100% { transform: translate(-50%, 50%) scale(1); opacity: 1; }
+        }
+        @keyframes taskIn {
+            0%   { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
-        header {
-            padding: 14px 32px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            width: 100%;
-            border-bottom: 1px solid #eee;
-            background: #fff;
-            z-index: 10;
-        }
-        .site-logo {
-            width: 52px; height: 52px; border-radius: 50%;
-            background: #0066ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
-        .site-logo svg { width: 32px; height: 32px; display: block; }
-        h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1.5px; white-space: nowrap; margin: 0; text-align: left; line-height: 1; }
-
-        .back-btn {
-            margin-left: auto;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #0066ff;
-            background: #f5f7ff;
-            border: 1px solid #e3e8ff;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background 0.2s ease;
-            flex-shrink: 0;
-        }
-        .back-btn:hover { background: #e9efff; }
-        .back-btn svg { width: 16px; height: 16px; display: block; }
-
-        main {
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            position: relative;
-
-            /* === Клетчатая разметка фона === */
-            background-color: #fff;
-            background-image:
-                linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
-            background-size: 24px 24px;
-            background-position: 0 0;
-            background-attachment: local;
-        }
-        main::-webkit-scrollbar { width: 0; height: 0; }
-
-/* === Таймлайн для дисциплины === */
-.discipline-timeline-wrap {
-    position: relative;
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 24px 20px 60px 32px;
-    --line-x: 56px; 
-    --line-width: 3px;
+        /* === Эффект затухания при переходе обратно === */
+        .discipline-fade-out {
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+    pointer-events: none !important;
 }
 
-.discipline-hero {
-    max-width: 760px;
-    padding: 24px 24px 26px;
-    border-radius: 16px;
-    color: #fff;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-    background: #0066ff;
-    position: relative;
-    z-index: 1;
-}
-
-/* Контейнер для заданий */
-.discipline-content {
-    position: relative;
-    max-width: 100%;
-    margin: 0;
-    padding: 80px 0 24px 0; 
-    z-index: 1;
-    text-align: center;
-}
-
-/* Обертка таймлайна */
-.timeline-track {
-    position: absolute;
-    left: var(--line-x); 
-    top: 0;
-    bottom: 0;
-    width: var(--line-width);
+.discipline-fade-veil {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    z-index: 100000;
+    opacity: 0;
     pointer-events: none;
-    z-index: 0;
+    transition: opacity 0.3s ease;
 }
 
-.timeline-line {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    border-radius: 2px;
+.discipline-fade-veil.active {
+    opacity: 1;
+    pointer-events: auto;
 }
-
-.timeline-dot {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    transform: translate(-50%, 50%); 
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    z-index: 0;
-}
-
-/* === Обертка для кнопки и даты === */
-.task-wrapper {
-    position: relative;
-    width: 100%;
-    margin-bottom: 24px;
-    text-align: center;
-    padding-top: 32px; /* Место под подложку даты */
-}
-
-/* Дата задания (с подложкой) */
-.task-date {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    display: inline-block;
-    padding: 4px 12px;
-    background: rgba(0, 0, 0, 0.06); /* Полупрозрачный серый фон */
-    border-radius: 20px; /* Овальная форма */
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #666;
-    white-space: nowrap;
-    line-height: 1.2;
-    margin-top: -10px; /* Поднимаем дату чуть выше плашки */
-}
-
-/* Обертка для точки и пунктира */
-.task-line-wrapper {
-    position: absolute;
-    left: var(--line-x);
-    top: calc(50% + 16px); 
-    transform: translateY(-50%);
-    width: calc(100% - var(--line-x));
-    height: 0;
-    z-index: 0;
-    pointer-events: none;
-}
-
-/* Точка ровно на основной линии */
-.task-dot-small {
-    position: absolute;
-    left: calc(var(--line-width) / 2);
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    z-index: 2;
-}
-
-/* Пунктирная линия */
-.task-dashed-line {
-    position: absolute;
-    left: calc(var(--line-width) / 2 + 4px);
-    top: 50%;
-    width: calc(100% - (var(--line-width) / 2 + 4px));
-    height: 0;
-    border-bottom: 2px dashed; 
-    z-index: 0;
-}
-
-        .discipline-hero-label {
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            opacity: 0.85;
-            margin-bottom: 8px;
-        }
-        .discipline-hero-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            line-height: 1.2;
-            word-break: break-word;
-        }
-
-/* === Компактная плашка задания === */
-.task-card {
-    width: auto;
-    max-width: 100%;
-    display: inline-block;
-    padding: 14px 22px;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    text-align: center;
-    color: #ffffff;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    line-height: 1.25;
-    transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.25s ease;
-    position: relative;
-    z-index: 1;
-}
-
-.task-card:hover { filter: brightness(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
-.task-card:active { filter: brightness(0.94); transform: scale(0.995); }
-
-        /* === Заглушка и «не найдено» === */
-        .discipline-empty {
-            max-width: 760px;
-            margin: 0 auto;
-            text-align: center;
-            color: #888;
-            font-size: 1rem;
-            line-height: 1.55;
-            padding: 40px 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 14px;
-        }
-
-        .not-found {
-            max-width: 760px;
-            margin: 24px auto;
-            text-align: center;
-            padding: 60px 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 14px;
-        }
-        .not-found-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #000;
-            margin-bottom: 12px;
-        }
-        .not-found-text {
-            color: #666;
-            font-size: 1rem;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-        .not-found-link {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #0066ff;
-            color: #fff;
-            border-radius: 10px;
-            font-weight: 600;
-            text-decoration: none;
-        }
 
                                                      /* === Мобильная адаптация === */
         @media (max-width: 700px) {
@@ -591,10 +373,9 @@
                 --line-width: 2px;
             }
 
-                        /* === БОЛЕЕ СКРУГЛЕННЫЙ БЛОК ДИСЦИПЛИНЫ === */
             .discipline-hero {
                 margin: 0;
-                padding: 12px 10px 14px 20px; /* Добавили padding-left: 20px (было 10px) */
+                padding: 12px 10px 14px 20px;
                 border-radius: 16px; 
             }
             .discipline-hero-title { font-size: 0.95rem; }
@@ -632,11 +413,10 @@
                 border-bottom-width: 2px;
             }
 
-            /* === БОЛЕЕ СКРУГЛЕННЫЕ ПЛАШКИ ЗАДАНИЙ === */
             .task-card {
                 padding: 12px 14px;      
                 font-size: 0.8rem;       
-                border-radius: 12px; /* Увеличили с 8px до 12px */
+                border-radius: 12px;
                 max-width: 200px;        
                 width: 100%;             
                 box-sizing: border-box;  
@@ -656,9 +436,166 @@
     margin-top: 16px;
 }
         }
+
+        /* === Шторка задания === */
+.task-sheet {
+    display: flex;
+    visibility: hidden;
+    pointer-events: none;
+    position: fixed;
+    left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100002;
+    transition: background-color 0.3s ease,
+                backdrop-filter 0.3s ease,
+                visibility 0.3s ease;
+}
+
+.task-sheet.active {
+    visibility: visible;
+    pointer-events: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+.task-sheet-content {
+    background-color: #fff;
+    width: 100%;
+    max-width: 760px;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    border-radius: 0;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.task-sheet.active .task-sheet-content {
+    transform: translateY(0);
+}
+
+.task-sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 14px auto 0 auto;
+    flex-shrink: 0;
+    cursor: grab;
+}
+.task-sheet-handle:active { cursor: grabbing; }
+
+.task-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 20px 14px;
+    border-bottom: 1px solid #ddd;
+    flex-shrink: 0;
+    background: #fff;
+}
+
+.task-sheet-title-badge {
+    flex: 1;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 22px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-align: center;
+    color: #ffffff;
+    border-radius: 12px;
+    line-height: 1.25;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    word-break: break-word;
+    white-space: normal;
+    background: #0066ff;
+}
+
+.task-sheet-close {
+    background: transparent;
+    border: none;
+    font-size: 30px;
+    line-height: 1;
+    color: #888;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: color 0.15s ease;
+    flex-shrink: 0;
+}
+.task-sheet-close:hover { color: #000; }
+
+.task-sheet-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 20px 22px 40px;
+    font-size: 1rem;
+    color: #444;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    touch-action: pan-y;
+
+    background-color: #fff;
+    background-image:
+        linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: 0 0;
+    background-attachment: local;
+
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+}
+
+.task-sheet-handle,
+.task-sheet-header {
+    touch-action: none;
+}
+
+@media (max-width: 700px) {
+    .task-sheet-content {
+        max-width: 100%;
+        border-radius: 0;
+    }
+    .task-sheet-title-badge {
+        padding: 12px 14px;
+        font-size: 0.8rem;
+        border-radius: 12px;
+        min-height: 48px;
+    }
+    .task-sheet-body {
+        padding: 16px 16px 32px;
+        font-size: 0.95rem;
+    }
+}
     </style>
 </head>
 <body>
+    <!-- Белый оверлей для эффекта затухания -->
+    <div class="discipline-fade-veil" id="disciplineFadeVeil"></div>
+
     <header>
         <div class="site-logo">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -681,6 +618,20 @@
     <main>
         <div id="disciplineRoot"></div>
     </main>
+
+<!-- Шторка задания -->
+<div id="taskSheet" class="task-sheet">
+    <div class="task-sheet-content" id="taskSheetContent">
+        <div class="task-sheet-handle" id="taskSheetHandle"></div>
+        <div class="task-sheet-header">
+            <div class="task-sheet-title-badge" id="taskSheetTitle">Задание</div>
+            <button class="task-sheet-close" id="taskSheetClose" aria-label="Закрыть">&times;</button>
+        </div>
+        <div class="task-sheet-body" id="taskSheetBody">
+            <!-- Контент подставляется через JS -->
+        </div>
+    </div>
+</div>
 
     <script>
         // ==========================================
@@ -805,7 +756,7 @@
                                 <div class="task-dashed-line" style="border-color: ${color};"></div>
                             </div>
                             
-                            <button type="button" class="task-card" data-task-id="${escapeHtml(t.taskId || '')}" style="background:${color};">
+                            <button type="button" class="task-card" data-task-id="${escapeHtml(t.taskId || '')}" data-color="${color}" style="background:${color};">
                                 ${escapeHtml(t.title || 'Задание')}
                             </button>
                         </div>
@@ -843,14 +794,237 @@
 
         render();
 
+        // ==========================================
+        // Синхронизация появления плашек с рисованием линии
+        // ==========================================
+        function syncTimelineAnimation() {
+            const lineStart = 0.35;
+            const lineDuration = 0.4;
+            const lineEnd = lineStart + lineDuration;
+
+            const line = document.querySelector('.timeline-line');
+            const dot = document.querySelector('.timeline-dot');
+            if (!line) return;
+
+            const lineTop = line.getBoundingClientRect().top;
+            const lineHeight = line.offsetHeight || 1;
+
+            document.querySelectorAll('.task-wrapper').forEach((wrap) => {
+                const anchor = wrap.querySelector('.task-line-wrapper') || wrap;
+                const aRect = anchor.getBoundingClientRect();
+                const anchorY = aRect.top;
+
+                let ratio = (anchorY - lineTop) / lineHeight;
+                ratio = Math.min(1, Math.max(0, ratio));
+
+                const delayMs = (lineStart + ratio * lineDuration) * 1000;
+                wrap.style.animationDelay = delayMs + 'ms';
+                wrap.classList.add('is-shown');
+            });
+
+            if (dot) {
+                dot.style.animationDelay = (lineEnd * 1000) + 'ms';
+                dot.classList.add('is-shown');
+            }
+        }
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(syncTimelineAnimation);
+        });
+
+        // ==========================================
+        // Эффект затухания при возврате
+        // ==========================================
+        const disciplineFadeVeil = document.getElementById('disciplineFadeVeil');
+        let isLeaving = false;
+
+        function fadeOutAndLeave(target) {
+            if (isLeaving) return;
+            isLeaving = true;
+
+            // Шапку (лого + ГЕОГРАФИЯ + кнопка Назад) НЕ гасим.
+            // Гасим только контент дисциплины и шторку задания.
+            const fadeTargets = [
+                document.querySelector('main'),
+                document.getElementById('taskSheet')
+            ].filter(Boolean);
+
+            fadeTargets.forEach(el => {
+                el.classList.add('discipline-fade-out');
+            });
+
+            if (disciplineFadeVeil) {
+                void disciplineFadeVeil.offsetWidth;
+                disciplineFadeVeil.classList.add('active');
+            }
+
+            setTimeout(() => {
+                if (typeof target === 'function') target();
+            }, 280);
+        }
+
         document.getElementById('backBtn').addEventListener('click', () => {
             if (window.opener && !window.opener.closed) {
-                window.close();
+                fadeOutAndLeave(() => {
+                    window.close();
+                });
             } else {
-                try { sessionStorage.setItem('returnToTab', 'disciplines'); } catch (e) {}
-                window.location.href = 'index.html#disciplines';
+                fadeOutAndLeave(() => {
+                    try { sessionStorage.setItem('returnToTab', 'disciplines'); } catch (e) {}
+                    window.location.href = 'index.html#disciplines';
+                });
             }
         });
+
+        // ==========================================
+        // Системная кнопка «Назад» на мобильных
+        // ==========================================
+        // Добавляем «пустую» запись, чтобы первое нажатие «Назад» вызвало popstate
+        history.pushState({ discipline: true }, '', location.href);
+
+        window.addEventListener('popstate', () => {
+            if (isLeaving) return;
+
+            // Запускаем анимацию и уходим на index.html#disciplines
+            fadeOutAndLeave(() => {
+                try { sessionStorage.setItem('returnToTab', 'disciplines'); } catch (e) {}
+                window.location.href = 'index.html#disciplines';
+            });
+
+            // Возвращаем запись в историю, чтобы не уйти сразу
+            // (на случай если анимация не успеет и браузер уже снял запись)
+            try {
+                history.pushState({ discipline: true }, '', location.href);
+            } catch (e) {}
+        });
+
+        // ==========================================
+        // 11. Шторка задания
+        // ==========================================
+        (function initTaskSheet() {
+            const sheet = document.getElementById('taskSheet');
+            const content = document.getElementById('taskSheetContent');
+            const titleEl = document.getElementById('taskSheetTitle');
+            const bodyEl = document.getElementById('taskSheetBody');
+            const closeBtn = document.getElementById('taskSheetClose');
+            const handle = document.getElementById('taskSheetHandle');
+            const header = sheet ? sheet.querySelector('.task-sheet-header') : null;
+            if (!sheet || !content || !titleEl || !bodyEl) return;
+
+            let startY = 0, currentY = 0, dragging = false;
+            let active = false;
+
+            function resetDrag() {
+                dragging = false;
+                startY = 0;
+                currentY = 0;
+                content.style.transition = '';
+                content.style.transform = '';
+                sheet.style.backgroundColor = '';
+                sheet.style.backdropFilter = '';
+                sheet.style.webkitBackdropFilter = '';
+            }
+
+            function openSheet(taskId, sourceCard) {
+                const id = getParam('id') || 'history-geo';
+                const data = DISCIPLINES[id];
+                if (!data || !data.sections) return;
+                const task = data.sections.find(t => t.taskId === taskId);
+                if (!task) return;
+
+                resetDrag();
+
+                let color = task.color || data.color || '#0066ff';
+                if (task.type === 'lecture') color = '#4a90e2';
+                else if (task.type === 'practice') color = '#43a047';
+
+                titleEl.textContent = task.title || 'Задание';
+                titleEl.style.background = color;
+                titleEl.setAttribute('data-task-id', taskId);
+
+                let text = '';
+                if (task.description) text += task.description + '\n\n';
+                if (task.content) text += task.content;
+                bodyEl.textContent = text.trim() || 'Описание задания пока не добавлено.';
+                bodyEl.scrollTop = 0;
+
+                active = true;
+                sheet.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSheet() {
+                if (!active) return;
+                active = false;
+                resetDrag();
+                sheet.classList.remove('active');
+                document.body.style.overflow = '';
+                bodyEl.scrollTop = 0;
+            }
+
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    if (!active) {
+                        const taskId = card.getAttribute('data-task-id');
+                        if (taskId) openSheet(taskId, card);
+                    }
+                });
+            });
+
+            if (closeBtn) closeBtn.addEventListener('click', closeSheet);
+            sheet.addEventListener('click', (e) => {
+                if (e.target === sheet) closeSheet();
+            });
+
+            function startDrag(e) {
+                if (!active) return;
+                const target = e.target;
+                const startedOnHandle = handle && handle.contains(target);
+                const startedOnHeader = header && header.contains(target);
+                if (!startedOnHandle && !startedOnHeader) return;
+
+                dragging = true;
+                startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                currentY = startY;
+                content.style.transition = 'none';
+            }
+
+            function onDrag(e) {
+                if (!dragging || !active) return;
+                currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                const dy = currentY - startY;
+                if (dy > 0) {
+                    content.style.transform = `translateY(${dy}px)`;
+                    const ratio = Math.min(dy / 300, 1);
+                    sheet.style.backgroundColor = `rgba(0,0,0,${0.4 - ratio * 0.4})`;
+                    sheet.style.backdropFilter = `blur(${3 - ratio * 3}px)`;
+                    sheet.style.webkitBackdropFilter = `blur(${3 - ratio * 3}px)`;
+                }
+            }
+
+            function endDrag() {
+                if (!dragging) return;
+                dragging = false;
+                content.style.transition = '';
+                const dy = currentY - startY;
+                if (dy > 100) {
+                    closeSheet();
+                } else {
+                    resetDrag();
+                }
+            }
+
+            [handle, header].forEach(el => {
+                if (!el) return;
+                el.addEventListener('mousedown', startDrag);
+                el.addEventListener('touchstart', startDrag, { passive: true });
+            });
+            window.addEventListener('mousemove', onDrag);
+            window.addEventListener('mouseup', endDrag);
+            window.addEventListener('touchmove', onDrag, { passive: true });
+            window.addEventListener('touchend', endDrag);
+            window.addEventListener('touchcancel', endDrag);
+        })();
     </script>
 </body>
 </html>
