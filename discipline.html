@@ -790,8 +790,8 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
                 };
                 imgWrap.appendChild(img);
 
-                // Добавляем подпись, если она есть
-                if (captions[i] && captions[i].trim() !== '') {
+                                // Добавляем подпись, если она есть и это не заглушка
+                if (captions[i] && captions[i].trim() !== '' && captions[i].trim() !== '-' && captions[i].trim().toLowerCase() !== 'none') {
                     const captionEl = document.createElement('div');
                     captionEl.textContent = captions[i].trim();
                     captionEl.style.marginTop = '6px';
