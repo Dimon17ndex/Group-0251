@@ -740,9 +740,10 @@
     textDiv.textContent = text.trim() || 'Описание задания пока не добавлено.';
     bodyEl.appendChild(textDiv);
 
-    // 2. Проверяем наличие вложений (картинок из TeraBox)
+        // 2. Проверяем наличие вложений (картинки и файлы)
     if (taskData.attachments && taskData.attachments.trim() !== '') {
-        const links = taskData.attachments.split(' '); // Разделяем по пробелу
+        // Разделяем ссылки (можно вставлять через пробел или запятую)
+        const links = taskData.attachments.split(/[\s,]+/); 
         
         const attachDiv = document.createElement('div');
         attachDiv.style.marginTop = '20px';
@@ -755,40 +756,45 @@
         for (let link of links) {
             if (!link.trim()) continue;
 
-            if (link.includes('terabox.com')) {
-                // Показываем индикатор загрузки
-                const loader = document.createElement('div');
-                loader.textContent = 'Загрузка картинки...';
-                loader.style.color = '#888';
-                attachDiv.appendChild(loader);
+            // Если ссылка ведет на картинку (проверяем расширение)
+            if (link.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i)) {
+                const img = document.createElement('img');
+                img.src = link;
+                img.style.maxWidth = '100%';
+                img.style.borderRadius = '8px';
+                img.style.display = 'block';
+                img.style.marginTop = '10px';
+                img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                // Если картинка не загрузится, покажем текст ошибки
+                img.onerror = () => {
+                    img.style.display = 'none';
+                    attachDiv.innerHTML += `<div style="color: red; font-size: 0.9rem;">Не удалось загрузить картинку: ${link}</div>`;
+                };
+                attachDiv.appendChild(img);
+            } 
+            // Если это документ (PDF, Word, архив)
+            else {
+                const btn = document.createElement('a');
+                btn.href = link;
+                btn.target = '_blank';
+                btn.rel = 'noopener noreferrer';
+                btn.textContent = '📄 Открыть файл в новой вкладке';
+                
+                btn.style.display = 'inline-block';
+                btn.style.marginTop = '10px';
+                btn.style.padding = '10px 16px';
+                btn.style.backgroundColor = '#f5f7ff';
+                btn.style.color = '#0066ff';
+                btn.style.textDecoration = 'none';
+                btn.style.borderRadius = '8px';
+                btn.style.fontWeight = '600';
+                btn.style.border = '1px solid #e3e8ff';
+                btn.style.transition = 'background 0.2s ease';
+                
+                btn.onmouseover = () => btn.style.backgroundColor = '#e9efff';
+                btn.onmouseout = () => btn.style.backgroundColor = '#f5f7ff';
 
-                try {
-                    // Запрос к API для получения прямой ссылки
-                    const apiUrl = `https://terabox-worker.robinkumarshakya103.workers.dev/api?url=${encodeURIComponent(link)}`;
-                    const response = await fetch(apiUrl);
-                    const data = await response.json();
-                    
-                    loader.remove(); // Убираем надпись "Загрузка"
-
-                    if (data && data.success && data.files && data.files.length > 0) {
-                        const directUrl = data.files[0].download_url;
-                        const img = document.createElement('img');
-                        img.src = directUrl;
-                        img.style.maxWidth = '100%';
-                        img.style.borderRadius = '8px';
-                        img.style.display = 'block';
-                        img.style.marginTop = '10px';
-                        attachDiv.appendChild(img);
-                    } else {
-                        attachDiv.innerHTML += `<div style="color: red; font-size: 0.9rem;">Не удалось загрузить TeraBox файл.</div>`;
-                    }
-                } catch (e) {
-                    loader.remove();
-                    attachDiv.innerHTML += `<div style="color: red; font-size: 0.9rem;">Ошибка API при загрузке картинки.</div>`;
-                }
-            } else {
-                // Обычные ссылки (если решите использовать не TeraBox)
-                attachDiv.innerHTML += `<a href="${link}" target="_blank" style="color: #0066ff; display: block; margin-top: 8px;">Скачать файл</a>`;
+                attachDiv.appendChild(btn);
             }
         }
     }
