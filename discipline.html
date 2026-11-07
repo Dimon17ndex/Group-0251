@@ -745,8 +745,8 @@
         // Получаем подписи (если колонка captions заполнена)
         let captions = [];
         if (taskData.captions && taskData.captions.trim() !== '') {
-            // Разделяем подписи по пробелам или переносам строк (используем спецсимвол для переноса)
-            captions = taskData.captions.split(/\n+/); 
+            // Разбиваем по переносам строк, сохраняя пустые строки
+captions = taskData.captions.replace(/\r/g, '').split('\n');
         }
 
         const attachDiv = document.createElement('div');
