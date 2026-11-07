@@ -738,40 +738,80 @@
     textDiv.textContent = text.trim() || 'Описание задания пока не добавлено.';
     bodyEl.appendChild(textDiv);
 
-        // 2. Проверяем наличие вложений (картинки и файлы)
+            // 2. Проверяем наличие вложений
     if (taskData.attachments && taskData.attachments.trim() !== '') {
-        // Разделяем ссылки (можно вставлять через пробел или запятую)
         const links = taskData.attachments.split(/[\s,]+/); 
         
+        // Получаем подписи (если колонка captions заполнена)
+        let captions = [];
+        if (taskData.captions && taskData.captions.trim() !== '') {
+            // Разделяем подписи по пробелам или переносам строк (используем спецсимвол для переноса)
+            captions = taskData.captions.split(/\n+/); 
+        }
+
         const attachDiv = document.createElement('div');
         attachDiv.style.marginTop = '20px';
-        attachDiv.style.borderTop = '1px solid #eee';
+        attachDiv.style.borderTop = '2px solid #eee';
         attachDiv.style.paddingTop = '15px';
         attachDiv.innerHTML = '<div style="font-weight: 600; margin-bottom: 10px; color: #000;">Вложения:</div>';
         
         bodyEl.appendChild(attachDiv);
 
-        for (let link of links) {
+        let isFirstAttachment = true;
+
+        for (let i = 0; i < links.length; i++) {
+            const link = links[i];
             if (!link.trim()) continue;
 
-            // Если ссылка ведет на картинку (проверяем расширение)
+            // Если это картинка
             if (link.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i)) {
+                
+                if (!isFirstAttachment) {
+                    const divider = document.createElement('div');
+                    divider.style.margin = '20px 0';
+                    divider.style.borderTop = '1px dashed #ccc';
+                    attachDiv.appendChild(divider);
+                }
+
+                // Обертка для картинки и подписи
+                const imgWrap = document.createElement('div');
+                imgWrap.style.marginBottom = '15px';
+
                 const img = document.createElement('img');
                 img.src = link;
                 img.style.maxWidth = '100%';
                 img.style.borderRadius = '8px';
                 img.style.display = 'block';
-                img.style.marginTop = '10px';
                 img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                // Если картинка не загрузится, покажем текст ошибки
+                
                 img.onerror = () => {
                     img.style.display = 'none';
-                    attachDiv.innerHTML += `<div style="color: red; font-size: 0.9rem;">Не удалось загрузить картинку: ${link}</div>`;
+                    imgWrap.innerHTML += `<div style="color: red; font-size: 0.9rem;">Не удалось загрузить картинку: ${link}</div>`;
                 };
-                attachDiv.appendChild(img);
+                imgWrap.appendChild(img);
+
+                // Добавляем подпись, если она есть
+                if (captions[i] && captions[i].trim() !== '') {
+                    const captionEl = document.createElement('div');
+                    captionEl.textContent = captions[i].trim();
+                    captionEl.style.marginTop = '6px';
+                    captionEl.style.fontSize = '0.85rem';
+                    captionEl.style.color = '#666';
+                    captionEl.style.fontStyle = 'italic';
+                    captionEl.style.textAlign = 'center'; // Подпись по центру
+                    imgWrap.appendChild(captionEl);
+                }
+
+                attachDiv.appendChild(imgWrap);
             } 
-            // Если это документ (PDF, Word, архив)
+            // Если это документ
             else {
+                if (!isFirstAttachment) {
+                    const space = document.createElement('div');
+                    space.style.marginTop = '15px';
+                    attachDiv.appendChild(space);
+                }
+                
                 const btn = document.createElement('a');
                 btn.href = link;
                 btn.target = '_blank';
@@ -779,7 +819,6 @@
                 btn.textContent = '📄 Открыть файл в новой вкладке';
                 
                 btn.style.display = 'inline-block';
-                btn.style.marginTop = '10px';
                 btn.style.padding = '10px 16px';
                 btn.style.backgroundColor = '#f5f7ff';
                 btn.style.color = '#0066ff';
@@ -794,6 +833,8 @@
 
                 attachDiv.appendChild(btn);
             }
+            
+            isFirstAttachment = false;
         }
     }
 
