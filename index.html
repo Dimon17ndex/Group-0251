@@ -2896,6 +2896,14 @@ item.appendChild(thumb);
         });
 
         setTimeout(updateCustomScrollbar, 600);
+        // Восстановление вкладки после возврата с discipline.html
+try {
+    const returnToTab = sessionStorage.getItem('returnToTab');
+    if (returnToTab === 'disciplines') {
+        sessionStorage.removeItem('returnToTab');
+        goToTab(1);
+    }
+} catch (e) {}
         window.addEventListener('resize', updateCustomScrollbar);
 
         let thumbDrag = false, thumbStartY = 0, thumbStartScroll = 0;
@@ -3499,7 +3507,20 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
             veil.style.pointerEvents = 'auto';
         }
 
-        window.location.href = 'discipline.html?id=' + encodeURIComponent(id);
+        window.open(
+    'discipline.html?id=' + encodeURIComponent(id),
+    '_blank'
+);
+
+        // Завесу убираем сами — новая вкладка грузится отдельно,
+        // текущая страница никуда не уходит.
+        setTimeout(() => {
+            if (veil) {
+                veil.style.transition = 'opacity 0.3s ease';
+                veil.style.opacity = '0';
+                veil.style.pointerEvents = 'none';
+            }
+        }, 150);
     });
 });
     </script>
