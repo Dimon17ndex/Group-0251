@@ -715,11 +715,13 @@
             sheet.style.webkitBackdropFilter = '';
         }
 
-        async function openSheet(taskData) {
+        async function openSheet(taskData, fallbackColor) {
     if (!taskData) return;
     resetDrag();
 
-    let color = taskData.color || '#0066ff';
+    // Если нет своего цвета и нет type, берем fallbackColor (цвет дисциплины)
+    let color = taskData.color || (taskData.type ? '' : fallbackColor) || '#0066ff';
+    
     if (taskData.type === 'lecture') color = '#4a90e2';
     else if (taskData.type === 'practice') color = '#43a047';
 
@@ -854,17 +856,18 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
             bodyEl.scrollTop = 0;
         }
 
-        function bindTaskSheetEvents(tasks, disciplineId) {
-            document.querySelectorAll('.task-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    if (!sheetActive) {
-                        const taskId = card.getAttribute('data-task-id');
-                        const task = tasks.find(t => t.taskId === taskId);
-                        if (task) openSheet(task);
-                    }
-                });
-            });
-        }
+        function bindTaskSheetEvents(tasks, disciplineId, fallbackColor) {
+    document.querySelectorAll('.task-card').forEach(card => {
+        card.addEventListener('click', () => {
+            if (!sheetActive) {
+                const taskId = card.getAttribute('data-task-id');
+                const task = tasks.find(t => t.taskId === taskId);
+                // Передаем fallbackColor (цвет дисциплины) в функцию
+                if (task) openSheet(task, fallbackColor); 
+            }
+        });
+    });
+}
 
         if (closeBtn) closeBtn.addEventListener('click', closeSheet);
         if (sheet) {
