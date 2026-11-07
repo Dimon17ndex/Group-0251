@@ -815,7 +815,7 @@
                     if (!sheetActive) {
                         const taskId = card.getAttribute('data-task-id');
                         const task = tasks.find(t => t.taskId === taskId);
-                        if (task) await openSheet(task);
+                        if (task) openSheet(task);
                     }
                 });
             });
