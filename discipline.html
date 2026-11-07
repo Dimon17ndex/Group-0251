@@ -39,7 +39,7 @@
             width: 100%;
             border-bottom: 1px solid #eee;
             background: #fff;
-            z-index: 100001; /* выше .discipline-fade-veil (100000) */
+            z-index: 100001;
         }
         .site-logo {
             width: 52px; height: 52px; border-radius: 50%;
@@ -77,8 +77,6 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
             position: relative;
-
-            /* === Клетчатая разметка фона === */
             background-color: #fff;
             background-image:
                 linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
@@ -86,150 +84,137 @@
             background-size: 24px 24px;
             background-position: 0 0;
             background-attachment: local;
-
             transition: opacity 0.4s ease;
         }
         main::-webkit-scrollbar { width: 0; height: 0; }
 
-/* === Таймлайн для дисциплины === */
-.discipline-timeline-wrap {
-    position: relative;
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 24px 20px 60px 32px;
-    --line-x: 56px; 
-    --line-width: 3px;
-}
+        .discipline-timeline-wrap {
+            position: relative;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 24px 20px 60px 32px;
+            --line-x: 56px; 
+            --line-width: 3px;
+        }
 
-.discipline-hero {
-    max-width: 760px;
-    padding: 24px 24px 26px;
-    border-radius: 16px;
-    color: #fff;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-    background: #0066ff;
-    position: relative;
-    z-index: 1;
+        .discipline-hero {
+            max-width: 760px;
+            padding: 24px 24px 26px;
+            border-radius: 16px;
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            background: #0066ff;
+            position: relative;
+            z-index: 1;
+            animation: heroIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+        }
 
-    animation: heroIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
-}
+        .discipline-content {
+            position: relative;
+            max-width: 100%;
+            margin: 0;
+            padding: 80px 0 24px 0; 
+            z-index: 1;
+            text-align: center;
+        }
 
-/* Контейнер для заданий */
-.discipline-content {
-    position: relative;
-    max-width: 100%;
-    margin: 0;
-    padding: 80px 0 24px 0; 
-    z-index: 1;
-    text-align: center;
-}
+        .timeline-track {
+            position: absolute;
+            left: var(--line-x); 
+            top: 0;
+            bottom: 0;
+            width: var(--line-width);
+            pointer-events: none;
+            z-index: 0;
+        }
 
-/* Обертка таймлайна */
-.timeline-track {
-    position: absolute;
-    left: var(--line-x); 
-    top: 0;
-    bottom: 0;
-    width: var(--line-width);
-    pointer-events: none;
-    z-index: 0;
-}
+        .timeline-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            border-radius: 2px;
+            transform-origin: top center;
+            animation: lineDraw 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) 0.35s both;
+        }
 
-/* Линия рисуется сверху вниз */
-.timeline-line {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    border-radius: 2px;
-    transform-origin: top center;
-    animation: lineDraw 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) 0.35s both;
-}
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translate(-50%, 50%) scale(0.01);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            z-index: 0;
+            opacity: 0;
+        }
 
-/* Точка появляется одновременно с окончанием линии (её задержку ставит JS) */
-.timeline-dot {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    transform: translate(-50%, 50%) scale(0.01);
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    z-index: 0;
-    opacity: 0;
-}
+        .task-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 24px;
+            text-align: center;
+            padding-top: 32px;
+            opacity: 0;
+        }
 
-/* === Обертка для кнопки и даты === */
-.task-wrapper {
-    position: relative;
-    width: 100%;
-    margin-bottom: 24px;
-    text-align: center;
-    padding-top: 32px;
+        .task-wrapper.is-shown {
+            animation: taskIn 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+        }
+        .timeline-dot.is-shown {
+            animation: dotIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
 
-    opacity: 0;
-}
+        .task-date {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+            white-space: nowrap;
+            line-height: 1.2;
+            margin-top: -10px;
+        }
 
-.task-wrapper.is-shown {
-    animation: taskIn 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both;
-}
-.timeline-dot.is-shown {
-    animation: dotIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
+        .task-line-wrapper {
+            position: absolute;
+            left: var(--line-x);
+            top: calc(50% + 16px); 
+            transform: translateY(-50%);
+            width: calc(100% - var(--line-x));
+            height: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-/* Дата задания (с подложкой) */
-.task-date {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    display: inline-block;
-    padding: 4px 12px;
-    background: rgba(0, 0, 0, 0.06);
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #666;
-    white-space: nowrap;
-    line-height: 1.2;
-    margin-top: -10px;
-}
+        .task-dot-small {
+            position: absolute;
+            left: calc(var(--line-width) / 2);
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            z-index: 2;
+        }
 
-/* Обертка для точки и пунктира */
-.task-line-wrapper {
-    position: absolute;
-    left: var(--line-x);
-    top: calc(50% + 16px); 
-    transform: translateY(-50%);
-    width: calc(100% - var(--line-x));
-    height: 0;
-    z-index: 0;
-    pointer-events: none;
-}
-
-/* Точка ровно на основной линии */
-.task-dot-small {
-    position: absolute;
-    left: calc(var(--line-width) / 2);
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    z-index: 2;
-}
-
-/* Пунктирная линия */
-.task-dashed-line {
-    position: absolute;
-    left: calc(var(--line-width) / 2 + 4px);
-    top: 50%;
-    width: calc(100% - (var(--line-width) / 2 + 4px));
-    height: 0;
-    border-bottom: 2px dashed; 
-    z-index: 0;
-}
+        .task-dashed-line {
+            position: absolute;
+            left: calc(var(--line-width) / 2 + 4px);
+            top: 50%;
+            width: calc(100% - (var(--line-width) / 2 + 4px));
+            height: 0;
+            border-bottom: 2px dashed; 
+            z-index: 0;
+        }
 
         .discipline-hero-label {
             font-size: 0.8rem;
@@ -246,32 +231,30 @@
             word-break: break-word;
         }
 
-/* === Компактная плашка задания === */
-.task-card {
-    width: auto;
-    max-width: 100%;
-    display: inline-block;
-    padding: 14px 22px;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    text-align: center;
-    color: #ffffff;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    line-height: 1.25;
-    transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.25s ease;
-    position: relative;
-    z-index: 1;
-}
+        .task-card {
+            width: auto;
+            max-width: 100%;
+            display: inline-block;
+            padding: 14px 22px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-align: center;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            line-height: 1.25;
+            transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.25s ease;
+            position: relative;
+            z-index: 1;
+        }
 
-.task-card:hover { filter: brightness(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
-.task-card:active { filter: brightness(0.94); transform: scale(0.995); }
+        .task-card:hover { filter: brightness(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
+        .task-card:active { filter: brightness(0.94); transform: scale(0.995); }
 
-        /* === Заглушка и «не найдено» === */
         .discipline-empty {
             max-width: 760px;
             margin: 0 auto;
@@ -293,18 +276,8 @@
             background: rgba(255, 255, 255, 0.9);
             border-radius: 14px;
         }
-        .not-found-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #000;
-            margin-bottom: 12px;
-        }
-        .not-found-text {
-            color: #666;
-            font-size: 1rem;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
+        .not-found-title { font-size: 1.4rem; font-weight: 700; color: #000; margin-bottom: 12px; }
+        .not-found-text { color: #666; font-size: 1rem; line-height: 1.5; margin-bottom: 20px; }
         .not-found-link {
             display: inline-block;
             padding: 12px 24px;
@@ -315,48 +288,15 @@
             text-decoration: none;
         }
 
-        /* === Анимации === */
-        @keyframes heroIn {
-            0%   { opacity: 0; transform: translateY(12px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes lineDraw {
-            0%   { transform: scaleY(0); opacity: 0; }
-            10%  { opacity: 1; }
-            100% { transform: scaleY(1); opacity: 1; }
-        }
-        @keyframes dotIn {
-            0%   { transform: translate(-50%, 50%) scale(0.01); opacity: 0; }
-            100% { transform: translate(-50%, 50%) scale(1); opacity: 1; }
-        }
-        @keyframes taskIn {
-            0%   { opacity: 0; transform: translateY(10px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes heroIn { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes lineDraw { 0% { transform: scaleY(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: scaleY(1); opacity: 1; } }
+        @keyframes dotIn { 0% { transform: translate(-50%, 50%) scale(0.01); opacity: 0; } 100% { transform: translate(-50%, 50%) scale(1); opacity: 1; } }
+        @keyframes taskIn { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
 
-        /* === Эффект затухания при переходе обратно === */
-        .discipline-fade-out {
-    opacity: 0 !important;
-    transition: opacity 0.3s ease !important;
-    pointer-events: none !important;
-}
+        .discipline-fade-out { opacity: 0 !important; transition: opacity 0.3s ease !important; pointer-events: none !important; }
+        .discipline-fade-veil { position: fixed; inset: 0; background: #fff; z-index: 100000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .discipline-fade-veil.active { opacity: 1; pointer-events: auto; }
 
-.discipline-fade-veil {
-    position: fixed;
-    inset: 0;
-    background: #fff;
-    z-index: 100000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-.discipline-fade-veil.active {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-                                                     /* === Мобильная адаптация === */
         @media (max-width: 700px) {
             header { padding: 12px 12px; gap: 10px; }
             .site-logo { width: 36px; height: 36px; }
@@ -366,234 +306,67 @@
             .back-btn { padding: 6px 10px; font-size: 0.78rem; }
             .back-btn svg { width: 14px; height: 14px; }
 
-            /* Таймлайн на мобильных */
-            .discipline-timeline-wrap {
-                padding: 10px 8px 16px 12px;
-                --line-x: 24px;
-                --line-width: 2px;
-            }
-
-            .discipline-hero {
-                margin: 0;
-                padding: 12px 10px 14px 20px;
-                border-radius: 16px; 
-            }
+            .discipline-timeline-wrap { padding: 10px 8px 16px 12px; --line-x: 24px; --line-width: 2px; }
+            .discipline-hero { margin: 0; padding: 12px 10px 14px 20px; border-radius: 16px; }
             .discipline-hero-title { font-size: 0.95rem; }
-
-            .discipline-content {
-                padding: 2px 0 12px 0; 
-            }
-
-            .timeline-dot {
-                width: 10px;
-                height: 10px;
-            }
-
-            .task-wrapper {
-                margin-bottom: 20px; 
-                padding-top: 64px; 
-            }
-
-            .task-date {
-                padding: 3px 8px;
-                font-size: 0.65rem;
-                margin-top: 20px; 
-            }
-            
-            .task-line-wrapper {
-                top: calc(50% + 32px); 
-            }
-            
-            .task-dot-small {
-                width: 8px;
-                height: 8px;
-                box-shadow: 0 0 0 2px #fff;
-            }
-            .task-dashed-line {
-                border-bottom-width: 2px;
-            }
-
+            .discipline-content { padding: 2px 0 12px 0; }
+            .timeline-dot { width: 10px; height: 10px; }
+            .task-wrapper { margin-bottom: 20px; padding-top: 64px; }
+            .task-date { padding: 3px 8px; font-size: 0.65rem; margin-top: 20px; }
+            .task-line-wrapper { top: calc(50% + 32px); }
+            .task-dot-small { width: 8px; height: 8px; box-shadow: 0 0 0 2px #fff; }
+            .task-dashed-line { border-bottom-width: 2px; }
             .task-card {
-                padding: 12px 14px;      
-                font-size: 0.8rem;       
-                border-radius: 12px;
-                max-width: 200px;        
-                width: 100%;             
-                box-sizing: border-box;  
-                white-space: normal;     
-                line-height: 1.4;        
-                text-align: center;      
-                display: inline-flex;    
-                align-items: center;
-                justify-content: center;
-                min-height: 48px;        
+                padding: 12px 14px; font-size: 0.8rem; border-radius: 12px; max-width: 200px; width: 100%;
+                box-sizing: border-box; white-space: normal; line-height: 1.4; text-align: center; display: inline-flex;
+                align-items: center; justify-content: center; min-height: 48px;
             }
-
-            .discipline-empty {
-    padding: 24px 16px;
-    font-size: 0.9rem;
-    border-radius: 12px;
-    margin-top: 16px;
-}
+            .discipline-empty { padding: 24px 16px; font-size: 0.9rem; border-radius: 12px; margin-top: 16px; }
         }
 
-        /* === Шторка задания === */
-.task-sheet {
-    display: flex;
-    visibility: hidden;
-    pointer-events: none;
-    position: fixed;
-    left: 0; top: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    align-items: flex-end;
-    justify-content: center;
-    z-index: 100002;
-    transition: background-color 0.3s ease,
-                backdrop-filter 0.3s ease,
-                visibility 0.3s ease;
-}
-
-.task-sheet.active {
-    visibility: visible;
-    pointer-events: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-}
-
-.task-sheet-content {
-    background-color: #fff;
-    width: 100%;
-    max-width: 760px;
-    height: 100vh;
-    height: 100dvh;
-    max-height: 100vh;
-    max-height: 100dvh;
-    border-radius: 0;
-    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    transform: translateY(100%);
-    transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.task-sheet.active .task-sheet-content {
-    transform: translateY(0);
-}
-
-.task-sheet-handle {
-    width: 40px;
-    height: 4px;
-    background: #ddd;
-    border-radius: 2px;
-    margin: 14px auto 0 auto;
-    flex-shrink: 0;
-    cursor: grab;
-}
-.task-sheet-handle:active { cursor: grabbing; }
-
-.task-sheet-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 20px 14px;
-    border-bottom: 1px solid #ddd;
-    flex-shrink: 0;
-    background: #fff;
-}
-
-.task-sheet-title-badge {
-    flex: 1;
-    min-width: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px 22px;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    text-align: center;
-    color: #ffffff;
-    border-radius: 12px;
-    line-height: 1.25;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    word-break: break-word;
-    white-space: normal;
-    background: #0066ff;
-}
-
-.task-sheet-close {
-    background: transparent;
-    border: none;
-    font-size: 30px;
-    line-height: 1;
-    color: #888;
-    cursor: pointer;
-    padding: 0 4px;
-    transition: color 0.15s ease;
-    flex-shrink: 0;
-}
-.task-sheet-close:hover { color: #000; }
-
-.task-sheet-body {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    padding: 20px 22px 40px;
-    font-size: 1rem;
-    color: #444;
-    line-height: 1.55;
-    white-space: pre-wrap;
-    word-break: break-word;
-    touch-action: pan-y;
-
-    background-color: #fff;
-    background-image:
-        linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
-    background-size: 24px 24px;
-    background-position: 0 0;
-    background-attachment: local;
-
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
-    user-select: text;
-    -webkit-touch-callout: default;
-}
-
-.task-sheet-handle,
-.task-sheet-header {
-    touch-action: none;
-}
-
-@media (max-width: 700px) {
-    .task-sheet-content {
-        max-width: 100%;
-        border-radius: 0;
-    }
-    .task-sheet-title-badge {
-        padding: 12px 14px;
-        font-size: 0.8rem;
-        border-radius: 12px;
-        min-height: 48px;
-    }
-    .task-sheet-body {
-        padding: 16px 16px 32px;
-        font-size: 0.95rem;
-    }
-}
+        .task-sheet {
+            display: flex; visibility: hidden; pointer-events: none; position: fixed;
+            left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); align-items: flex-end; justify-content: center;
+            z-index: 100002; transition: background-color 0.3s ease, backdrop-filter 0.3s ease, visibility 0.3s ease;
+        }
+        .task-sheet.active {
+            visibility: visible; pointer-events: auto; background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+        }
+        .task-sheet-content {
+            background-color: #fff; width: 100%; max-width: 760px; height: 100vh; height: 100dvh; max-height: 100vh; max-height: 100dvh;
+            border-radius: 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column;
+            position: relative; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        .task-sheet.active .task-sheet-content { transform: translateY(0); }
+        .task-sheet-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 14px auto 0 auto; flex-shrink: 0; cursor: grab; }
+        .task-sheet-handle:active { cursor: grabbing; }
+        .task-sheet-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px 14px; border-bottom: 1px solid #ddd; flex-shrink: 0; background: #fff; }
+        .task-sheet-title-badge {
+            flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; padding: 14px 22px;
+            font-family: inherit; font-size: 1rem; font-weight: 700; letter-spacing: 0.3px; text-align: center; color: #ffffff;
+            border-radius: 12px; line-height: 1.25; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); word-break: break-word; white-space: normal; background: #0066ff;
+        }
+        .task-sheet-close { background: transparent; border: none; font-size: 30px; line-height: 1; color: #888; cursor: pointer; padding: 0 4px; transition: color 0.15s ease; flex-shrink: 0; }
+        .task-sheet-close:hover { color: #000; }
+        .task-sheet-body {
+            flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+            padding: 20px 22px 40px; font-size: 1rem; color: #444; line-height: 1.55; white-space: pre-wrap; word-break: break-word; touch-action: pan-y;
+            background-color: #fff;
+            background-image: linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
+            background-size: 24px 24px; background-position: 0 0; background-attachment: local;
+            -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; -webkit-touch-callout: default;
+        }
+        .task-sheet-handle, .task-sheet-header { touch-action: none; }
+        @media (max-width: 700px) {
+            .task-sheet-content { max-width: 100%; border-radius: 0; }
+            .task-sheet-title-badge { padding: 12px 14px; font-size: 0.8rem; border-radius: 12px; min-height: 48px; }
+            .task-sheet-body { padding: 16px 16px 32px; font-size: 0.95rem; }
+        }
     </style>
 </head>
 <body>
-    <!-- Белый оверлей для эффекта затухания -->
     <div class="discipline-fade-veil" id="disciplineFadeVeil"></div>
 
     <header>
@@ -619,60 +392,34 @@
         <div id="disciplineRoot"></div>
     </main>
 
-<!-- Шторка задания -->
-<div id="taskSheet" class="task-sheet">
-    <div class="task-sheet-content" id="taskSheetContent">
-        <div class="task-sheet-handle" id="taskSheetHandle"></div>
-        <div class="task-sheet-header">
-            <div class="task-sheet-title-badge" id="taskSheetTitle">Задание</div>
-            <button class="task-sheet-close" id="taskSheetClose" aria-label="Закрыть">&times;</button>
-        </div>
-        <div class="task-sheet-body" id="taskSheetBody">
-            <!-- Контент подставляется через JS -->
+    <div id="taskSheet" class="task-sheet">
+        <div class="task-sheet-content" id="taskSheetContent">
+            <div class="task-sheet-handle" id="taskSheetHandle"></div>
+            <div class="task-sheet-header">
+                <div class="task-sheet-title-badge" id="taskSheetTitle">Задание</div>
+                <button class="task-sheet-close" id="taskSheetClose" aria-label="Закрыть">&times;</button>
+            </div>
+            <div class="task-sheet-body" id="taskSheetBody"></div>
         </div>
     </div>
-</div>
 
     <script>
         // ==========================================
-        // Данные дисциплин (id = data-discipline)
+        // ВСТАВЬТЕ СЮДА ВАШУ ССЫЛКУ НА CSV
         // ==========================================
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrCiJKSGBLtbLQlB7yI15G1gmDEJjUNorm1qxU4uKivoaiFfHJSbV1FKkEjs8Y46YyZudmcbjPzDNF/pub?gid=0&single=true&output=csv';
+
         const DISCIPLINES = {
-            'history-geo': {
-                title: 'История географических открытий',
-                color: '#2e7d32',
-                sections: [
-                    {
-                        taskId: 'task-history-geo-1',
-                        title: 'Задание 1. Великие географические открытия',
-                        type: 'lecture',
-                        color: '#2e7d32',
-                        icon: 'compass',
-                        date: '2026-11-06T14:00:00',
-                        description: 'Подготовить краткий доклад (1–2 страницы) об одном из путешественников и его вкладе в географию. Срок сдачи — до конца дистанционного периода.',
-                        content: 'Требования к докладу:\n— Объём 1–2 страницы;\n— Обязательно указать годы жизни путешественника, маршрут и значение открытия;\n— Оформить в виде текстового документа или фото рукописного текста.\n\nСдать до 14 ноября.'
-                    },
-                    {
-                        taskId: 'task-history-geo-2',
-                        title: 'Задание 2. Маршруты путешественников',
-                        type: 'practice',
-                        color: '#2e7d32',
-                        icon: 'map',
-                        date: '2026-11-06T16:00:00',
-                        description: 'Нанести маршруты путешественников на контурную карту.',
-                        content: 'На контурной карте отметить маршруты 3 путешественников.'
-                    }
-                ]
-            },
-            'methods-geo': { title: 'Методы географических исследований', color: '#c77800', sections: [] },
-            'meteorology': { title: 'Метеорология и климатология, гидрология', color: '#1565c0', sections: [] },
-            'geology': { title: 'Геология и эволюционная география', color: '#6d4c41', sections: [] },
-            'history-ru': { title: 'История России', color: '#c62828', sections: [] },
-            'russian-state': { title: 'Основы российской государственности', color: '#ef6c00', sections: [] },
-            'russian-lang': { title: 'Русский язык', color: '#d81b60', sections: [] },
-            'english-lang': { title: 'Английский язык', color: '#111111', sections: [] },
-            'biogeocenology': { title: 'Основы биогеоценологии', color: '#00a86b', sections: [] },
-            'medical-basics': { title: 'Основы медицинских знаний', color: '#8e0000', sections: [] }
+            'history-geo': { title: 'История географических открытий', color: '#2e7d32' },
+            'methods-geo': { title: 'Методы географических исследований', color: '#c77800' },
+            'meteorology': { title: 'Метеорология и климатология, гидрология', color: '#1565c0' },
+            'geology': { title: 'Геология и эволюционная география', color: '#6d4c41' },
+            'history-ru': { title: 'История России', color: '#c62828' },
+            'russian-state': { title: 'Основы российской государственности', color: '#ef6c00' },
+            'russian-lang': { title: 'Русский язык', color: '#d81b60' },
+            'english-lang': { title: 'Английский язык', color: '#111111' },
+            'biogeocenology': { title: 'Основы биогеоценологии', color: '#00a86b' },
+            'medical-basics': { title: 'Основы медицинских знаний', color: '#8e0000' }
         };
 
         const EMPTY_TEXT = 'В скором времени мы собираемся добавить сюда задания и материалы, которые нам выдали на момент дистанционного обучения с 27 октября по 7 ноября.';
@@ -703,17 +450,59 @@
             return dd + '.' + mm + '.' + yyyy;
         }
 
-        function render() {
-            let id = getParam('id');
-            if (!id) {
-                id = 'history-geo';
-            }
+        function parseCSV(text) {
+            const rows = [];
+            let currentRow = [];
+            let currentCell = '';
+            let inQuotes = false;
 
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const nextChar = text[i + 1];
+
+                if (inQuotes) {
+                    if (char === '"') {
+                        if (nextChar === '"') {
+                            currentCell += '"';
+                            i++;
+                        } else {
+                            inQuotes = false;
+                        }
+                    } else {
+                        currentCell += char;
+                    }
+                } else {
+                    if (char === '"') {
+                        inQuotes = true;
+                    } else if (char === ',') {
+                        currentRow.push(currentCell);
+                        currentCell = '';
+                    } else if (char === '\n' || char === '\r') {
+                        if (char === '\r' && nextChar === '\n') i++;
+                        currentRow.push(currentCell);
+                        if (currentRow.length > 1 || currentRow[0] !== '') {
+                            rows.push(currentRow);
+                        }
+                        currentRow = [];
+                        currentCell = '';
+                    } else {
+                        currentCell += char;
+                    }
+                }
+            }
+            if (currentCell !== '' || currentRow.length > 0) {
+                currentRow.push(currentCell);
+                rows.push(currentRow);
+            }
+            return rows;
+        }
+
+        async function render() {
+            const id = getParam('id') || 'history-geo';
             const root = document.getElementById('disciplineRoot');
             if (!root) return;
 
-            const data = id ? DISCIPLINES[id] : null;
-
+            const data = DISCIPLINES[id];
             if (!data) {
                 root.innerHTML = `
                     <div class="not-found">
@@ -728,10 +517,35 @@
 
             document.title = data.title + ' — География 2611-0251.1';
 
+            root.innerHTML = `<div class="discipline-empty">Загрузка заданий...</div>`;
+
+            let tasks = [];
+            try {
+                const cacheBuster = '&t=' + new Date().getTime();
+                const response = await fetch(CSV_URL + cacheBuster);
+                if (response.ok) {
+                    const csvText = await response.text();
+                    const rows = parseCSV(csvText);
+                    if (rows.length > 0) {
+                        const headers = rows[0];
+                        const allTasks = rows.slice(1).map(row => {
+                            const obj = {};
+                            headers.forEach((header, index) => {
+                                obj[header.trim()] = row[index] ? row[index].trim() : '';
+                            });
+                            return obj;
+                        });
+                        tasks = allTasks.filter(t => t.discipline_id === id);
+                    }
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки заданий:', e);
+            }
+
             let lastDateStr = null;
 
-            const tasksHtml = (data.sections && data.sections.length > 0)
-                ? data.sections.map((t, index) => {
+            const tasksHtml = (tasks.length > 0)
+                ? tasks.map((t) => {
                     let color = t.color || data.color || '#0066ff';
                     if (t.type === 'lecture') {
                         color = '#4a90e2'; 
@@ -750,12 +564,10 @@
                     return `
                         <div class="task-wrapper">
                             ${dateHtml}
-
                             <div class="task-line-wrapper">
                                 <div class="task-dot-small" style="background-color: ${color}; box-shadow: 0 0 0 2px #fff;"></div>
                                 <div class="task-dashed-line" style="border-color: ${color};"></div>
                             </div>
-                            
                             <button type="button" class="task-card" data-task-id="${escapeHtml(t.taskId || '')}" data-color="${color}" style="background:${color};">
                                 ${escapeHtml(t.title || 'Задание')}
                             </button>
@@ -781,6 +593,12 @@
                     </div>
                 </div>
             `;
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(syncTimelineAnimation);
+            });
+
+            bindTaskSheetEvents(tasks, id);
         }
 
         function escapeHtml(str) {
@@ -792,11 +610,6 @@
                 .replace(/'/g, '&#39;');
         }
 
-        render();
-
-        // ==========================================
-        // Синхронизация появления плашек с рисованием линии
-        // ==========================================
         function syncTimelineAnimation() {
             const lineStart = 0.35;
             const lineDuration = 0.4;
@@ -828,13 +641,6 @@
             }
         }
 
-        requestAnimationFrame(() => {
-            requestAnimationFrame(syncTimelineAnimation);
-        });
-
-        // ==========================================
-        // Эффект затухания при возврате
-        // ==========================================
         const disciplineFadeVeil = document.getElementById('disciplineFadeVeil');
         let isLeaving = false;
 
@@ -842,8 +648,6 @@
             if (isLeaving) return;
             isLeaving = true;
 
-            // Шапку (лого + ГЕОГРАФИЯ + кнопка Назад) НЕ гасим.
-            // Гасим только контент дисциплины и шторку задания.
             const fadeTargets = [
                 document.querySelector('main'),
                 document.getElementById('taskSheet')
@@ -860,9 +664,7 @@
 
         document.getElementById('backBtn').addEventListener('click', () => {
             if (window.opener && !window.opener.closed) {
-                fadeOutAndLeave(() => {
-                    window.close();
-                });
+                fadeOutAndLeave(() => { window.close(); });
             } else {
                 fadeOutAndLeave(() => {
                     try { sessionStorage.setItem('returnToTab', 'disciplines'); } catch (e) {}
@@ -871,113 +673,102 @@
             }
         });
 
-        // ==========================================
-        // Системная кнопка «Назад» на мобильных
-        // ==========================================
-        // Добавляем «пустую» запись, чтобы первое нажатие «Назад» вызвало popstate
         history.pushState({ discipline: true }, '', location.href);
 
         window.addEventListener('popstate', () => {
-    if (isLeaving) return;
+            if (isLeaving) return;
 
-    fadeOutAndLeave(() => {
-        // Если вкладка открыта скриптом (из index.html) — просто закрываемся,
-        // чтобы вернуть пользователя к живой основной вкладке.
-        if (window.opener && !window.opener.closed) {
-            window.close();
-            return;
-        }
-        // Иначе (прямой заход по ссылке) — обычный переход на index.html
-        try { sessionStorage.setItem('returnToTab', 'disciplines'); } catch (e) {}
-        window.location.href = 'index.html#disciplines';
-    });
+            fadeOutAndLeave(() => {
+                if (window.opener && !window.opener.closed) {
+                    window.close();
+                    return;
+                }
+                try { sessionStorage.setItem('returnToTab', 'disciplines'); } catch (e) {}
+                window.location.href = 'index.html#disciplines';
+            });
 
-    // Возвращаем запись в историю, чтобы не уйти сразу
-    try {
-        history.pushState({ discipline: true }, '', location.href);
-    } catch (e) {}
-});
+            try {
+                history.pushState({ discipline: true }, '', location.href);
+            } catch (e) {}
+        });
 
         // ==========================================
         // 11. Шторка задания
         // ==========================================
-        (function initTaskSheet() {
-            const sheet = document.getElementById('taskSheet');
-            const content = document.getElementById('taskSheetContent');
-            const titleEl = document.getElementById('taskSheetTitle');
-            const bodyEl = document.getElementById('taskSheetBody');
-            const closeBtn = document.getElementById('taskSheetClose');
-            const handle = document.getElementById('taskSheetHandle');
-            const header = sheet ? sheet.querySelector('.task-sheet-header') : null;
-            if (!sheet || !content || !titleEl || !bodyEl) return;
+        const sheet = document.getElementById('taskSheet');
+        const content = document.getElementById('taskSheetContent');
+        const titleEl = document.getElementById('taskSheetTitle');
+        const bodyEl = document.getElementById('taskSheetBody');
+        const closeBtn = document.getElementById('taskSheetClose');
+        const handle = document.getElementById('taskSheetHandle');
+        const header = sheet ? sheet.querySelector('.task-sheet-header') : null;
 
-            let startY = 0, currentY = 0, dragging = false;
-            let active = false;
+        let startY = 0, currentY = 0, dragging = false;
+        let sheetActive = false;
 
-            function resetDrag() {
-                dragging = false;
-                startY = 0;
-                currentY = 0;
-                content.style.transition = '';
-                content.style.transform = '';
-                sheet.style.backgroundColor = '';
-                sheet.style.backdropFilter = '';
-                sheet.style.webkitBackdropFilter = '';
-            }
+        function resetDrag() {
+            dragging = false;
+            startY = 0;
+            currentY = 0;
+            content.style.transition = '';
+            content.style.transform = '';
+            sheet.style.backgroundColor = '';
+            sheet.style.backdropFilter = '';
+            sheet.style.webkitBackdropFilter = '';
+        }
 
-            function openSheet(taskId, sourceCard) {
-                const id = getParam('id') || 'history-geo';
-                const data = DISCIPLINES[id];
-                if (!data || !data.sections) return;
-                const task = data.sections.find(t => t.taskId === taskId);
-                if (!task) return;
+        function openSheet(taskData) {
+            if (!taskData) return;
+            resetDrag();
 
-                resetDrag();
+            let color = taskData.color || '#0066ff';
+            if (taskData.type === 'lecture') color = '#4a90e2';
+            else if (taskData.type === 'practice') color = '#43a047';
 
-                let color = task.color || data.color || '#0066ff';
-                if (task.type === 'lecture') color = '#4a90e2';
-                else if (task.type === 'practice') color = '#43a047';
+            titleEl.textContent = taskData.title || 'Задание';
+            titleEl.style.background = color;
+            titleEl.setAttribute('data-task-id', taskData.taskId);
 
-                titleEl.textContent = task.title || 'Задание';
-                titleEl.style.background = color;
-                titleEl.setAttribute('data-task-id', taskId);
+            let text = '';
+            if (taskData.description) text += taskData.description + '\n\n';
+            if (taskData.content) text += taskData.content;
+            bodyEl.textContent = text.trim() || 'Описание задания пока не добавлено.';
+            bodyEl.scrollTop = 0;
 
-                let text = '';
-                if (task.description) text += task.description + '\n\n';
-                if (task.content) text += task.content;
-                bodyEl.textContent = text.trim() || 'Описание задания пока не добавлено.';
-                bodyEl.scrollTop = 0;
+            sheetActive = true;
+            sheet.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
 
-                active = true;
-                sheet.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
+        function closeSheet() {
+            if (!sheetActive) return;
+            sheetActive = false;
+            resetDrag();
+            sheet.classList.remove('active');
+            document.body.style.overflow = '';
+            bodyEl.scrollTop = 0;
+        }
 
-            function closeSheet() {
-                if (!active) return;
-                active = false;
-                resetDrag();
-                sheet.classList.remove('active');
-                document.body.style.overflow = '';
-                bodyEl.scrollTop = 0;
-            }
-
+        function bindTaskSheetEvents(tasks, disciplineId) {
             document.querySelectorAll('.task-card').forEach(card => {
                 card.addEventListener('click', () => {
-                    if (!active) {
+                    if (!sheetActive) {
                         const taskId = card.getAttribute('data-task-id');
-                        if (taskId) openSheet(taskId, card);
+                        const task = tasks.find(t => t.taskId === taskId);
+                        if (task) openSheet(task);
                     }
                 });
             });
+        }
 
-            if (closeBtn) closeBtn.addEventListener('click', closeSheet);
+        if (closeBtn) closeBtn.addEventListener('click', closeSheet);
+        if (sheet) {
             sheet.addEventListener('click', (e) => {
                 if (e.target === sheet) closeSheet();
             });
 
             function startDrag(e) {
-                if (!active) return;
+                if (!sheetActive) return;
                 const target = e.target;
                 const startedOnHandle = handle && handle.contains(target);
                 const startedOnHeader = header && header.contains(target);
@@ -990,7 +781,7 @@
             }
 
             function onDrag(e) {
-                if (!dragging || !active) return;
+                if (!dragging || !sheetActive) return;
                 currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
                 const dy = currentY - startY;
                 if (dy > 0) {
@@ -1024,7 +815,9 @@
             window.addEventListener('touchmove', onDrag, { passive: true });
             window.addEventListener('touchend', endDrag);
             window.addEventListener('touchcancel', endDrag);
-        })();
+        }
+
+        render();
     </script>
 </body>
 </html>
