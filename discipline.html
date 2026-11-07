@@ -534,6 +534,13 @@
                             return obj;
                         });
                         tasks = allTasks.filter(t => t.discipline_id === id);
+
+// Сортировка: сначала те, у которых дата больше (свежие сверху)
+tasks.sort((a, b) => {
+    const dateA = a.date ? new Date(a.date).getTime() : 0;
+    const dateB = b.date ? new Date(b.date).getTime() : 0;
+    return dateB - dateA; // Если нужны старые сверху, поменяйте на dateA - dateB
+});
                     }
                 }
             } catch (e) {
