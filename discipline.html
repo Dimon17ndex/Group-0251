@@ -853,11 +853,6 @@
                 el.classList.add('discipline-fade-out');
             });
 
-            if (disciplineFadeVeil) {
-                void disciplineFadeVeil.offsetWidth;
-                disciplineFadeVeil.classList.add('active');
-            }
-
             setTimeout(() => {
                 if (typeof target === 'function') target();
             }, 280);
@@ -883,20 +878,25 @@
         history.pushState({ discipline: true }, '', location.href);
 
         window.addEventListener('popstate', () => {
-            if (isLeaving) return;
+    if (isLeaving) return;
 
-            // Запускаем анимацию и уходим на index.html#disciplines
-            fadeOutAndLeave(() => {
-                try { sessionStorage.setItem('returnToTab', 'disciplines'); } catch (e) {}
-                window.location.href = 'index.html#disciplines';
-            });
+    fadeOutAndLeave(() => {
+        // Если вкладка открыта скриптом (из index.html) — просто закрываемся,
+        // чтобы вернуть пользователя к живой основной вкладке.
+        if (window.opener && !window.opener.closed) {
+            window.close();
+            return;
+        }
+        // Иначе (прямой заход по ссылке) — обычный переход на index.html
+        try { sessionStorage.setItem('returnToTab', 'disciplines'); } catch (e) {}
+        window.location.href = 'index.html#disciplines';
+    });
 
-            // Возвращаем запись в историю, чтобы не уйти сразу
-            // (на случай если анимация не успеет и браузер уже снял запись)
-            try {
-                history.pushState({ discipline: true }, '', location.href);
-            } catch (e) {}
-        });
+    // Возвращаем запись в историю, чтобы не уйти сразу
+    try {
+        history.pushState({ discipline: true }, '', location.href);
+    } catch (e) {}
+});
 
         // ==========================================
         // 11. Шторка задания
