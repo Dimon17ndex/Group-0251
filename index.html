@@ -2139,7 +2139,7 @@
         // ==========================================
         // 1. ЛОАДЕР
         // ==========================================
-                function hideLoaderAndShowSite() {
+                        function hideLoaderAndShowSite() {
             const loader = document.getElementById('loader');
             if(loader) loader.classList.add('hidden');
             
@@ -2150,12 +2150,39 @@
                 const feedTitle = document.getElementById('feedTitle');
                 if(feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
 
-                // Проверяем, первый ли это заход
-                const isFirstVisit = !localStorage.getItem('geo_role');
-                if (isFirstVisit) {
-                    // Показываем плашку онбординга
+                // Логика онбординга (первый заход)
+                const localRole = localStorage.getItem('geo_role');
+                
+                // Если роли нет локально, проверяем, может быть мы авторизованы?
+                if (!localRole && typeof supabase !== 'undefined') {
+                    // Ждём инициализации Supabase (на случай если он еще грузится)
+                    const checkSession = async () => {
+                        if (!supabaseClient) {
+                            setTimeout(checkSession, 100); // Ждем, пока supabaseClient создастся
+                            return;
+                        }
+                        
+                        const { data: { session } } = await supabaseClient.auth.getSession();
+                        if (session) {
+                            // Если залогинены, идем в базу и ищем роль
+                            const { data } = await supabaseClient.from('profiles').select('role').eq('id', session.user.id).single();
+                            if (data && data.role) {
+                                localStorage.setItem('geo_role', data.role); // Запоминаем локально
+                            } else {
+                                // Если в базе пусто — показываем плашку
+                                document.getElementById('onboardingModal').classList.add('active');
+                                document.body.style.overflow = 'hidden';
+                            }
+                        } else {
+                            // Если не залогинены — показываем плашку
+                            document.getElementById('onboardingModal').classList.add('active');
+                            document.body.style.overflow = 'hidden';
+                        }
+                    };
+                    checkSession();
+                } else if (!localRole) {
+                    // Если Supabase вообще не загрузился, но роли нет — показываем плашку
                     document.getElementById('onboardingModal').classList.add('active');
-                    // Блокируем скролл на фоне
                     document.body.style.overflow = 'hidden';
                 }
             }, 150);
@@ -2346,9 +2373,10 @@
         // ==========================================
         // 4. ЛОГИКА ОКОН
         // ==========================================
-        let isLoginMode = false;
+                let isLoginMode = false;
         async function openAuthModal() {
             if (!supabaseClient) { alert('Ошибка: библиотека Supabase не загрузилась.'); return; }
+            
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 const username = session.user.user_metadata.username || 'Пользователь';
@@ -3639,23 +3667,38 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
     });
 });
 
-        // ==========================================
+                // ==========================================
         // 11. ОНБОРДИНГ (ПЕРВЫЙ ЗАХОД)
         // ==========================================
-        function chooseRole(role) {
-            // Сохраняем выбор в браузере
+        async function chooseRole(role) {
+            // Сохраняем выбор локально в браузере (на случай если не залогинен)
             localStorage.setItem('geo_role', role);
 
             // Скрываем плашку
             const modal = document.getElementById('onboardingModal');
             modal.classList.remove('active');
-            document.body.style.overflow = ''; // Возвращаем скролл
+            document.body.style.overflow = ''; 
+
+            // Если пользователь уже авторизован — сохраняем роль в его профиль в Supabase
+            if (supabaseClient) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    try {
+                        await supabaseClient
+                            .from('profiles')
+                            .update({ role: role })
+                            .eq('id', session.user.id);
+                    } catch (e) {
+                        console.error('Не удалось сохранить роль в базу:', e);
+                    }
+                }
+            }
 
             // Если выбрали студента — открываем меню входа
             if (role === 'student') {
                 setTimeout(() => {
                     openAuthModal();
-                }, 300); // Небольшая задержка, чтобы плашка успела исчезнуть
+                }, 300); 
             }
         }
     </script>
