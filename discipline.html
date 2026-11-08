@@ -771,10 +771,10 @@ tasks.sort((a, b) => {
     titleEl.style.background = color;
     titleEl.setAttribute('data-task-id', taskData.taskId);
 
-        // 1. Выводим текст задания
+            // 1. Выводим текст задания
     bodyEl.innerHTML = ''; 
 
-    // Сначала выводим description (если есть) шрифтом Dela Gothic One
+    // Сначала description
     if (taskData.description && taskData.description.trim() !== '') {
         const descDiv = document.createElement('div');
         descDiv.className = 'task-description-title';
@@ -782,41 +782,35 @@ tasks.sort((a, b) => {
         bodyEl.appendChild(descDiv);
     }
 
-    // Затем выводим content (основной текст)
-    if (taskData.content && taskData.content.trim() !== '') {
-        const contentDiv = document.createElement('div');
-        contentDiv.textContent = taskData.content.trim();
-        // Небольшой отступ сверху, если есть описание
-        contentDiv.style.marginTop = taskData.description ? '10px' : '0'; 
-        bodyEl.appendChild(contentDiv);
-    }
-
-    // Если нет ни описания, ни контента
-    if ((!taskData.description || taskData.description.trim() === '') && (!taskData.content || taskData.content.trim() === '')) {
-        const emptyDiv = document.createElement('div');
-        emptyDiv.textContent = 'Описание задания пока не добавлено.';
-        bodyEl.appendChild(emptyDiv);
-    }
-
-                // Выводим дату задания (если она есть)
+    // Сразу после description выводим дату (если она есть)
     if (taskData.date) {
         const formattedDate = formatSheetDate(taskData.date);
         if (formattedDate) {
             const dateDiv = document.createElement('div');
-            dateDiv.style.marginTop = '20px';
-            dateDiv.style.paddingTop = '15px';
-            dateDiv.style.borderTop = '1px solid #eee';
+            // Убираем линию сверху, так как дата теперь не в конце, а в начале
+            dateDiv.style.marginTop = taskData.description ? '5px' : '15px'; 
+            dateDiv.style.marginBottom = '20px'; // Отступ до основного текста
             dateDiv.style.fontSize = '0.95rem';
             dateDiv.style.color = '#666';
+            dateDiv.style.textAlign = 'right'; // Выравнивание по правому краю
             
-            // Выравнивание по правому краю
-            dateDiv.style.textAlign = 'right'; 
-            
-            // Выводим без жирного шрифта и с маленькой буквы
             dateDiv.textContent = `дата: ${formattedDate}`;
-            
             bodyEl.appendChild(dateDiv);
         }
+    }
+
+    // Затем content
+    if (taskData.content && taskData.content.trim() !== '') {
+        const contentDiv = document.createElement('div');
+        contentDiv.textContent = taskData.content.trim();
+        bodyEl.appendChild(contentDiv);
+    }
+
+    // Заглушка, если пусто
+    if ((!taskData.description || taskData.description.trim() === '') && (!taskData.content || taskData.content.trim() === '')) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.textContent = 'Описание задания пока не добавлено.';
+        bodyEl.appendChild(emptyDiv);
     }
 
             // 2. Проверяем наличие вложений
