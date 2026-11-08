@@ -1196,7 +1196,11 @@ tasks.sort((a, b) => {
                         
                         if (updatedTask) {
                             // Если нашли — перерисовываем шторку с новыми данными
-                            await openSheet(updatedTask, currentOpenTaskData.color); // Передаем старый цвет на случай, если его убрали
+                            const urlParams = new URLSearchParams(window.location.search);
+const disciplineId = urlParams.get('id') || 'history-geo';
+const disciplineColor = DISCIPLINES[disciplineId] ? DISCIPLINES[disciplineId].color : '#0066ff';
+
+await openSheet(updatedTask, disciplineColor);убрали
                         } else {
                             alert('Это задание было удалено из таблицы.');
                             closeSheet();
@@ -1211,18 +1215,18 @@ tasks.sort((a, b) => {
             }
         }
 
-        function bindTaskSheetEvents(tasks, disciplineId, fallbackColor) {
-    document.querySelectorAll('.task-card').forEach(card => {
-        card.addEventListener('click', () => {
-            if (!sheetActive) {
-                const taskId = card.getAttribute('data-task-id');
-                const task = tasks.find(t => t.taskId === taskId);
-                // Передаем fallbackColor (цвет дисциплины) в функцию
-                if (task) openSheet(task, fallbackColor); 
-            }
-        });
-    });
-}
+                function bindTaskSheetEvents(tasks, disciplineId, fallbackColor) {
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    if (!sheetActive) {
+                        const taskId = card.getAttribute('data-task-id');
+                        const task = tasks.find(t => t.taskId === taskId);
+                        // Передаем цвет дисциплины (fallbackColor), а не цвет с плашки
+                        if (task) openSheet(task, fallbackColor); 
+                    }
+                });
+            });
+        }
 
         if (closeBtn) closeBtn.addEventListener('click', reloadCurrentTask);
         if (sheet) {
