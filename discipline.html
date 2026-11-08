@@ -798,7 +798,7 @@ tasks.sort((a, b) => {
         bodyEl.appendChild(emptyDiv);
     }
 
-            // Выводим дату задания (если она есть)
+                // Выводим дату задания (если она есть)
     if (taskData.date) {
         const formattedDate = formatSheetDate(taskData.date);
         if (formattedDate) {
@@ -812,7 +812,9 @@ tasks.sort((a, b) => {
             // Выравнивание по правому краю
             dateDiv.style.textAlign = 'right'; 
             
-            dateDiv.innerHTML = `<span style="font-weight: 600; color: #000;">Дата:</span> ${formattedDate}`;
+            // Выводим без жирного шрифта и с маленькой буквы
+            dateDiv.textContent = `дата: ${formattedDate}`;
+            
             bodyEl.appendChild(dateDiv);
         }
     }
