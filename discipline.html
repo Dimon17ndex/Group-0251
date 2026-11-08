@@ -1039,7 +1039,62 @@ tasks.sort((a, b) => {
                 }
 
                 attachDiv.appendChild(imgWrap);
-            } 
+                       } 
+            // === НОВЫЙ БЛОК ДЛЯ PDF ===
+            else if (link.toLowerCase().endsWith('.pdf')) {
+                if (!isFirstAttachment) {
+                    const divider = document.createElement('div');
+                    divider.style.margin = '20px 0';
+                    divider.style.borderTop = '1px dashed #ccc';
+                    attachDiv.appendChild(divider);
+                }
+
+                const pdfWrap = document.createElement('div');
+                pdfWrap.style.width = '100%';
+                pdfWrap.style.height = '600px'; // Высота окна с PDF
+                pdfWrap.style.marginBottom = '15px';
+                pdfWrap.style.borderRadius = '8px';
+                pdfWrap.style.overflow = 'hidden';
+                pdfWrap.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                pdfWrap.style.backgroundColor = '#f5f5f5';
+                pdfWrap.style.position = 'relative';
+
+                // Лоадер для PDF (пока грузится)
+                const pdfLoader = document.createElement('div');
+                pdfLoader.className = 'spinner';
+                pdfLoader.style.position = 'absolute';
+                pdfLoader.style.top = '50%';
+                pdfLoader.style.left = '50%';
+                pdfLoader.style.transform = 'translate(-50%, -50%)';
+                pdfLoader.style.zIndex = '1';
+                pdfWrap.appendChild(pdfLoader);
+
+                const iframe = document.createElement('iframe');
+                iframe.src = link;
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.style.position = 'relative';
+                iframe.style.zIndex = '2';
+                
+                // Когда PDF загрузился, убираем лоадер
+                iframe.onload = () => {
+                    if (pdfLoader) pdfLoader.remove();
+                };
+                
+                // Если произошла ошибка (например, ссылка не прямая)
+                iframe.onerror = () => {
+                    if (pdfLoader) pdfLoader.remove();
+                    pdfWrap.innerHTML = `<div style="padding: 20px; text-align: center;">
+                        <div style="color: #666; margin-bottom: 10px;">Не удалось открыть PDF в браузере. Возможно, ссылка ведет не на прямой файл.</div>
+                        <a href="${link}" target="_blank" style="color: #0066ff; font-weight: 600;">Скачать файл напрямую</a>
+                    </div>`;
+                };
+
+                pdfWrap.appendChild(iframe);
+                attachDiv.appendChild(pdfWrap);
+            }
+            // === КОНЕЦ БЛОКА ДЛЯ PDF ===
             else {
                 if (!isFirstAttachment) {
                     const space = document.createElement('div');
