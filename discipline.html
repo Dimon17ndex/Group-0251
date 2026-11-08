@@ -1096,9 +1096,17 @@ tasks.sort((a, b) => {
 
     bodyEl.scrollTop = 0;
 
-    sheetActive = true;
+        sheetActive = true;
     sheet.classList.add('active');
     document.body.style.overflow = 'hidden';
+}
+
+        function closeSheet() {
+            if (!sheetActive) return;
+            sheetActive = false;
+            resetDrag();
+            sheet.classList.remove('active');
+            document.body.style.overflow = ''; // Возвращаем скролл
             bodyEl.scrollTop = 0;
         }
 
