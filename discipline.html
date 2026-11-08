@@ -955,15 +955,13 @@ tasks.sort((a, b) => {
         bodyEl.appendChild(emptyDiv);
     }
 
-            // 2. Проверяем наличие вложений
+                // 2. Проверяем наличие вложений (картинки)
     if (taskData.attachments && taskData.attachments.trim() !== '') {
         const links = taskData.attachments.split(/[\s,]+/); 
         
-        // Получаем подписи (если колонка captions заполнена)
         let captions = [];
         if (taskData.captions && taskData.captions.trim() !== '') {
-            // Разбиваем по переносам строк, сохраняя пустые строки
-captions = taskData.captions.replace(/\r/g, '').split('\n');
+            captions = taskData.captions.replace(/\r/g, '').split('\n');
         }
 
         const attachDiv = document.createElement('div');
@@ -980,9 +978,8 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
             const link = links[i];
             if (!link.trim()) continue;
 
-                        // Если это картинка
             if (link.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i)) {
-                
+                // ... (ваш код для картинок) ...
                 if (!isFirstAttachment) {
                     const divider = document.createElement('div');
                     divider.style.margin = '20px 0';
@@ -990,34 +987,29 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
                     attachDiv.appendChild(divider);
                 }
 
-                // Обертка для картинки и подписи
                 const imgWrap = document.createElement('div');
                 imgWrap.style.marginBottom = '15px';
 
-                // Контейнер с лоадером
                 const loadingWrapper = document.createElement('div');
                 loadingWrapper.className = 'img-loading-wrapper';
 
-                // Лоадер
                 const loader = document.createElement('div');
                 loader.className = 'spinner';
                 loadingWrapper.appendChild(loader);
 
-                // Картинка
                 const img = document.createElement('img');
                 img.src = link;
                 img.alt = captions[i] ? captions[i].trim() : '';
                 
                 img.onload = () => {
                     img.classList.add('loaded');
-                    loader.remove(); // Удаляем лоадер после загрузки
+                    loader.remove(); 
                 };
                 
                 img.onerror = () => {
                     loadingWrapper.innerHTML = `<div style="color: red; font-size: 0.9rem; padding: 20px;">Не удалось загрузить картинку</div>`;
                 };
 
-                // Кнопка расширения (для ПК)
                 const expandBtn = document.createElement('button');
                 expandBtn.className = 'img-expand-btn';
                 expandBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>`;
@@ -1027,7 +1019,6 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
                     openLightbox(link);
                 };
 
-                // Клик по самой картинке (для мобилок)
                 img.onclick = () => {
                     openLightbox(link);
                 };
@@ -1036,7 +1027,6 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
                 loadingWrapper.appendChild(expandBtn);
                 imgWrap.appendChild(loadingWrapper);
 
-                // Добавляем подпись
                 if (captions[i] && captions[i].trim() !== '' && captions[i].trim() !== '-' && captions[i].trim().toLowerCase() !== 'none') {
                     const captionEl = document.createElement('div');
                     captionEl.textContent = captions[i].trim();
@@ -1050,7 +1040,6 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
 
                 attachDiv.appendChild(imgWrap);
             } 
-            // Если это документ
             else {
                 if (!isFirstAttachment) {
                     const space = document.createElement('div');
@@ -1084,19 +1073,32 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
         }
     }
 
+    // === ВЫВОД КОЛОНКИ FILES (ВСЕГДА, ЕСЛИ ЕСТЬ ТЕКСТ) ===
+    if (taskData.files && taskData.files.trim() !== '') {
+        const filesDiv = document.createElement('div');
+        filesDiv.style.marginTop = '20px';
+        
+        // Линия-разделитель, если выше были вложения
+        if (taskData.attachments && taskData.attachments.trim() !== '') {
+            filesDiv.style.borderTop = '2px solid #eee';
+            filesDiv.style.paddingTop = '15px';
+        }
+
+        filesDiv.innerHTML = '<div style="font-weight: 600; margin-bottom: 10px; color: #000;">Дополнительно:</div>';
+        
+        const textDiv = document.createElement('div');
+        textDiv.style.whiteSpace = 'pre-wrap'; // Чтобы сохранялись переносы строк
+        textDiv.textContent = taskData.files.trim();
+        filesDiv.appendChild(textDiv);
+        
+        bodyEl.appendChild(filesDiv);
+    }
+
     bodyEl.scrollTop = 0;
 
     sheetActive = true;
     sheet.classList.add('active');
     document.body.style.overflow = 'hidden';
-}
-
-        function closeSheet() {
-            if (!sheetActive) return;
-            sheetActive = false;
-            resetDrag();
-            sheet.classList.remove('active');
-            document.body.style.overflow = '';
             bodyEl.scrollTop = 0;
         }
 
