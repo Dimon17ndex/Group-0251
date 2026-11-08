@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Дисциплина — География 2611-0251.1</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230066ff'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='9'/%3E%3Cline x1='7' y1='16' x2='25' y2='16'/%3E%3Cpath d='M9 10.5 C11 12, 21 12, 23 10.5'/%3E%3Cpath d='M9 21.5 C11 20, 21 20, 23 21.5'/%3E%3C/g%3E%3C/svg%3E">
 
     <style>
@@ -361,6 +365,14 @@
             .task-sheet-content { max-width: 100%; border-radius: 0; }
             .task-sheet-title-badge { padding: 12px 14px; font-size: 0.8rem; border-radius: 12px; min-height: 48px; }
             .task-sheet-body { padding: 16px 16px 32px; font-size: 0.95rem; }
+        }
+
+                .task-description-title {
+            font-family: 'Dela Gothic One', sans-serif;
+            font-size: 1.15rem;
+            line-height: 1.4;
+            color: #000;
+            margin-bottom: 16px; /* Отступ до основного текста */
         }
     </style>
 </head>
@@ -736,16 +748,32 @@ tasks.sort((a, b) => {
     titleEl.style.background = color;
     titleEl.setAttribute('data-task-id', taskData.taskId);
 
-    // 1. Сначала выводим текст задания
-    let text = '';
-    if (taskData.description) text += taskData.description + '\n\n';
-    if (taskData.content) text += taskData.content;
-    
-    // Очищаем шторку и вставляем текст
+        // 1. Выводим текст задания
     bodyEl.innerHTML = ''; 
-    const textDiv = document.createElement('div');
-    textDiv.textContent = text.trim() || 'Описание задания пока не добавлено.';
-    bodyEl.appendChild(textDiv);
+
+    // Сначала выводим description (если есть) шрифтом Dela Gothic One
+    if (taskData.description && taskData.description.trim() !== '') {
+        const descDiv = document.createElement('div');
+        descDiv.className = 'task-description-title';
+        descDiv.textContent = taskData.description.trim();
+        bodyEl.appendChild(descDiv);
+    }
+
+    // Затем выводим content (основной текст)
+    if (taskData.content && taskData.content.trim() !== '') {
+        const contentDiv = document.createElement('div');
+        contentDiv.textContent = taskData.content.trim();
+        // Небольшой отступ сверху, если есть описание
+        contentDiv.style.marginTop = taskData.description ? '10px' : '0'; 
+        bodyEl.appendChild(contentDiv);
+    }
+
+    // Если нет ни описания, ни контента
+    if ((!taskData.description || taskData.description.trim() === '') && (!taskData.content || taskData.content.trim() === '')) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.textContent = 'Описание задания пока не добавлено.';
+        bodyEl.appendChild(emptyDiv);
+    }
 
             // 2. Проверяем наличие вложений
     if (taskData.attachments && taskData.attachments.trim() !== '') {
