@@ -296,7 +296,10 @@
         @keyframes lineDraw { 0% { transform: scaleY(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: scaleY(1); opacity: 1; } }
         @keyframes dotIn { 0% { transform: translate(-50%, 50%) scale(0.01); opacity: 0; } 100% { transform: translate(-50%, 50%) scale(1); opacity: 1; } }
         @keyframes taskIn { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
-
+        @keyframes spin { 
+            to { transform: rotate(360deg); } 
+        }
+        
         .discipline-fade-out { opacity: 0 !important; transition: opacity 0.3s ease !important; pointer-events: none !important; }
         .discipline-fade-veil { position: fixed; inset: 0; background: #fff; z-index: 100000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .discipline-fade-veil.active { opacity: 1; pointer-events: auto; }
