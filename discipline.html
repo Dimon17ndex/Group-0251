@@ -565,7 +565,7 @@
             let tasks = [];
             try {
                 const cacheBuster = '&t=' + new Date().getTime();
-                const response = await fetch(CSV_URL + cacheBuster);
+                const response = await fetch(CSV_URL + cacheBuster, { cache: 'no-store' });
                 if (response.ok) {
                     const csvText = await response.text();
                     const rows = parseCSV(csvText);
@@ -953,7 +953,7 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
             try {
                 // Запрашиваем свежие данные из CSV
                 const cacheBuster = '&t=' + new Date().getTime();
-                const response = await fetch(CSV_URL + cacheBuster);
+                const response = await fetch(CSV_URL + cacheBuster, { cache: 'no-store' });
                 if (response.ok) {
                     const csvText = await response.text();
                     const rows = parseCSV(csvText);
