@@ -460,6 +460,29 @@
             return dd + '.' + mm + '.' + yyyy;
         }
 
+                // Функция для красивого вывода даты в шторке (например, "10 ноября 2026")
+        function formatSheetDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '';
+
+            const months = [
+                'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+                'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+            ];
+
+            const dd = d.getDate();
+            const mm = months[d.getMonth()];
+            const yyyy = d.getFullYear();
+            const now = new Date();
+
+            // Если год текущий, не выводим его
+            if (yyyy === now.getFullYear()) {
+                return `${dd} ${mm}`;
+            }
+            return `${dd} ${mm} ${yyyy}`;
+        }
+
         function parseCSV(text) {
             const rows = [];
             let currentRow = [];
@@ -773,6 +796,25 @@ tasks.sort((a, b) => {
         const emptyDiv = document.createElement('div');
         emptyDiv.textContent = 'Описание задания пока не добавлено.';
         bodyEl.appendChild(emptyDiv);
+    }
+
+            // Выводим дату задания (если она есть)
+    if (taskData.date) {
+        const formattedDate = formatSheetDate(taskData.date);
+        if (formattedDate) {
+            const dateDiv = document.createElement('div');
+            dateDiv.style.marginTop = '20px';
+            dateDiv.style.paddingTop = '15px';
+            dateDiv.style.borderTop = '1px solid #eee';
+            dateDiv.style.fontSize = '0.95rem';
+            dateDiv.style.color = '#666';
+            
+            // Выравнивание по правому краю
+            dateDiv.style.textAlign = 'right'; 
+            
+            dateDiv.innerHTML = `<span style="font-weight: 600; color: #000;">Дата:</span> ${formattedDate}`;
+            bodyEl.appendChild(dateDiv);
+        }
     }
 
             // 2. Проверяем наличие вложений
