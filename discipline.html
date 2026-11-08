@@ -299,7 +299,7 @@
         @keyframes spin { 
             to { transform: rotate(360deg); } 
         }
-        
+
         .discipline-fade-out { opacity: 0 !important; transition: opacity 0.3s ease !important; pointer-events: none !important; }
         .discipline-fade-veil { position: fixed; inset: 0; background: #fff; z-index: 100000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .discipline-fade-veil.active { opacity: 1; pointer-events: auto; }
@@ -377,6 +377,124 @@
             color: #000;
             margin-bottom: 16px; /* Отступ до основного текста */
         }
+
+                /* === Лоадер для картинок === */
+        .img-loading-wrapper {
+            position: relative;
+            min-height: 150px;
+            background: #f5f7ff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .img-loading-wrapper .spinner {
+            width: 36px;
+            height: 36px;
+            border: 4px solid #e3e8ff;
+            border-top-color: #0066ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            position: absolute;
+        }
+        .img-loading-wrapper img {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            width: 100%;
+            height: auto;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+        .img-loading-wrapper img.loaded {
+            opacity: 1;
+        }
+
+        /* === Кнопка расширения (только для ПК) === */
+        .img-expand-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 32px;
+            height: 32px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            display: none; /* Скрыта по умолчанию */
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+            transition: background 0.2s ease;
+        }
+        .img-expand-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+        .img-expand-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: #fff;
+            display: block;
+        }
+        
+        /* Показываем кнопку только при наведении на ПК */
+        @media (hover: hover) and (pointer: fine) {
+            .img-loading-wrapper:hover .img-expand-btn {
+                display: flex;
+            }
+        }
+
+        /* === Полноэкранный просмотр (Лайтбокс) === */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .lightbox img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .lightbox-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .lightbox-close svg {
+            width: 24px;
+            height: 24px;
+            stroke: #fff;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -421,6 +539,17 @@
             </div>
             <div class="task-sheet-body" id="taskSheetBody"></div>
         </div>
+    </div>
+
+    <!-- Лайтбокс для полноэкранного просмотра картинок -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+        <button class="lightbox-close" onclick="closeLightbox(event)" aria-label="Закрыть">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <img id="lightboxImg" src="" alt="Просмотр изображения">
     </div>
 
     <script>
@@ -851,7 +980,7 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
             const link = links[i];
             if (!link.trim()) continue;
 
-            // Если это картинка
+                        // Если это картинка
             if (link.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i)) {
                 
                 if (!isFirstAttachment) {
@@ -865,20 +994,49 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
                 const imgWrap = document.createElement('div');
                 imgWrap.style.marginBottom = '15px';
 
+                // Контейнер с лоадером
+                const loadingWrapper = document.createElement('div');
+                loadingWrapper.className = 'img-loading-wrapper';
+
+                // Лоадер
+                const loader = document.createElement('div');
+                loader.className = 'spinner';
+                loadingWrapper.appendChild(loader);
+
+                // Картинка
                 const img = document.createElement('img');
                 img.src = link;
-                img.style.maxWidth = '100%';
-                img.style.borderRadius = '8px';
-                img.style.display = 'block';
-                img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                img.alt = captions[i] ? captions[i].trim() : '';
+                
+                img.onload = () => {
+                    img.classList.add('loaded');
+                    loader.remove(); // Удаляем лоадер после загрузки
+                };
                 
                 img.onerror = () => {
-                    img.style.display = 'none';
-                    imgWrap.innerHTML += `<div style="color: red; font-size: 0.9rem;">Не удалось загрузить картинку: ${link}</div>`;
+                    loadingWrapper.innerHTML = `<div style="color: red; font-size: 0.9rem; padding: 20px;">Не удалось загрузить картинку</div>`;
                 };
-                imgWrap.appendChild(img);
 
-                                // Добавляем подпись, если она есть и это не заглушка
+                // Кнопка расширения (для ПК)
+                const expandBtn = document.createElement('button');
+                expandBtn.className = 'img-expand-btn';
+                expandBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>`;
+                
+                expandBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    openLightbox(link);
+                };
+
+                // Клик по самой картинке (для мобилок)
+                img.onclick = () => {
+                    openLightbox(link);
+                };
+
+                loadingWrapper.appendChild(img);
+                loadingWrapper.appendChild(expandBtn);
+                imgWrap.appendChild(loadingWrapper);
+
+                // Добавляем подпись
                 if (captions[i] && captions[i].trim() !== '' && captions[i].trim() !== '-' && captions[i].trim().toLowerCase() !== 'none') {
                     const captionEl = document.createElement('div');
                     captionEl.textContent = captions[i].trim();
@@ -886,7 +1044,7 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
                     captionEl.style.fontSize = '0.85rem';
                     captionEl.style.color = '#666';
                     captionEl.style.fontStyle = 'italic';
-                    captionEl.style.textAlign = 'center'; // Подпись по центру
+                    captionEl.style.textAlign = 'center';
                     imgWrap.appendChild(captionEl);
                 }
 
@@ -1055,6 +1213,37 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
             window.addEventListener('touchmove', onDrag, { passive: true });
             window.addEventListener('touchend', endDrag);
             window.addEventListener('touchcancel', endDrag);
+        }
+
+        // ==========================================
+        // 12. ЛАЙТБОКС (Полноэкранный просмотр)
+        // ==========================================
+        function openLightbox(imageUrl) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            
+            lightboxImg.src = imageUrl;
+            lightbox.classList.add('active');
+            
+            // Блокируем скролл фона
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox(event) {
+            if (event) event.stopPropagation();
+            
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            
+            lightbox.classList.remove('active');
+            
+            // Разблокируем скролл
+            document.body.style.overflow = ''; // Восстанавливаем скролл
+            
+            // Очищаем src через небольшую задержку (чтобы не было мигания)
+            setTimeout(() => {
+                lightboxImg.src = '';
+            }, 300);
         }
 
         render();
