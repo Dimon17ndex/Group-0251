@@ -1675,6 +1675,98 @@
     opacity: 1;
     pointer-events: auto;
 }
+
+        /* === Онбординг === */
+        .onboarding-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 100000; /* Поверх всего, кроме лоадера */
+            display: none; /* Скрыто по умолчанию */
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .onboarding-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .onboarding-content {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        .onboarding-overlay.active .onboarding-content {
+            transform: translateY(0);
+        }
+
+        .onboarding-content h2 {
+            font-size: 1.5rem;
+            color: #000;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .onboarding-content p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+
+        .onboarding-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .onboarding-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            border: none;
+        }
+
+        .onboarding-btn.primary {
+            background: #0066ff;
+            color: #fff;
+        }
+
+        .onboarding-btn.primary:hover {
+            background: #0052cc;
+        }
+
+        .onboarding-btn.secondary {
+            background: #f5f7ff;
+            color: #0066ff;
+            border: 1px solid #e3e8ff;
+        }
+
+        .onboarding-btn.secondary:hover {
+            background: #e9efff;
+        }
+
+        .onboarding-btn:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 <body>
@@ -1690,6 +1782,18 @@
     </div>
 
     <div id="loader"><div class="spinner"></div></div>
+
+    <!-- Онбординг (Первый заход) -->
+    <div id="onboardingModal" class="onboarding-overlay">
+        <div class="onboarding-content">
+            <h2>Добро пожаловать!</h2>
+            <p>Пожалуйста, укажите, кто вы, чтобы мы могли настроить интерфейс под вас.</p>
+            <div class="onboarding-buttons">
+                <button class="onboarding-btn primary" onclick="chooseRole('student')">Я студент</button>
+                <button class="onboarding-btn secondary" onclick="chooseRole('teacher')">Я преподаватель</button>
+            </div>
+        </div>
+    </div>
 
     <header>
         <div class="site-logo">
@@ -2035,14 +2139,25 @@
         // ==========================================
         // 1. ЛОАДЕР
         // ==========================================
-        function hideLoaderAndShowSite() {
+                function hideLoaderAndShowSite() {
             const loader = document.getElementById('loader');
             if(loader) loader.classList.add('hidden');
+            
             setTimeout(() => {
                 document.body.classList.add('loaded');
                 if(loader) loader.style.display = 'none';
+                
                 const feedTitle = document.getElementById('feedTitle');
                 if(feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
+
+                // Проверяем, первый ли это заход
+                const isFirstVisit = !localStorage.getItem('geo_role');
+                if (isFirstVisit) {
+                    // Показываем плашку онбординга
+                    document.getElementById('onboardingModal').classList.add('active');
+                    // Блокируем скролл на фоне
+                    document.body.style.overflow = 'hidden';
+                }
             }, 150);
         }
 
@@ -3523,6 +3638,26 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
         }, 150);
     });
 });
+
+        // ==========================================
+        // 11. ОНБОРДИНГ (ПЕРВЫЙ ЗАХОД)
+        // ==========================================
+        function chooseRole(role) {
+            // Сохраняем выбор в браузере
+            localStorage.setItem('geo_role', role);
+
+            // Скрываем плашку
+            const modal = document.getElementById('onboardingModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // Возвращаем скролл
+
+            // Если выбрали студента — открываем меню входа
+            if (role === 'student') {
+                setTimeout(() => {
+                    openAuthModal();
+                }, 300); // Небольшая задержка, чтобы плашка успела исчезнуть
+            }
+        }
     </script>
 
 <script>
