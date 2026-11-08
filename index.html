@@ -2795,7 +2795,7 @@ item.appendChild(thumb);
             closeProfileModal();
             window.location.reload();
         }
-        async function handleAuth() {
+                async function handleAuth() {
             if (!supabaseClient) return;
             const username = document.getElementById('authUsername').value.trim();
             const password = document.getElementById('authPassword').value;
@@ -2804,11 +2804,20 @@ item.appendChild(thumb);
             if (!username || !password) { msg.textContent = 'Заполните все поля'; msg.classList.add('error'); return; }
             const safeUsername = username.toLowerCase().replace(/[^a-z0-9]/g, '');
             const fakeEmail = `${safeUsername}@example.com`;
+            
             if (isLoginMode) {
-                const { error } = await supabaseClient.auth.signInWithPassword({ email: fakeEmail, password: password });
-                if (error) { msg.textContent = 'Неверное имя или пароль'; msg.classList.add('error'); }
-                else {
+                const { data: loginData, error } = await supabaseClient.auth.signInWithPassword({ email: fakeEmail, password: password });
+                if (error) { 
+                    msg.textContent = 'Неверное имя или пароль'; msg.classList.add('error'); 
+                } else {
                     msg.textContent = 'Вход выполнен!'; msg.classList.add('success');
+                    
+                    // Если в браузере сохранена роль, а в базе её нет — обновим базу
+                    const localRole = localStorage.getItem('geo_role');
+                    if (localRole && loginData.user) {
+                        await supabaseClient.from('profiles').update({ role: localRole }).eq('id', loginData.user.id);
+                    }
+
                     setTimeout(() => { closeAuthModal(); window.location.reload(); }, 1000);
                 }
             } else {
@@ -2818,10 +2827,21 @@ item.appendChild(thumb);
                     else { msg.textContent = authError.message; }
                     msg.classList.add('error'); return;
                 }
+                
                 if (authData.user) {
-                    const { error: profileError } = await supabaseClient.from('profiles').insert([{ id: authData.user.id, username: username }]);
-                    if (profileError) { console.error(profileError); msg.textContent = 'Ошибка при создании профиля.'; msg.classList.add('error'); }
-                    else {
+                    // Смотрим, какую роль человек выбрал на онбординге (или ставим 'student' по умолчанию)
+                    const chosenRole = localStorage.getItem('geo_role') || 'student';
+                    
+                    // Создаем профиль вместе с ролью
+                    const { error: profileError } = await supabaseClient.from('profiles').insert([{ 
+                        id: authData.user.id, 
+                        username: username,
+                        role: chosenRole 
+                    }]);
+                    
+                    if (profileError) { 
+                        console.error(profileError); msg.textContent = 'Ошибка при создании профиля.'; msg.classList.add('error'); 
+                    } else {
                         msg.textContent = 'Регистрация успешна! Теперь вы можете войти.'; msg.classList.add('success');
                         setTimeout(() => { toggleAuthMode(); msg.textContent = ''; }, 2000);
                     }
