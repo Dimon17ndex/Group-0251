@@ -407,7 +407,14 @@
             <div class="task-sheet-handle" id="taskSheetHandle"></div>
             <div class="task-sheet-header">
                 <div class="task-sheet-title-badge" id="taskSheetTitle">Задание</div>
-                <button class="task-sheet-close" id="taskSheetClose" aria-label="Закрыть">&times;</button>
+                <button class="task-sheet-close" id="taskSheetClose" aria-label="Обновить задание" style="display: flex; align-items: center; justify-content: center; color: #0066ff; padding: 4px; border-radius: 50%; transition: background 0.2s ease;">
+    <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 2v6h-6"></path>
+        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+        <path d="M3 22v-6h6"></path>
+        <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+    </svg>
+</button>
             </div>
             <div class="task-sheet-body" id="taskSheetBody"></div>
         </div>
@@ -744,6 +751,7 @@ tasks.sort((a, b) => {
         const header = sheet ? sheet.querySelector('.task-sheet-header') : null;
 
         let startY = 0, currentY = 0, dragging = false;
+        let currentOpenTaskData = null; // Храним данные открытого задания
         let sheetActive = false;
 
         function resetDrag() {
@@ -760,6 +768,8 @@ tasks.sort((a, b) => {
         async function openSheet(taskData, fallbackColor) {
     if (!taskData) return;
     resetDrag();
+
+    currentOpenTaskData = taskData;
 
     // Если нет своего цвета и нет type, берем fallbackColor (цвет дисциплины)
     let color = taskData.color || (taskData.type ? '' : fallbackColor) || '#0066ff';
@@ -929,6 +939,52 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
             bodyEl.scrollTop = 0;
         }
 
+                async function reloadCurrentTask() {
+            if (!currentOpenTaskData) return;
+
+            // Меняем иконку на крутящуюся (добавляем анимацию)
+            const btn = document.getElementById('taskSheetClose');
+            const svg = btn.querySelector('svg');
+            if (svg) svg.style.animation = 'spin 0.8s linear infinite';
+
+            try {
+                // Запрашиваем свежие данные из CSV
+                const cacheBuster = '&t=' + new Date().getTime();
+                const response = await fetch(CSV_URL + cacheBuster);
+                if (response.ok) {
+                    const csvText = await response.text();
+                    const rows = parseCSV(csvText);
+                    
+                    if (rows.length > 0) {
+                        const headers = rows[0];
+                        const allTasks = rows.slice(1).map(row => {
+                            const obj = {};
+                            headers.forEach((header, index) => {
+                                obj[header.trim()] = row[index] ? row[index].trim() : '';
+                            });
+                            return obj;
+                        });
+                        
+                        // Ищем наше задание по taskId
+                        const updatedTask = allTasks.find(t => t.taskId === currentOpenTaskData.taskId);
+                        
+                        if (updatedTask) {
+                            // Если нашли — перерисовываем шторку с новыми данными
+                            await openSheet(updatedTask, currentOpenTaskData.color); // Передаем старый цвет на случай, если его убрали
+                        } else {
+                            alert('Это задание было удалено из таблицы.');
+                            closeSheet();
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Ошибка обновления задания:', e);
+            } finally {
+                // Убираем анимацию с иконки
+                if (svg) svg.style.animation = '';
+            }
+        }
+
         function bindTaskSheetEvents(tasks, disciplineId, fallbackColor) {
     document.querySelectorAll('.task-card').forEach(card => {
         card.addEventListener('click', () => {
@@ -942,7 +998,7 @@ captions = taskData.captions.replace(/\r/g, '').split('\n');
     });
 }
 
-        if (closeBtn) closeBtn.addEventListener('click', closeSheet);
+        if (closeBtn) closeBtn.addEventListener('click', reloadCurrentTask);
         if (sheet) {
             sheet.addEventListener('click', (e) => {
                 if (e.target === sheet) closeSheet();
