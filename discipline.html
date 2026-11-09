@@ -528,11 +528,8 @@
             display: block;
         }
 
-                /* === Кнопка "Заметка" в шапке шторки === */
-        .task-sheet-header {
-            position: relative; /* Чтобы позиционировать кнопку абсолютно */
-        }
-                        .note-btn {
+                        /* === Кнопка "Заметка" в шапке шторки === */
+        .note-btn {
             width: 40px;
             height: 40px;
             background: transparent;
@@ -542,31 +539,22 @@
             align-items: center;
             justify-content: center;
             padding: 0;
-            flex-shrink: 0;
-            transition: background 0.2s ease; /* Плавно меняем фон */
-            border-radius: 8px; /* Закругляем фон для красоты */
+            flex-shrink: 0; 
+            border-radius: 8px; 
+            transition: background 0.2s ease, transform 0.15s ease;
         }
         
         .note-btn:hover {
-            background: #f0f4ff; /* Легкий синий фон при наведении */
-            transform: none; /* Никакого масштабирования */
-        }
-                .note-btn:hover {
-            /* Убираем scale, чтобы кнопка не прыгала */
-            transform: none; 
+            background: #f0f4ff; 
+            transform: scale(1.1); /* Легкое увеличение из центра */
         }
         
-        .note-btn:hover svg path {
-            stroke: #0066ff; /* Иконка становится синей при наведении */
-        }
-        .note-btn:hover {
-            transform: translateY(-50%) scale(1.1);
-        }
         .note-btn svg {
             width: 28px;
             height: 28px;
             transition: fill 0.2s ease, stroke 0.2s ease;
         }
+        
         .note-btn svg path {
             fill: transparent;
             stroke: #000;
@@ -574,9 +562,14 @@
             stroke-linejoin: round;
             transition: fill 0.2s ease, stroke 0.2s ease;
         }
+        
+        .note-btn:hover svg path {
+            stroke: #0066ff; 
+        }
+
         /* Активное состояние (когда заметка добавлена) */
         .note-btn.active svg path {
-            fill: #0066ff; /* Синий цвет, как у кнопок сайта */
+            fill: #0066ff; 
             stroke: #0066ff;
         }
     </style>
