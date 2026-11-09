@@ -353,7 +353,7 @@
         .task-sheet-title-badge {
             flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; padding: 14px 22px;
             font-family: inherit; font-size: 1rem; font-weight: 700; letter-spacing: 0.3px; text-align: center; color: #ffffff;
-            border-radius: 12px; line-height: 1.25; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); word-break: break-word; white-space: normal; background: #0066ff;
+            border-radius: 12px; line-height: 1.25; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); word-break: break-word; white-space: normal; background: #0066ff; margin: 0 auto;
         }
         .task-sheet-close { background: transparent; border: none; font-size: 30px; line-height: 1; color: #888; cursor: pointer; padding: 0 4px; transition: color 0.15s ease; flex-shrink: 0; }
         .task-sheet-close:hover { color: #000; }
@@ -495,6 +495,48 @@
             stroke: #fff;
             display: block;
         }
+
+                /* === Кнопка "Заметка" в шапке шторки === */
+        .task-sheet-header {
+            position: relative; /* Чтобы позиционировать кнопку абсолютно */
+        }
+        .note-btn {
+            position: absolute;
+            left: 20px; /* Отступ от левого края */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            z-index: 5;
+            transition: transform 0.15s ease;
+        }
+        .note-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+        .note-btn svg {
+            width: 28px;
+            height: 28px;
+            transition: fill 0.2s ease, stroke 0.2s ease;
+        }
+        .note-btn svg path {
+            fill: transparent;
+            stroke: #000;
+            stroke-width: 1.5;
+            stroke-linejoin: round;
+            transition: fill 0.2s ease, stroke 0.2s ease;
+        }
+        /* Активное состояние (когда заметка добавлена) */
+        .note-btn.active svg path {
+            fill: #0066ff; /* Синий цвет, как у кнопок сайта */
+            stroke: #0066ff;
+        }
     </style>
 </head>
 <body>
@@ -527,6 +569,13 @@
         <div class="task-sheet-content" id="taskSheetContent">
             <div class="task-sheet-handle" id="taskSheetHandle"></div>
             <div class="task-sheet-header">
+
+                <button class="note-btn" id="taskSheetNoteBtn" aria-label="Добавить в заметки">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+                    </svg>
+                </button>
+
                 <div class="task-sheet-title-badge" id="taskSheetTitle">Задание</div>
                 <button class="task-sheet-close" id="taskSheetClose" aria-label="Обновить задание" style="display: flex; align-items: center; justify-content: center; color: #0066ff; padding: 4px; border-radius: 50%; transition: background 0.2s ease;">
     <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -912,6 +961,41 @@ tasks.sort((a, b) => {
     titleEl.textContent = taskData.title || 'Задание';
     titleEl.style.background = color;
     titleEl.setAttribute('data-task-id', taskData.taskId);
+
+        titleEl.textContent = taskData.title || 'Задание';
+    titleEl.style.background = color;
+    titleEl.setAttribute('data-task-id', taskData.taskId);
+
+    // === ЛОГИКА ЗАМЕТОК ===
+    const noteBtn = document.getElementById('taskSheetNoteBtn');
+    if (noteBtn) {
+        // Проверяем, сохранена ли заметка
+        let savedNotes = JSON.parse(localStorage.getItem('saved_notes') || '[]');
+        if (savedNotes.includes(taskData.taskId)) {
+            noteBtn.classList.add('active');
+        } else {
+            noteBtn.classList.remove('active');
+        }
+
+        // Обработчик клика (перезаписываем, чтобы не дублировался)
+        noteBtn.onclick = (e) => {
+            e.stopPropagation();
+            let currentNotes = JSON.parse(localStorage.getItem('saved_notes') || '[]');
+            const isSaved = currentNotes.includes(taskData.taskId);
+
+            if (isSaved) {
+                // Убираем из заметок
+                currentNotes = currentNotes.filter(id => id !== taskData.taskId);
+                noteBtn.classList.remove('active');
+            } else {
+                // Добавляем в заметки
+                currentNotes.push(taskData.taskId);
+                noteBtn.classList.add('active');
+            }
+            localStorage.setItem('saved_notes', JSON.stringify(currentNotes));
+        };
+    }
+    // === КОНЕЦ ЛОГИКИ ЗАМЕТОК ===
 
             // 1. Выводим текст задания
     bodyEl.innerHTML = ''; 
