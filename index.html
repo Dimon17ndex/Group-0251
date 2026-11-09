@@ -2203,6 +2203,20 @@
         // 2. SUPABASE
         // ==========================================
          const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrCiJKSGBLtbLQlB7yI15G1gmDEJjUNorm1qxU4uKivoaiFfHJSbV1FKkEjs8Y46YyZudmcbjPzDNF/pub?gid=0&single=true&output=csv';
+
+const DISCIPLINES = {
+            'history-geo': { title: 'История географических открытий', color: '#2e7d32' },
+            'methods-geo': { title: 'Методы географических исследований', color: '#c77800' },
+            'meteorology': { title: 'Метеорология и климатология, гидрология', color: '#1565c0' },
+            'geology': { title: 'Геология и эволюционная география', color: '#6d4c41' },
+            'history-ru': { title: 'История России', color: '#c62828' },
+            'russian-state': { title: 'Основы российской государственности', color: '#ef6c00' },
+            'russian-lang': { title: 'Русский язык', color: '#d81b60' },
+            'english-lang': { title: 'Английский язык', color: '#111111' },
+            'biogeocenology': { title: 'Основы биогеоценологии', color: '#00a86b' },
+            'medical-basics': { title: 'Основы медицинских знаний', color: '#8e0000' }
+        };
+         
         const SUPABASE_URL = 'https://zonhvkjgxmawhavhyljg.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_hB20gq52pt_ijPlJVB0zYA_7QmNExNV';
         let supabaseClient = null;
