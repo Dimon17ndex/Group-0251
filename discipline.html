@@ -1040,8 +1040,9 @@ tasks.sort((a, b) => {
 
                 attachDiv.appendChild(imgWrap);
                                    } 
-            // === БЛОК ДЛЯ ВСТРАИВАНИЯ ФАЙЛОВ ===
-            else if (link.match(/\.(pdf|docx?|xlsx?|pptx?)$/i) || link.includes('supabase.co')) {
+                        } 
+            // === БЛОК ДЛЯ ВСТРАИВАНИЯ ФАЙЛОВ (PDF, Word, Excel) ===
+            else if (link.match(/\.(pdf|docx?|xlsx?|pptx?)$/i)) {
                 if (!isFirstAttachment) {
                     const divider = document.createElement('div');
                     divider.style.margin = '20px 0';
@@ -1051,7 +1052,7 @@ tasks.sort((a, b) => {
 
                 const pdfWrap = document.createElement('div');
                 pdfWrap.style.width = '100%';
-                pdfWrap.style.height = '600px'; // Высота окна с PDF
+                pdfWrap.style.height = '600px';
                 pdfWrap.style.marginBottom = '15px';
                 pdfWrap.style.borderRadius = '8px';
                 pdfWrap.style.overflow = 'hidden';
@@ -1059,61 +1060,31 @@ tasks.sort((a, b) => {
                 pdfWrap.style.backgroundColor = '#f5f5f5';
                 pdfWrap.style.position = 'relative';
 
-                // Лоадер для PDF (пока грузится)
-                const pdfLoader = document.createElement('div');
-                pdfLoader.className = 'spinner';
-                pdfLoader.style.position = 'absolute';
-                pdfLoader.style.top = '50%';
-                pdfLoader.style.left = '50%';
-                pdfLoader.style.transform = 'translate(-50%, -50%)';
-                pdfLoader.style.zIndex = '1';
-                pdfWrap.appendChild(pdfLoader);
-
                 const iframe = document.createElement('iframe');
-                iframe.src = link;
+                
+                // ИСПОЛЬЗУЕМ GOOGLE DOCS VIEWER, чтобы браузер не скачивал файл
+                // Он берет прямую ссылку и показывает файл в окне
+                iframe.src = `https://docs.google.com/viewer?url=${encodeURIComponent(link)}&embedded=true`;
+                
                 iframe.style.width = '100%';
                 iframe.style.height = '100%';
                 iframe.style.border = 'none';
                 iframe.style.position = 'relative';
                 iframe.style.zIndex = '2';
                 
-                // Когда PDF загрузился, убираем лоадер
-                iframe.onload = () => {
-                    if (pdfLoader) pdfLoader.remove();
-                };
-                
-                // Если произошла ошибка (например, ссылка не прямая)
                 iframe.onerror = () => {
-                    if (pdfLoader) pdfLoader.remove();
                     pdfWrap.innerHTML = `<div style="padding: 20px; text-align: center;">
-                        <div style="color: #666; margin-bottom: 10px;">Не удалось открыть PDF в браузере. Возможно, ссылка ведет не на прямой файл.</div>
+                        <div style="color: #666; margin-bottom: 10px;">Не удалось открыть файл.</div>
                         <a href="${link}" target="_blank" style="color: #0066ff; font-weight: 600;">Скачать файл напрямую</a>
                     </div>`;
                 };
 
-                                pdfWrap.appendChild(iframe);
+                pdfWrap.appendChild(iframe);
                 attachDiv.appendChild(pdfWrap);
-
-                // Добавляем кнопку "Скачать" на случай, если браузер не смог открыть файл в iframe
-                const downloadBtn = document.createElement('a');
-                downloadBtn.href = link;
-                downloadBtn.target = '_blank';
-                downloadBtn.rel = 'noopener noreferrer';
-                downloadBtn.textContent = '📥 Скачать файл напрямую';
-                downloadBtn.style.display = 'inline-block';
-                downloadBtn.style.marginTop = '10px';
-                downloadBtn.style.marginBottom = '15px';
-                downloadBtn.style.padding = '10px 16px';
-                downloadBtn.style.backgroundColor = '#f5f7ff';
-                downloadBtn.style.color = '#0066ff';
-                downloadBtn.style.textDecoration = 'none';
-                downloadBtn.style.borderRadius = '8px';
-                downloadBtn.style.fontWeight = '600';
-                downloadBtn.style.border = '1px solid #e3e8ff';
-                downloadBtn.style.transition = 'background 0.2s ease';
-                downloadBtn.onmouseover = () => downloadBtn.style.backgroundColor = '#e9efff';
-                downloadBtn.onmouseout = () => downloadBtn.style.backgroundColor = '#f5f7ff';
-                attachDiv.appendChild(downloadBtn);
+            }
+            // Обычные файлы (скачивание)
+            else {
+                // ... (ваш старый код кнопки "Открыть файл в новой вкладке") ...
             }
             // === КОНЕЦ БЛОКА ДЛЯ PDF ===
             else {
