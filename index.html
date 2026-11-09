@@ -3796,16 +3796,29 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 // ==========================================
         // 12. СПИСОК ЗАДАНИЙ В ПРОФИЛЕ (ЗАМЕТКИ)
         // ==========================================
-                        async function loadSavedTasksIntoProfile() {
+                                // Флаг для защиты от дублирования и повторных запросов
+        let isTasksLoading = false;
+
+        async function loadSavedTasksIntoProfile() {
+            // Если данные уже загружаются — выходим, чтобы не дублировать
+            if (isTasksLoading) return;
+
             const listEl = document.getElementById('tasksList');
             const emptyEl = document.getElementById('tasksEmpty');
             if (!listEl || !emptyEl) return;
 
-            listEl.innerHTML = '';
+            // Ставим "замок"
+            isTasksLoading = true;
+
+            listEl.innerHTML = ''; // Очищаем список
             emptyEl.classList.remove('hidden');
             emptyEl.style.display = 'block';
+            emptyEl.textContent = 'Загрузка заданий...'; // Показываем текст загрузки
 
-            if (!supabaseClient) return;
+            if (!supabaseClient) {
+                isTasksLoading = false;
+                return;
+            }
 
             let userId = currentUserId;
             if (!userId) {
@@ -3813,7 +3826,11 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 userId = session ? session.user.id : null;
                 currentUserId = userId;
             }
-            if (!userId) return;
+
+            if (!userId) {
+                isTasksLoading = false;
+                return;
+            }
 
             // Получаем заметки из Supabase
             const { data: notes, error } = await supabaseClient
@@ -3824,10 +3841,16 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
 
             if (error) {
                 console.error('Ошибка загрузки заметок:', error);
+                isTasksLoading = false;
                 return;
             }
 
-            if (!notes || notes.length === 0) return; // Нет заметок — оставляем заглушку
+            // Если заметок нет — показываем заглушку
+            if (!notes || notes.length === 0) {
+                emptyEl.textContent = 'У вас пока нет отмеченных заданий';
+                isTasksLoading = false;
+                return;
+            }
 
             emptyEl.classList.add('hidden');
             emptyEl.style.display = 'none';
@@ -3897,6 +3920,9 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
 
                 listEl.appendChild(card);
             });
+
+            // Снимаем "замок" после завершения
+            isTasksLoading = false;
         }
     </script>
 
