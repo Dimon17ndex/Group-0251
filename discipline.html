@@ -349,11 +349,43 @@
         .task-sheet.active .task-sheet-content { transform: translateY(0); }
         .task-sheet-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 14px auto 0 auto; flex-shrink: 0; cursor: grab; }
         .task-sheet-handle:active { cursor: grabbing; }
-        .task-sheet-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px 14px; border-bottom: 1px solid #ddd; flex-shrink: 0; background: #fff; }
-        .task-sheet-title-badge {
-            flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; padding: 14px 22px;
-            font-family: inherit; font-size: 1rem; font-weight: 700; letter-spacing: 0.3px; text-align: center; color: #ffffff;
-            border-radius: 12px; line-height: 1.25; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); word-break: break-word; white-space: normal; background: #0066ff; margin: 0 auto;
+                .task-sheet-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 12px; 
+            padding: 12px 20px 14px; 
+            border-bottom: 1px solid #ddd; 
+            flex-shrink: 0; 
+            background: #fff; 
+            position: relative;
+        }
+                .task-sheet-title-wrapper {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            justify-content: center;
+        }
+                .task-sheet-title-badge {
+            width: 100%;
+            max-width: 100%;
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 14px 22px;
+            font-family: inherit; 
+            font-size: 1rem; 
+            font-weight: 700; 
+            letter-spacing: 0.3px; 
+            text-align: center; 
+            color: #ffffff;
+            border-radius: 12px; 
+            line-height: 1.25; 
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); 
+            word-break: break-word; 
+            white-space: normal; 
+            background: #0066ff; 
+            margin: 0 auto;
         }
         .task-sheet-close { background: transparent; border: none; font-size: 30px; line-height: 1; color: #888; cursor: pointer; padding: 0 4px; transition: color 0.15s ease; flex-shrink: 0; }
         .task-sheet-close:hover { color: #000; }
@@ -500,11 +532,7 @@
         .task-sheet-header {
             position: relative; /* Чтобы позиционировать кнопку абсолютно */
         }
-        .note-btn {
-            position: absolute;
-            left: 20px; /* Отступ от левого края */
-            top: 50%;
-            transform: translateY(-50%);
+                .note-btn {
             width: 40px;
             height: 40px;
             background: transparent;
@@ -514,8 +542,11 @@
             align-items: center;
             justify-content: center;
             padding: 0;
-            z-index: 5;
+            flex-shrink: 0; /* Чтобы кнопка не сжималась */
             transition: transform 0.15s ease;
+        }
+        .note-btn:hover {
+            transform: scale(1.1); /* Убрали translateY, так как кнопка больше не абсолютная */
         }
         .note-btn:hover {
             transform: translateY(-50%) scale(1.1);
@@ -568,23 +599,28 @@
     <div id="taskSheet" class="task-sheet">
         <div class="task-sheet-content" id="taskSheetContent">
             <div class="task-sheet-handle" id="taskSheetHandle"></div>
-            <div class="task-sheet-header">
-
+                        <div class="task-sheet-header">
+                <!-- Левая кнопка (Заметка) -->
                 <button class="note-btn" id="taskSheetNoteBtn" aria-label="Добавить в заметки">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
                     </svg>
                 </button>
 
-                <div class="task-sheet-title-badge" id="taskSheetTitle">Задание</div>
-                <button class="task-sheet-close" id="taskSheetClose" aria-label="Обновить задание" style="display: flex; align-items: center; justify-content: center; color: #0066ff; padding: 4px; border-radius: 50%; transition: background 0.2s ease;">
-    <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 2v6h-6"></path>
-        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
-        <path d="M3 22v-6h6"></path>
-        <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
-    </svg>
-</button>
+                <!-- Центральная плашка (обернута для центрирования) -->
+                <div class="task-sheet-title-wrapper">
+                    <div class="task-sheet-title-badge" id="taskSheetTitle">Задание</div>
+                </div>
+
+                <!-- Правая кнопка (Обновить) -->
+                <button class="task-sheet-close" id="taskSheetClose" aria-label="Обновить задание" style="display: flex; align-items: center; justify-content: center; color: #0066ff; padding: 4px; border-radius: 50%; transition: background 0.2s ease; flex-shrink: 0;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 2v6h-6"></path>
+                        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                        <path d="M3 22v-6h6"></path>
+                        <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                    </svg>
+                </button>
             </div>
             <div class="task-sheet-body" id="taskSheetBody"></div>
         </div>
