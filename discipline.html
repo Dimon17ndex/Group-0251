@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Дисциплина — География 2611-0251.1</title>
 
+<script src="https://unpkg.com/@supabase/supabase-js@2" defer></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
@@ -647,6 +649,29 @@
         // ==========================================
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrCiJKSGBLtbLQlB7yI15G1gmDEJjUNorm1qxU4uKivoaiFfHJSbV1FKkEjs8Y46YyZudmcbjPzDNF/pub?gid=0&single=true&output=csv';
 
+        const SUPABASE_URL = 'https://zonhvkjgxmawhavhyljg.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_hB20gq52pt_ijPlJVB0zYA_7QmNExNV';
+        let supabaseClient = null;
+        let currentUserId = null;
+
+        function initSupabase() {
+            if (typeof supabase !== 'undefined' && supabase !== null && !supabaseClient) {
+                try {
+                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    checkSession();
+                } catch (e) { console.error(e); }
+            }
+        }
+
+        async function checkSession() {
+            if (!supabaseClient) return;
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            currentUserId = session ? session.user.id : null;
+        }
+
+        initSupabase();
+        window.addEventListener('load', initSupabase);
+
         const DISCIPLINES = {
             'history-geo': { title: 'История географических открытий', color: '#2e7d32' },
             'methods-geo': { title: 'Методы географических исследований', color: '#c77800' },
@@ -1002,33 +1027,76 @@ tasks.sort((a, b) => {
     titleEl.style.background = color;
     titleEl.setAttribute('data-task-id', taskData.taskId);
 
-    // === ЛОГИКА ЗАМЕТОК ===
+        // === ЛОГИКА ЗАМЕТОК (Supabase) ===
     const noteBtn = document.getElementById('taskSheetNoteBtn');
     if (noteBtn) {
-        // Проверяем, сохранена ли заметка
-        let savedNotes = JSON.parse(localStorage.getItem('saved_notes') || '[]');
-        if (savedNotes.includes(taskData.taskId)) {
-            noteBtn.classList.add('active');
-        } else {
-            noteBtn.classList.remove('active');
-        }
+        // Сбрасываем состояние до загрузки
+        noteBtn.classList.remove('active');
+        
+        // Асинхронно проверяем, есть ли заметка
+        const checkNote = async () => {
+            if (!supabaseClient) {
+                // Если Supabase не загрузился, работаем через localStorage (fallback)
+                let savedNotes = JSON.parse(localStorage.getItem('saved_notes') || '[]');
+                if (savedNotes.includes(taskData.taskId)) noteBtn.classList.add('active');
+                return;
+            }
+            
+            if (!currentUserId) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                currentUserId = session ? session.user.id : null;
+            }
 
-        // Обработчик клика (перезаписываем, чтобы не дублировался)
-        noteBtn.onclick = (e) => {
+            if (currentUserId) {
+                const { data, error } = await supabaseClient
+                    .from('notes')
+                    .select('id')
+                    .eq('user_id', currentUserId)
+                    .eq('task_id', taskData.taskId)
+                    .maybeSingle();
+                    
+                if (data) noteBtn.classList.add('active');
+            } else {
+                let savedNotes = JSON.parse(localStorage.getItem('saved_notes') || '[]');
+                if (savedNotes.includes(taskData.taskId)) noteBtn.classList.add('active');
+            }
+        };
+        checkNote();
+
+        // Обработчик клика
+        noteBtn.onclick = async (e) => {
             e.stopPropagation();
-            let currentNotes = JSON.parse(localStorage.getItem('saved_notes') || '[]');
-            const isSaved = currentNotes.includes(taskData.taskId);
+            
+            if (!supabaseClient || !currentUserId) {
+                alert('Пожалуйста, войдите в аккаунт (на главной странице), чтобы сохранять заметки.');
+                return;
+            }
+
+            const isSaved = noteBtn.classList.contains('active');
+            
+            // Оптимистичное обновление UI (сразу меняем цвет)
+            noteBtn.classList.toggle('active');
 
             if (isSaved) {
-                // Убираем из заметок
-                currentNotes = currentNotes.filter(id => id !== taskData.taskId);
-                noteBtn.classList.remove('active');
+                // Удаляем из БД
+                const { error } = await supabaseClient
+                    .from('notes')
+                    .delete()
+                    .match({ user_id: currentUserId, task_id: taskData.taskId });
+                if (error) {
+                    console.error('Ошибка удаления заметки:', error);
+                    noteBtn.classList.add('active'); // Откат при ошибке
+                }
             } else {
-                // Добавляем в заметки
-                currentNotes.push(taskData.taskId);
-                noteBtn.classList.add('active');
+                // Добавляем в БД
+                const { error } = await supabaseClient
+                    .from('notes')
+                    .insert([{ user_id: currentUserId, task_id: taskData.taskId }]);
+                if (error) {
+                    console.error('Ошибка добавления заметки:', error);
+                    noteBtn.classList.remove('active'); // Откат при ошибке
+                }
             }
-            localStorage.setItem('saved_notes', JSON.stringify(currentNotes));
         };
     }
     // === КОНЕЦ ЛОГИКИ ЗАМЕТОК ===
