@@ -1108,10 +1108,11 @@
             z-index: 2;
         }
 
-        .profile-section-panels {
+                .profile-section-panels {
             width: 100%;
             flex: 1 1 auto;
             min-height: 60px;
+            max-height: 50vh; /* Ограничиваем высоту, чтобы появился скролл */
             overflow-y: auto;
             margin-bottom: 16px;
             scrollbar-width: none;
@@ -3733,17 +3734,19 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 // ==========================================
         // 12. СПИСОК ЗАДАНИЙ В ПРОФИЛЕ (ЗАМЕТКИ)
         // ==========================================
-        async function loadSavedTasksIntoProfile() {
+                async function loadSavedTasksIntoProfile() {
             const listEl = document.getElementById('tasksList');
             const emptyEl = document.getElementById('tasksEmpty');
             if (!listEl || !emptyEl) return;
 
-            // Очищаем и показываем заглушку
             listEl.innerHTML = '';
             emptyEl.classList.remove('hidden');
             emptyEl.style.display = 'block';
 
-            if (!supabaseClient) return;
+            if (!supabaseClient) {
+                console.log('Supabase не инициализирован');
+                return;
+            }
 
             let userId = currentUserId;
             if (!userId) {
@@ -3752,9 +3755,13 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 currentUserId = userId;
             }
 
-            if (!userId) return;
+            if (!userId) {
+                console.log('Пользователь не авторизован');
+                return;
+            }
 
-            // Запрашиваем заметки из базы, сортируем по дате создания (новые сверху)
+            console.log('Запрашиваем заметки для пользователя:', userId);
+
             const { data: notes, error } = await supabaseClient
                 .from('notes')
                 .select('task_id, created_at')
@@ -3762,20 +3769,21 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 .order('created_at', { ascending: false });
 
             if (error) {
-                console.error('Ошибка загрузки заметок:', error);
+                console.error('ОШИБКА ЗАГРУЗКИ ЗАМЕТОК:', error);
+                emptyEl.textContent = 'Ошибка загрузки заметок (проверьте консоль)';
                 return;
             }
 
+            console.log('Полученные заметки из базы:', notes);
+
             if (!notes || notes.length === 0) {
-                return; // Оставляем заглушку
+                console.log('У пользователя нет заметок.');
+                return;
             }
 
-            // Если есть заметки — прячем заглушку
             emptyEl.classList.add('hidden');
             emptyEl.style.display = 'none';
 
-            // Нам нужно получить информацию о заданиях (название, цвет)
-            // Для этого загрузим CSV
             let allTasks = [];
             try {
                 const cacheBuster = '&t=' + new Date().getTime();
@@ -3795,15 +3803,21 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                     }
                 }
             } catch (e) {
-                console.error('Ошибка загрузки CSV для профиля:', e);
+                console.error('Ошибка загрузки CSV:', e);
             }
 
-            // Отрисовываем плашки
+            console.log('Всего заданий в таблице:', allTasks.length);
+
+            let foundCount = 0;
             notes.forEach(note => {
                 const task = allTasks.find(t => t.taskId === note.task_id);
-                if (!task) return; // Если задание удалили из таблицы, пропускаем
+                
+                if (!task) {
+                    console.log(`Задание ${note.task_id} не найдено в таблице (возможно, удалено)`);
+                    return;
+                }
 
-                // Определяем цвет (как на странице дисциплины)
+                foundCount++;
                 const disciplineData = DISCIPLINES[task.discipline_id];
                 let color = task.color || (disciplineData ? disciplineData.color : '#0066ff');
                 if (task.type === 'lecture') color = '#4a90e2';
@@ -3824,24 +3838,29 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 card.style.justifyContent = 'space-between';
                 card.style.alignItems = 'center';
                 card.style.gap = '10px';
+                card.style.flexShrink = '0'; // Чтобы плашки не сжимались
                 card.textContent = task.title || 'Задание';
 
-                // Добавляем иконку дисциплины (стрелочку вправо)
                 const arrow = document.createElement('span');
                 arrow.innerHTML = '&rarr;';
                 arrow.style.fontSize = '1.2rem';
                 arrow.style.opacity = '0.7';
                 card.appendChild(arrow);
 
-                // При клике переходим на страницу дисциплины
                 card.onclick = () => {
                     closeProfileModal();
-                    // Открываем discipline.html с нужным id
                     window.open('discipline.html?id=' + encodeURIComponent(task.discipline_id), '_blank');
                 };
 
                 listEl.appendChild(card);
             });
+
+            console.log(`Отображено плашек: ${foundCount}`);
+            if (foundCount === 0) {
+                emptyEl.textContent = 'Заметки есть, но задания не найдены в таблице';
+                emptyEl.classList.remove('hidden');
+                emptyEl.style.display = 'block';
+            }
         }
     </script>
 
