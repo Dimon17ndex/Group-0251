@@ -955,7 +955,7 @@ tasks.sort((a, b) => {
         bodyEl.appendChild(emptyDiv);
     }
 
-                // 2. Проверяем наличие вложений (картинки)
+                            // 2. Проверяем наличие вложений (картинки и файлы)
     if (taskData.attachments && taskData.attachments.trim() !== '') {
         const links = taskData.attachments.split(/[\s,]+/); 
         
@@ -968,8 +968,21 @@ tasks.sort((a, b) => {
         attachDiv.style.marginTop = '20px';
         attachDiv.style.borderTop = '2px solid #eee';
         attachDiv.style.paddingTop = '15px';
-        attachDiv.innerHTML = '<div style="font-weight: 600; margin-bottom: 10px; color: #000;">Вложения:</div>';
         
+        // Контейнер для заголовка и кнопки первого файла
+        const headerWrap = document.createElement('div');
+        headerWrap.style.display = 'flex';
+        headerWrap.style.alignItems = 'center';
+        headerWrap.style.justifyContent = 'space-between';
+        headerWrap.style.marginBottom = '15px';
+
+        const titleText = document.createElement('div');
+        titleText.style.fontWeight = '600';
+        titleText.style.color = '#000';
+        titleText.textContent = 'Вложения:';
+        headerWrap.appendChild(titleText);
+
+        attachDiv.appendChild(headerWrap);
         bodyEl.appendChild(attachDiv);
 
         let isFirstAttachment = true;
@@ -978,8 +991,8 @@ tasks.sort((a, b) => {
             const link = links[i];
             if (!link.trim()) continue;
 
+            // === КАРТИНКИ ===
             if (link.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i)) {
-                // ... (ваш код для картинок) ...
                 if (!isFirstAttachment) {
                     const divider = document.createElement('div');
                     divider.style.margin = '20px 0';
@@ -1039,9 +1052,8 @@ tasks.sort((a, b) => {
                 }
 
                 attachDiv.appendChild(imgWrap);
-                                   } 
-            
-            // === БЛОК ДЛЯ ВСТРАИВАНИЯ ФАЙЛОВ (PDF, Word, Excel) ===
+            } 
+            // === PDF и Word ===
             else if (link.match(/\.(pdf|docx?|xlsx?|pptx?)$/i)) {
                 if (!isFirstAttachment) {
                     const divider = document.createElement('div');
@@ -1050,10 +1062,19 @@ tasks.sort((a, b) => {
                     attachDiv.appendChild(divider);
                 }
 
+                const fileBlock = document.createElement('div');
+                fileBlock.style.display = 'flex';
+                fileBlock.style.alignItems = 'flex-start';
+                fileBlock.style.gap = '10px';
+                fileBlock.style.marginBottom = '15px';
+
+                const contentWrap = document.createElement('div');
+                contentWrap.style.flex = '1';
+                contentWrap.style.minWidth = '0';
+
                 const pdfWrap = document.createElement('div');
                 pdfWrap.style.width = '100%';
                 pdfWrap.style.height = '600px';
-                pdfWrap.style.marginBottom = '15px';
                 pdfWrap.style.borderRadius = '8px';
                 pdfWrap.style.overflow = 'hidden';
                 pdfWrap.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
@@ -1061,11 +1082,7 @@ tasks.sort((a, b) => {
                 pdfWrap.style.position = 'relative';
 
                 const iframe = document.createElement('iframe');
-                
-                // ИСПОЛЬЗУЕМ GOOGLE DOCS VIEWER, чтобы браузер не скачивал файл
-                // Он берет прямую ссылку и показывает файл в окне
                 iframe.src = `https://docs.google.com/viewer?url=${encodeURIComponent(link)}&embedded=true`;
-                
                 iframe.style.width = '100%';
                 iframe.style.height = '100%';
                 iframe.style.border = 'none';
@@ -1079,30 +1096,70 @@ tasks.sort((a, b) => {
                     </div>`;
                 };
 
-                                pdfWrap.appendChild(iframe);
-                attachDiv.appendChild(pdfWrap);
+                pdfWrap.appendChild(iframe);
+                contentWrap.appendChild(pdfWrap);
 
-                // Подпись под файлом
                 if (captions[i] && captions[i].trim() !== '' && captions[i].trim() !== '-' && captions[i].trim().toLowerCase() !== 'none') {
                     const captionEl = document.createElement('div');
                     captionEl.textContent = captions[i].trim();
                     captionEl.style.marginTop = '6px';
-                    captionEl.style.marginBottom = '15px';
                     captionEl.style.fontSize = '0.85rem';
                     captionEl.style.color = '#666';
                     captionEl.style.fontStyle = 'italic';
                     captionEl.style.textAlign = 'center';
-                    attachDiv.appendChild(captionEl);
+                    contentWrap.appendChild(captionEl);
+                }
+
+                const downloadBtn = document.createElement('a');
+                downloadBtn.href = link;
+                downloadBtn.target = '_blank';
+                downloadBtn.rel = 'noopener noreferrer';
+                downloadBtn.title = 'Скачать файл';
+                downloadBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`;
+                
+                downloadBtn.style.display = 'flex';
+                downloadBtn.style.alignItems = 'center';
+                downloadBtn.style.justifyContent = 'center';
+                downloadBtn.style.width = '40px';
+                downloadBtn.style.height = '40px';
+                downloadBtn.style.flexShrink = '0';
+                downloadBtn.style.backgroundColor = '#f5f7ff';
+                downloadBtn.style.color = '#0066ff';
+                downloadBtn.style.borderRadius = '8px';
+                downloadBtn.style.border = '1px solid #e3e8ff';
+                downloadBtn.style.textDecoration = 'none';
+                downloadBtn.style.transition = 'background 0.2s ease';
+                downloadBtn.onmouseover = () => downloadBtn.style.backgroundColor = '#e9efff';
+                downloadBtn.onmouseout = () => downloadBtn.style.backgroundColor = '#f5f7ff';
+
+                if (isFirstAttachment) {
+                    headerWrap.appendChild(downloadBtn);
+                    attachDiv.appendChild(contentWrap);
+                } else {
+                    fileBlock.appendChild(contentWrap);
+                    fileBlock.appendChild(downloadBtn);
+                    attachDiv.appendChild(fileBlock);
                 }
             }
-            // === КОНЕЦ БЛОКА ДЛЯ PDF ===
+            // === Обычные файлы (кнопка) ===
             else {
                 if (!isFirstAttachment) {
-                    const space = document.createElement('div');
-                    space.style.marginTop = '15px';
-                    attachDiv.appendChild(space);
+                    const divider = document.createElement('div');
+                    divider.style.margin = '20px 0';
+                    divider.style.borderTop = '1px dashed #ccc';
+                    attachDiv.appendChild(divider);
                 }
-                
+
+                const fileBlock = document.createElement('div');
+                fileBlock.style.display = 'flex';
+                fileBlock.style.alignItems = 'flex-start';
+                fileBlock.style.gap = '10px';
+                fileBlock.style.marginBottom = '15px';
+
+                const contentWrap = document.createElement('div');
+                contentWrap.style.flex = '1';
+                contentWrap.style.minWidth = '0';
+
                 const btn = document.createElement('a');
                 btn.href = link;
                 btn.target = '_blank';
@@ -1122,9 +1179,8 @@ tasks.sort((a, b) => {
                 btn.onmouseover = () => btn.style.backgroundColor = '#e9efff';
                 btn.onmouseout = () => btn.style.backgroundColor = '#f5f7ff';
 
-                                attachDiv.appendChild(btn);
+                contentWrap.appendChild(btn);
 
-                // Подпись под кнопкой
                 if (captions[i] && captions[i].trim() !== '' && captions[i].trim() !== '-' && captions[i].trim().toLowerCase() !== 'none') {
                     const captionEl = document.createElement('div');
                     captionEl.textContent = captions[i].trim();
@@ -1133,7 +1189,38 @@ tasks.sort((a, b) => {
                     captionEl.style.color = '#666';
                     captionEl.style.fontStyle = 'italic';
                     captionEl.style.textAlign = 'center';
-                    attachDiv.appendChild(captionEl);
+                    contentWrap.appendChild(captionEl);
+                }
+
+                const downloadBtn = document.createElement('a');
+                downloadBtn.href = link;
+                downloadBtn.target = '_blank';
+                downloadBtn.rel = 'noopener noreferrer';
+                downloadBtn.title = 'Скачать файл';
+                downloadBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`;
+                
+                downloadBtn.style.display = 'flex';
+                downloadBtn.style.alignItems = 'center';
+                downloadBtn.style.justifyContent = 'center';
+                downloadBtn.style.width = '40px';
+                downloadBtn.style.height = '40px';
+                downloadBtn.style.flexShrink = '0';
+                downloadBtn.style.backgroundColor = '#f5f7ff';
+                downloadBtn.style.color = '#0066ff';
+                downloadBtn.style.borderRadius = '8px';
+                downloadBtn.style.border = '1px solid #e3e8ff';
+                downloadBtn.style.textDecoration = 'none';
+                downloadBtn.style.transition = 'background 0.2s ease';
+                downloadBtn.onmouseover = () => downloadBtn.style.backgroundColor = '#e9efff';
+                downloadBtn.onmouseout = () => downloadBtn.style.backgroundColor = '#f5f7ff';
+
+                if (isFirstAttachment) {
+                    headerWrap.appendChild(downloadBtn);
+                    attachDiv.appendChild(contentWrap);
+                } else {
+                    fileBlock.appendChild(contentWrap);
+                    fileBlock.appendChild(downloadBtn);
+                    attachDiv.appendChild(fileBlock);
                 }
             }
             
@@ -1155,16 +1242,16 @@ tasks.sort((a, b) => {
         filesDiv.innerHTML = '<div style="font-weight: 600; margin-bottom: 10px; color: #000;">Дополнительно:</div>';
         
         const textDiv = document.createElement('div');
-        textDiv.style.whiteSpace = 'pre-wrap'; // Чтобы сохранялись переносы строк
+        textDiv.style.whiteSpace = 'pre-wrap'; 
         textDiv.textContent = taskData.files.trim();
         filesDiv.appendChild(textDiv);
         
         bodyEl.appendChild(filesDiv);
     }
 
-    bodyEl.scrollTop = 0;
+        bodyEl.scrollTop = 0;
 
-        sheetActive = true;
+    sheetActive = true;
     sheet.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
