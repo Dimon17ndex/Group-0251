@@ -1053,7 +1053,7 @@ tasks.sort((a, b) => {
 
                 attachDiv.appendChild(imgWrap);
             } 
-            // === PDF и Word ===
+                        // === PDF и Word ===
             else if (link.match(/\.(pdf|docx?|xlsx?|pptx?)$/i)) {
                 if (!isFirstAttachment) {
                     const divider = document.createElement('div');
@@ -1081,15 +1081,33 @@ tasks.sort((a, b) => {
                 pdfWrap.style.backgroundColor = '#f5f5f5';
                 pdfWrap.style.position = 'relative';
 
+                // === НОВЫЙ ЛОАДЕР ===
+                const fileLoader = document.createElement('div');
+                fileLoader.className = 'spinner';
+                fileLoader.style.position = 'absolute';
+                fileLoader.style.top = '50%';
+                fileLoader.style.left = '50%';
+                fileLoader.style.transform = 'translate(-50%, -50%)';
+                fileLoader.style.zIndex = '1';
+                pdfWrap.appendChild(fileLoader);
+
                 const iframe = document.createElement('iframe');
-                iframe.src = `https://docs.google.com/gview?url=${encodeURIComponent(link)}&embedded=true`;
+                iframe.src = `https://docs.google.com/viewer?url=${encodeURIComponent(link)}&embedded=true`;
                 iframe.style.width = '100%';
                 iframe.style.height = '100%';
                 iframe.style.border = 'none';
                 iframe.style.position = 'relative';
                 iframe.style.zIndex = '2';
                 
+                // Прячем лоадер по таймеру
+                iframe.onload = () => {
+                    setTimeout(() => {
+                        if (fileLoader) fileLoader.style.display = 'none';
+                    }, 2000);
+                };
+                
                 iframe.onerror = () => {
+                    if (fileLoader) fileLoader.style.display = 'none';
                     pdfWrap.innerHTML = `<div style="padding: 20px; text-align: center;">
                         <div style="color: #666; margin-bottom: 10px;">Не удалось открыть файл.</div>
                         <a href="${link}" target="_blank" style="color: #0066ff; font-weight: 600;">Скачать файл напрямую</a>
