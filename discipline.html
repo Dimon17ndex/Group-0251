@@ -955,7 +955,7 @@ tasks.sort((a, b) => {
         bodyEl.appendChild(emptyDiv);
     }
 
-                            // 2. Проверяем наличие вложений (картинки и файлы)
+                                // 2. Проверяем наличие вложений (картинки и файлы)
     if (taskData.attachments && taskData.attachments.trim() !== '') {
         const links = taskData.attachments.split(/[\s,]+/); 
         
@@ -1110,10 +1110,8 @@ tasks.sort((a, b) => {
                     contentWrap.appendChild(captionEl);
                 }
 
-                const downloadBtn = document.createElement('a');
-                downloadBtn.href = link;
-                downloadBtn.target = '_blank';
-                downloadBtn.rel = 'noopener noreferrer';
+                const downloadBtn = document.createElement('button');
+                downloadBtn.type = 'button';
                 downloadBtn.title = 'Скачать файл';
                 downloadBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`;
                 
@@ -1127,26 +1125,29 @@ tasks.sort((a, b) => {
                 downloadBtn.style.color = '#0066ff';
                 downloadBtn.style.borderRadius = '8px';
                 downloadBtn.style.border = '1px solid #e3e8ff';
-                downloadBtn.style.textDecoration = 'none';
+                downloadBtn.style.cursor = 'pointer';
                 downloadBtn.style.transition = 'background 0.2s ease';
                 downloadBtn.onmouseover = () => downloadBtn.style.backgroundColor = '#e9efff';
                 downloadBtn.onmouseout = () => downloadBtn.style.backgroundColor = '#f5f7ff';
 
-                                if (isFirstAttachment) {
-                    // Если это первый файл — кнопка встает в шапку (рядом с "Вложения:")
+                downloadBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    window.open(link, '_blank');
+                };
+
+                if (isFirstAttachment) {
                     headerWrap.appendChild(downloadBtn);
                     attachDiv.appendChild(contentWrap);
                 } else {
-                    // Если файл не первый — кнопка встает НАД файлом, справа
                     fileBlock.style.display = 'flex';
                     fileBlock.style.flexDirection = 'column';
                     fileBlock.style.alignItems = 'flex-end';
                     fileBlock.style.marginBottom = '15px';
 
                     fileBlock.appendChild(downloadBtn);
-                    downloadBtn.style.marginBottom = '10px'; // Отступ от кнопки до файла
+                    downloadBtn.style.marginBottom = '10px';
                     
-                    contentWrap.style.width = '100%'; // Файл растягиваем на всю ширину
+                    contentWrap.style.width = '100%';
                     fileBlock.appendChild(contentWrap);
                     attachDiv.appendChild(fileBlock);
                 }
@@ -1202,10 +1203,8 @@ tasks.sort((a, b) => {
                     contentWrap.appendChild(captionEl);
                 }
 
-                const downloadBtn = document.createElement('a');
-                downloadBtn.href = link;
-                downloadBtn.target = '_blank';
-                downloadBtn.rel = 'noopener noreferrer';
+                const downloadBtn = document.createElement('button');
+                downloadBtn.type = 'button';
                 downloadBtn.title = 'Скачать файл';
                 downloadBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`;
                 
@@ -1219,17 +1218,30 @@ tasks.sort((a, b) => {
                 downloadBtn.style.color = '#0066ff';
                 downloadBtn.style.borderRadius = '8px';
                 downloadBtn.style.border = '1px solid #e3e8ff';
-                downloadBtn.style.textDecoration = 'none';
+                downloadBtn.style.cursor = 'pointer';
                 downloadBtn.style.transition = 'background 0.2s ease';
                 downloadBtn.onmouseover = () => downloadBtn.style.backgroundColor = '#e9efff';
                 downloadBtn.onmouseout = () => downloadBtn.style.backgroundColor = '#f5f7ff';
+
+                downloadBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    window.open(link, '_blank');
+                };
 
                 if (isFirstAttachment) {
                     headerWrap.appendChild(downloadBtn);
                     attachDiv.appendChild(contentWrap);
                 } else {
-                    fileBlock.appendChild(contentWrap);
+                    fileBlock.style.display = 'flex';
+                    fileBlock.style.flexDirection = 'column';
+                    fileBlock.style.alignItems = 'flex-end';
+                    fileBlock.style.marginBottom = '15px';
+
                     fileBlock.appendChild(downloadBtn);
+                    downloadBtn.style.marginBottom = '10px';
+                    
+                    contentWrap.style.width = '100%';
+                    fileBlock.appendChild(contentWrap);
                     attachDiv.appendChild(fileBlock);
                 }
             }
@@ -1243,7 +1255,6 @@ tasks.sort((a, b) => {
         const filesDiv = document.createElement('div');
         filesDiv.style.marginTop = '20px';
         
-        // Линия-разделитель, если выше были вложения
         if (taskData.attachments && taskData.attachments.trim() !== '') {
             filesDiv.style.borderTop = '2px solid #eee';
             filesDiv.style.paddingTop = '15px';
@@ -1259,7 +1270,7 @@ tasks.sort((a, b) => {
         bodyEl.appendChild(filesDiv);
     }
 
-        bodyEl.scrollTop = 0;
+    bodyEl.scrollTop = 0;
 
     sheetActive = true;
     sheet.classList.add('active');
