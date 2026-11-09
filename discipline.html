@@ -1082,7 +1082,7 @@ tasks.sort((a, b) => {
                 pdfWrap.style.position = 'relative';
 
                 const iframe = document.createElement('iframe');
-                iframe.src = `https://docs.google.com/viewer?url=${encodeURIComponent(link)}&embedded=true`;
+                iframe.src = `https://docs.google.com/gview?url=${encodeURIComponent(link)}&embedded=true`;
                 iframe.style.width = '100%';
                 iframe.style.height = '100%';
                 iframe.style.border = 'none';
