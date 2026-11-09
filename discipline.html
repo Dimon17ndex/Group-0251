@@ -532,7 +532,7 @@
         .task-sheet-header {
             position: relative; /* Чтобы позиционировать кнопку абсолютно */
         }
-                .note-btn {
+                        .note-btn {
             width: 40px;
             height: 40px;
             background: transparent;
@@ -542,11 +542,22 @@
             align-items: center;
             justify-content: center;
             padding: 0;
-            flex-shrink: 0; /* Чтобы кнопка не сжималась */
-            transition: transform 0.15s ease;
+            flex-shrink: 0;
+            transition: background 0.2s ease; /* Плавно меняем фон */
+            border-radius: 8px; /* Закругляем фон для красоты */
         }
+        
         .note-btn:hover {
-            transform: scale(1.1); /* Убрали translateY, так как кнопка больше не абсолютная */
+            background: #f0f4ff; /* Легкий синий фон при наведении */
+            transform: none; /* Никакого масштабирования */
+        }
+                .note-btn:hover {
+            /* Убираем scale, чтобы кнопка не прыгала */
+            transform: none; 
+        }
+        
+        .note-btn:hover svg path {
+            stroke: #0066ff; /* Иконка становится синей при наведении */
         }
         .note-btn:hover {
             transform: translateY(-50%) scale(1.1);
