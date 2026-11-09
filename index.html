@@ -2062,8 +2062,10 @@
                     <div class="likes-grid" id="likesGrid"></div>
                 </div>
                 <div class="profile-panel" data-panel="posts">У вас пока нет постов</div>
-                <div class="profile-panel" data-panel="tasks">У вас пока нет отмеченных заданий</div>
-            </div>
+                                <div class="profile-panel" data-panel="tasks">
+                    <div class="profile-panel-empty" id="tasksEmpty">У вас пока нет отмеченных заданий</div>
+                    <div id="tasksList" style="display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 4px 0;"></div>
+                </div>
 
             <div class="profile-divider"></div>
 
@@ -2393,7 +2395,7 @@
         function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
         function openProfileSettings() { alert('Настройки профиля (в разработке)'); }
 
-        function openProfileSection(section, btnEl, save) {
+                function openProfileSection(section, btnEl, save) {
             document.querySelectorAll('.profile-section-btn').forEach(b => b.classList.remove('active'));
             if (btnEl) btnEl.classList.add('active');
             else {
@@ -2406,6 +2408,12 @@
 
             const panelsWrap = document.querySelector('.profile-section-panels');
             if (panelsWrap) panelsWrap.classList.toggle('has-likes-border', section === 'likes');
+
+            // === ЗАГРУЗКА СПИСКА ЗАМЕТОК ===
+            if (section === 'tasks') {
+                loadSavedTasksIntoProfile();
+            }
+            // ================================
 
             if (save !== false) {
                 try { localStorage.setItem('profileActiveSection', section); } catch (e) {}
@@ -3720,6 +3728,120 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                     openAuthModal();
                 }, 300); 
             }
+        }
+
+                // ==========================================
+        // 12. СПИСОК ЗАДАНИЙ В ПРОФИЛЕ (ЗАМЕТКИ)
+        // ==========================================
+        async function loadSavedTasksIntoProfile() {
+            const listEl = document.getElementById('tasksList');
+            const emptyEl = document.getElementById('tasksEmpty');
+            if (!listEl || !emptyEl) return;
+
+            // Очищаем и показываем заглушку
+            listEl.innerHTML = '';
+            emptyEl.classList.remove('hidden');
+            emptyEl.style.display = 'block';
+
+            if (!supabaseClient) return;
+
+            let userId = currentUserId;
+            if (!userId) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                userId = session ? session.user.id : null;
+                currentUserId = userId;
+            }
+
+            if (!userId) return;
+
+            // Запрашиваем заметки из базы, сортируем по дате создания (новые сверху)
+            const { data: notes, error } = await supabaseClient
+                .from('notes')
+                .select('task_id, created_at')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Ошибка загрузки заметок:', error);
+                return;
+            }
+
+            if (!notes || notes.length === 0) {
+                return; // Оставляем заглушку
+            }
+
+            // Если есть заметки — прячем заглушку
+            emptyEl.classList.add('hidden');
+            emptyEl.style.display = 'none';
+
+            // Нам нужно получить информацию о заданиях (название, цвет)
+            // Для этого загрузим CSV
+            let allTasks = [];
+            try {
+                const cacheBuster = '&t=' + new Date().getTime();
+                const response = await fetch(CSV_URL + cacheBuster, { cache: 'no-store' });
+                if (response.ok) {
+                    const csvText = await response.text();
+                    const rows = parseCSV(csvText);
+                    if (rows.length > 0) {
+                        const headers = rows[0];
+                        allTasks = rows.slice(1).map(row => {
+                            const obj = {};
+                            headers.forEach((header, index) => {
+                                obj[header.trim()] = row[index] ? row[index].trim() : '';
+                            });
+                            return obj;
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки CSV для профиля:', e);
+            }
+
+            // Отрисовываем плашки
+            notes.forEach(note => {
+                const task = allTasks.find(t => t.taskId === note.task_id);
+                if (!task) return; // Если задание удалили из таблицы, пропускаем
+
+                // Определяем цвет (как на странице дисциплины)
+                const disciplineData = DISCIPLINES[task.discipline_id];
+                let color = task.color || (disciplineData ? disciplineData.color : '#0066ff');
+                if (task.type === 'lecture') color = '#4a90e2';
+                else if (task.type === 'practice') color = '#43a047';
+
+                const card = document.createElement('div');
+                card.style.width = '100%';
+                card.style.padding = '12px 16px';
+                card.style.borderRadius = '10px';
+                card.style.backgroundColor = color;
+                card.style.color = '#fff';
+                card.style.fontWeight = '700';
+                card.style.fontSize = '0.95rem';
+                card.style.textAlign = 'left';
+                card.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+                card.style.cursor = 'pointer';
+                card.style.display = 'flex';
+                card.style.justifyContent = 'space-between';
+                card.style.alignItems = 'center';
+                card.style.gap = '10px';
+                card.textContent = task.title || 'Задание';
+
+                // Добавляем иконку дисциплины (стрелочку вправо)
+                const arrow = document.createElement('span');
+                arrow.innerHTML = '&rarr;';
+                arrow.style.fontSize = '1.2rem';
+                arrow.style.opacity = '0.7';
+                card.appendChild(arrow);
+
+                // При клике переходим на страницу дисциплины
+                card.onclick = () => {
+                    closeProfileModal();
+                    // Открываем discipline.html с нужным id
+                    window.open('discipline.html?id=' + encodeURIComponent(task.discipline_id), '_blank');
+                };
+
+                listEl.appendChild(card);
+            });
         }
     </script>
 
