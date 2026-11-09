@@ -962,10 +962,6 @@ tasks.sort((a, b) => {
     titleEl.style.background = color;
     titleEl.setAttribute('data-task-id', taskData.taskId);
 
-        titleEl.textContent = taskData.title || 'Задание';
-    titleEl.style.background = color;
-    titleEl.setAttribute('data-task-id', taskData.taskId);
-
     // === ЛОГИКА ЗАМЕТОК ===
     const noteBtn = document.getElementById('taskSheetNoteBtn');
     if (noteBtn) {
