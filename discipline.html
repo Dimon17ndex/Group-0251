@@ -1132,12 +1132,22 @@ tasks.sort((a, b) => {
                 downloadBtn.onmouseover = () => downloadBtn.style.backgroundColor = '#e9efff';
                 downloadBtn.onmouseout = () => downloadBtn.style.backgroundColor = '#f5f7ff';
 
-                if (isFirstAttachment) {
+                                if (isFirstAttachment) {
+                    // Если это первый файл — кнопка встает в шапку (рядом с "Вложения:")
                     headerWrap.appendChild(downloadBtn);
                     attachDiv.appendChild(contentWrap);
                 } else {
-                    fileBlock.appendChild(contentWrap);
+                    // Если файл не первый — кнопка встает НАД файлом, справа
+                    fileBlock.style.display = 'flex';
+                    fileBlock.style.flexDirection = 'column';
+                    fileBlock.style.alignItems = 'flex-end';
+                    fileBlock.style.marginBottom = '15px';
+
                     fileBlock.appendChild(downloadBtn);
+                    downloadBtn.style.marginBottom = '10px'; // Отступ от кнопки до файла
+                    
+                    contentWrap.style.width = '100%'; // Файл растягиваем на всю ширину
+                    fileBlock.appendChild(contentWrap);
                     attachDiv.appendChild(fileBlock);
                 }
             }
