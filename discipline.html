@@ -1079,8 +1079,21 @@ tasks.sort((a, b) => {
                     </div>`;
                 };
 
-                pdfWrap.appendChild(iframe);
+                                pdfWrap.appendChild(iframe);
                 attachDiv.appendChild(pdfWrap);
+
+                // Подпись под файлом
+                if (captions[i] && captions[i].trim() !== '' && captions[i].trim() !== '-' && captions[i].trim().toLowerCase() !== 'none') {
+                    const captionEl = document.createElement('div');
+                    captionEl.textContent = captions[i].trim();
+                    captionEl.style.marginTop = '6px';
+                    captionEl.style.marginBottom = '15px';
+                    captionEl.style.fontSize = '0.85rem';
+                    captionEl.style.color = '#666';
+                    captionEl.style.fontStyle = 'italic';
+                    captionEl.style.textAlign = 'center';
+                    attachDiv.appendChild(captionEl);
+                }
             }
             // === КОНЕЦ БЛОКА ДЛЯ PDF ===
             else {
@@ -1109,7 +1122,19 @@ tasks.sort((a, b) => {
                 btn.onmouseover = () => btn.style.backgroundColor = '#e9efff';
                 btn.onmouseout = () => btn.style.backgroundColor = '#f5f7ff';
 
-                attachDiv.appendChild(btn);
+                                attachDiv.appendChild(btn);
+
+                // Подпись под кнопкой
+                if (captions[i] && captions[i].trim() !== '' && captions[i].trim() !== '-' && captions[i].trim().toLowerCase() !== 'none') {
+                    const captionEl = document.createElement('div');
+                    captionEl.textContent = captions[i].trim();
+                    captionEl.style.marginTop = '6px';
+                    captionEl.style.fontSize = '0.85rem';
+                    captionEl.style.color = '#666';
+                    captionEl.style.fontStyle = 'italic';
+                    captionEl.style.textAlign = 'center';
+                    attachDiv.appendChild(captionEl);
+                }
             }
             
             isFirstAttachment = false;
