@@ -1039,9 +1039,9 @@ tasks.sort((a, b) => {
                 }
 
                 attachDiv.appendChild(imgWrap);
-                       } 
-            // === НОВЫЙ БЛОК ДЛЯ PDF ===
-            else if (link.toLowerCase().endsWith('.pdf')) {
+                                   } 
+            // === БЛОК ДЛЯ ВСТРАИВАНИЯ ФАЙЛОВ ===
+            else if (link.match(/\.(pdf|docx?|xlsx?|pptx?)$/i) || link.includes('supabase.co')) {
                 if (!isFirstAttachment) {
                     const divider = document.createElement('div');
                     divider.style.margin = '20px 0';
@@ -1091,8 +1091,29 @@ tasks.sort((a, b) => {
                     </div>`;
                 };
 
-                pdfWrap.appendChild(iframe);
+                                pdfWrap.appendChild(iframe);
                 attachDiv.appendChild(pdfWrap);
+
+                // Добавляем кнопку "Скачать" на случай, если браузер не смог открыть файл в iframe
+                const downloadBtn = document.createElement('a');
+                downloadBtn.href = link;
+                downloadBtn.target = '_blank';
+                downloadBtn.rel = 'noopener noreferrer';
+                downloadBtn.textContent = '📥 Скачать файл напрямую';
+                downloadBtn.style.display = 'inline-block';
+                downloadBtn.style.marginTop = '10px';
+                downloadBtn.style.marginBottom = '15px';
+                downloadBtn.style.padding = '10px 16px';
+                downloadBtn.style.backgroundColor = '#f5f7ff';
+                downloadBtn.style.color = '#0066ff';
+                downloadBtn.style.textDecoration = 'none';
+                downloadBtn.style.borderRadius = '8px';
+                downloadBtn.style.fontWeight = '600';
+                downloadBtn.style.border = '1px solid #e3e8ff';
+                downloadBtn.style.transition = 'background 0.2s ease';
+                downloadBtn.onmouseover = () => downloadBtn.style.backgroundColor = '#e9efff';
+                downloadBtn.onmouseout = () => downloadBtn.style.backgroundColor = '#f5f7ff';
+                attachDiv.appendChild(downloadBtn);
             }
             // === КОНЕЦ БЛОКА ДЛЯ PDF ===
             else {
@@ -1200,7 +1221,7 @@ tasks.sort((a, b) => {
 const disciplineId = urlParams.get('id') || 'history-geo';
 const disciplineColor = DISCIPLINES[disciplineId] ? DISCIPLINES[disciplineId].color : '#0066ff';
 
-await openSheet(updatedTask, disciplineColor);убрали
+await openSheet(updatedTask, disciplineColor);
                         } else {
                             alert('Это задание было удалено из таблицы.');
                             closeSheet();
