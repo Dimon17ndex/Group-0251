@@ -3936,11 +3936,70 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 card.style.zIndex = '1';
                 card.textContent = task.title || 'Задание';
 
-                const arrow = document.createElement('span');
-                arrow.innerHTML = '&rarr;';
-                arrow.style.fontSize = '1.2rem';
-                arrow.style.opacity = '0.7';
-                card.appendChild(arrow);
+                                // Кнопка «Убрать заметку» вместо стрелки
+                const noteBtn = document.createElement('button');
+                noteBtn.type = 'button';
+                noteBtn.setAttribute('aria-label', 'Убрать заметку');
+                noteBtn.title = 'Убрать заметку';
+                noteBtn.style.display = 'flex';
+                noteBtn.style.alignItems = 'center';
+                noteBtn.style.justifyContent = 'center';
+                noteBtn.style.width = '26px';
+                noteBtn.style.height = '26px';
+                noteBtn.style.flexShrink = '0';
+                noteBtn.style.padding = '0';
+                noteBtn.style.border = 'none';
+                noteBtn.style.background = 'transparent';
+                noteBtn.style.color = '#fff';
+                noteBtn.style.opacity = '0.7';
+                noteBtn.style.cursor = 'pointer';
+                noteBtn.style.borderRadius = '6px';
+                noteBtn.style.transition = 'opacity 0.15s ease, background 0.15s ease';
+                noteBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" fill="currentColor"/></svg>';
+                noteBtn.addEventListener('mouseenter', () => {
+                    noteBtn.style.opacity = '1';
+                    noteBtn.style.background = 'rgba(255,255,255,0.15)';
+                });
+                noteBtn.addEventListener('mouseleave', () => {
+                    noteBtn.style.opacity = '0.7';
+                    noteBtn.style.background = 'transparent';
+                });
+
+                noteBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation(); // не открывать задание
+                    if (!supabaseClient || !currentUserId) {
+                        alert('Пожалуйста, войдите в аккаунт, чтобы убирать заметки.');
+                        return;
+                    }
+
+                    noteBtn.disabled = true;
+                    const { error } = await supabaseClient
+                        .from('notes')
+                        .delete()
+                        .match({ user_id: currentUserId, task_id: task.taskId });
+
+                    if (error) {
+                        console.error('Ошибка удаления заметки:', error);
+                        noteBtn.disabled = false;
+                        return;
+                    }
+
+                    // Убираем блок из списка
+                    wrap.remove();
+
+                    // Если список опустел — показываем заглушку
+                    const listEl = document.getElementById('tasksList');
+                    const emptyEl = document.getElementById('tasksEmpty');
+                    if (listEl && emptyEl && listEl.children.length === 0) {
+                        emptyEl.style.display = 'block';
+                        emptyEl.textContent = 'У вас пока нет отмеченных заданий';
+                    }
+
+                    // Сбрасываем кэш, чтобы при следующем открытии «Заданий» перечиталось
+                    tasksLoaded = false;
+                });
+
+                card.appendChild(noteBtn);
 
                 card.onclick = () => {
                     closeProfileModal();
