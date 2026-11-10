@@ -261,25 +261,12 @@
                 .task-card:hover { filter: brightness(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
         .task-card:active { filter: brightness(0.94); transform: scale(0.995); }
 
-                /* Фон задания, отмеченного заметкой */
-        .task-wrapper-inner {
-            position: relative;
-            border-radius: 12px;
-            padding: 6px 6px 6px 0;
-            transition: background 0.2s ease;
-        }
-
-        .task-wrapper.has-note .task-wrapper-inner {
-            background: rgba(229, 57, 53, 0.08);   /* прозрачный красноватый */
-            box-shadow: inset 0 0 0 1px rgba(229, 57, 53, 0.15);
-        }
-
         /* Иконка заметки на пунктире справа от плашки задания */
         .task-note-indicator {
             position: absolute;
             top: calc(50% + 16px);
             transform: translateY(-50%);
-            right: 40px;                 /* ← сдвиг левее (было 8px) */
+            right: 8px;
             width: 22px;
             height: 22px;
             display: flex;
@@ -305,10 +292,10 @@
             stroke-linejoin: round;
         }
 
-                @media (max-width: 700px) {
+        @media (max-width: 700px) {
             .task-note-indicator {
                 top: calc(50% + 32px);
-                right: 24px;             /* ← сдвиг левее (было 4px) */
+                right: 4px;
                 width: 18px;
                 height: 18px;
             }
@@ -934,7 +921,7 @@ tasks.sort((a, b) => {
                     }
                     lastDateStr = currentDateText;
 
-                                                            const hasNote = savedNoteTaskIds.has(t.taskId);
+                                        const hasNote = savedNoteTaskIds.has(t.taskId);
                     const noteIconHtml = hasNote ? `
                         <span class="task-note-indicator" title="Отмечено в заметках" aria-label="Отмечено в заметках">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -944,18 +931,16 @@ tasks.sort((a, b) => {
                     ` : '';
 
                     return `
-                        <div class="task-wrapper ${hasNote ? 'has-note' : ''}">
-                            <div class="task-wrapper-inner">
-                                ${dateHtml}
-                                <div class="task-line-wrapper">
-                                    <div class="task-dot-small" style="background-color: ${color}; box-shadow: 0 0 0 2px #fff;"></div>
-                                    <div class="task-dashed-line" style="border-color: ${color};"></div>
-                                </div>
-                                <button type="button" class="task-card" data-task-id="${escapeHtml(t.taskId || '')}" data-color="${color}" style="background:${color};">
-                                    ${escapeHtml(t.title || 'Задание')}
-                                </button>
-                                ${noteIconHtml}
+                        <div class="task-wrapper">
+                            ${dateHtml}
+                            <div class="task-line-wrapper">
+                                <div class="task-dot-small" style="background-color: ${color}; box-shadow: 0 0 0 2px #fff;"></div>
+                                <div class="task-dashed-line" style="border-color: ${color};"></div>
                             </div>
+                            <button type="button" class="task-card" data-task-id="${escapeHtml(t.taskId || '')}" data-color="${color}" style="background:${color};">
+                                ${escapeHtml(t.title || 'Задание')}
+                            </button>
+                            ${noteIconHtml}
                         </div>
                     `;
                 }).join('')
@@ -1196,27 +1181,20 @@ tasks.sort((a, b) => {
             }
 
             // === Обновляем иконку на карточке в списке ===
-                        if (ok) {
+            if (ok) {
                 const card = document.querySelector('.task-card[data-task-id="' + taskData.taskId + '"]');
                 if (card) {
                     const wrapper = card.closest('.task-wrapper');
                     if (wrapper) {
-                        const inner = wrapper.querySelector('.task-wrapper-inner');
-                        const isActive = noteBtn.classList.contains('active');
-
-                        // Фон задания
-                        wrapper.classList.toggle('has-note', isActive);
-
-                        // Иконка на пунктире
                         let indicator = wrapper.querySelector('.task-note-indicator');
-                        if (isActive) {
-                            if (!indicator && inner) {
+                        if (noteBtn.classList.contains('active')) {
+                            if (!indicator) {
                                 indicator = document.createElement('span');
                                 indicator.className = 'task-note-indicator';
                                 indicator.title = 'Отмечено в заметках';
                                 indicator.setAttribute('aria-label', 'Отмечено в заметках');
                                 indicator.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>';
-                                inner.appendChild(indicator);
+                                wrapper.appendChild(indicator);
                             }
                         } else if (indicator) {
                             indicator.remove();
