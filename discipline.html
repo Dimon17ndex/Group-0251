@@ -1200,29 +1200,9 @@ tasks.sort((a, b) => {
                 }
             }
 
-            // === Обновляем иконку на карточке в списке ===
+                        // === Обновляем иконку и фон на карточке в списке ===
             if (ok) {
-                const card = document.querySelector('.task-card[data-task-id="' + taskData.taskId + '"]');
-                if (card) {
-                    const wrapper = card.closest('.task-wrapper');
-                                        if (wrapper) {
-                        wrapper.classList.toggle('has-note', noteBtn.classList.contains('active'));
-
-                        let indicator = wrapper.querySelector('.task-note-indicator');
-                        if (noteBtn.classList.contains('active')) {
-                            if (!indicator) {
-                                indicator = document.createElement('span');
-                                indicator.className = 'task-note-indicator';
-                                indicator.title = 'Отмечено в заметках';
-                                indicator.setAttribute('aria-label', 'Отмечено в заметках');
-                                indicator.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>';
-                                wrapper.appendChild(indicator);
-                            }
-                        } else if (indicator) {
-                            indicator.remove();
-                        }
-                    }
-                }
+                applyNoteStateToCard(taskData.taskId, noteBtn.classList.contains('active'));
             }
         };
     }
@@ -1769,7 +1749,64 @@ await openSheet(updatedTask, disciplineColor);
             }, 300);
         }
 
-        render();
+                // ==========================================
+        // 13. REALTIME ДЛЯ ЗАМЕТОК (фон + иконка)
+        // ==========================================
+        let notesRealtimeChannel = null;
+
+        function applyNoteStateToCard(taskId, hasNote) {
+            const card = document.querySelector('.task-card[data-task-id="' + taskId + '"]');
+            if (!card) return;
+            const wrapper = card.closest('.task-wrapper');
+            if (!wrapper) return;
+
+            wrapper.classList.toggle('has-note', hasNote);
+
+            let indicator = wrapper.querySelector('.task-note-indicator');
+            if (hasNote) {
+                if (!indicator) {
+                    indicator = document.createElement('span');
+                    indicator.className = 'task-note-indicator';
+                    indicator.title = 'Отмечено в заметках';
+                    indicator.setAttribute('aria-label', 'Отмечено в заметках');
+                    indicator.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>';
+                    wrapper.appendChild(indicator);
+                }
+            } else if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        function initNotesRealtime() {
+            if (!supabaseClient || notesRealtimeChannel) return;
+
+            notesRealtimeChannel = supabaseClient
+                .channel('notes-realtime-discipline')
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'notes' },
+                    (payload) => {
+                        const row = payload.new || payload.old;
+                        if (!row) return;
+                        if (row.user_id !== currentUserId) return;
+
+                        if (payload.eventType === 'INSERT') {
+                            applyNoteStateToCard(row.task_id, true);
+                        } else if (payload.eventType === 'DELETE') {
+                            applyNoteStateToCard(row.task_id, false);
+                        }
+
+                        // Если шторка открыта на этом же задании — синхронизируем закладку
+                        if (currentOpenTaskData && currentOpenTaskData.taskId === row.task_id) {
+                            const noteBtn = document.getElementById('taskSheetNoteBtn');
+                            if (noteBtn) noteBtn.classList.toggle('active', payload.eventType === 'INSERT');
+                        }
+                    }
+                )
+                .subscribe();
+        }
+
+        render().then(() => initNotesRealtime());
     </script>
 </body>
 </html>
