@@ -3874,7 +3874,7 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
             listEl.innerHTML = '';
 
             // Отрисовываем плашки
-            notes.forEach(note => {
+                        notes.forEach(note => {
                 const task = allTasks.find(t => t.taskId === note.task_id);
                 if (!task) return;
 
@@ -3882,6 +3882,36 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 let color = task.color || (disciplineData ? disciplineData.color : '#0066ff');
                 if (task.type === 'lecture') color = '#4a90e2';
                 else if (task.type === 'practice') color = '#43a047';
+
+                // Обёртка: место сверху под шильдик + отступ между заданиями
+                const wrap = document.createElement('div');
+                wrap.style.position = 'relative';
+                wrap.style.width = '100%';
+                wrap.style.marginTop = '20px';   // отступ между заданиями (под шильдик)
+                wrap.style.flexShrink = '0';
+
+                // Шильдик с названием дисциплины
+                const badge = document.createElement('div');
+                badge.textContent = disciplineData ? disciplineData.title : 'Дисциплина';
+                badge.style.position = 'absolute';
+                badge.style.top = '0';
+                badge.style.left = '50%';
+                badge.style.transform = 'translate(-50%, -50%)';
+                badge.style.backgroundColor = color;
+                badge.style.color = '#fff';
+                badge.style.fontSize = '0.7rem';
+                badge.style.fontWeight = '700';
+                badge.style.letterSpacing = '0.3px';
+                badge.style.padding = '3px 10px';
+                badge.style.borderRadius = '10px';
+                badge.style.whiteSpace = 'nowrap';
+                badge.style.maxWidth = '90%';
+                badge.style.overflow = 'hidden';
+                badge.style.textOverflow = 'ellipsis';
+                badge.style.boxShadow = '0 1px 4px rgba(0,0,0,0.15)';
+                badge.style.zIndex = '2';
+                badge.style.pointerEvents = 'none';
+                wrap.appendChild(badge);
 
                 const card = document.createElement('div');
                 card.style.width = '100%';
@@ -3899,6 +3929,8 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 card.style.alignItems = 'center';
                 card.style.gap = '10px';
                 card.style.flexShrink = '0';
+                card.style.position = 'relative';
+                card.style.zIndex = '1';
                 card.textContent = task.title || 'Задание';
 
                 const arrow = document.createElement('span');
@@ -3907,7 +3939,7 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 arrow.style.opacity = '0.7';
                 card.appendChild(arrow);
 
-                                card.onclick = () => {
+                card.onclick = () => {
                     closeProfileModal();
                     window.open(
                         'discipline.html?id=' + encodeURIComponent(task.discipline_id) +
@@ -3916,7 +3948,8 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                     );
                 };
 
-                listEl.appendChild(card);
+                wrap.appendChild(card);
+                listEl.appendChild(wrap);
             });
 
             isTasksLoading = false;
