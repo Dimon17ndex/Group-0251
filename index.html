@@ -2425,10 +2425,9 @@ const DISCIPLINES = {
             const panelsWrap = document.querySelector('.profile-section-panels');
             if (panelsWrap) panelsWrap.classList.toggle('has-likes-border', section === 'likes');
 
-            // === ЗАГРУЗКА СПИСКА ЗАМЕТОК ===
+                        // === ЗАГРУЗКА СПИСКА ЗАМЕТОК (один раз) ===
             if (section === 'tasks') {
-                tasksLoaded = false;
-                loadSavedTasksIntoProfile();
+                loadSavedTasksIntoProfile();   // без сброса tasksLoaded
             }
             // ================================
 
@@ -3917,6 +3916,39 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
 
             isTasksLoading = false;
             tasksLoaded = true;
+        }
+
+                // ==========================================
+        // 12.1 REALTIME ДЛЯ ЗАМЕТОК
+        // ==========================================
+        let notesRealtimeChannel = null;
+
+        function initNotesRealtime() {
+            if (!supabaseClient || notesRealtimeChannel) return;
+
+            notesRealtimeChannel = supabaseClient
+                .channel('notes-realtime')
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'notes' },
+                    (payload) => {
+                        // Нас интересуют только заметки текущего пользователя
+                        const row = payload.new || payload.old;
+                        if (!row || row.user_id !== currentUserId) return;
+
+                        // Заметки изменились — принудительно перечитываем список
+                        // (только если профиль открыт на вкладке «Задания»)
+                        const tasksPanel = document.querySelector('.profile-panel[data-panel="tasks"]');
+                        if (tasksPanel && tasksPanel.classList.contains('active')) {
+                            loadSavedTasksIntoProfile(true);
+                        } else {
+                            // Профиль закрыт / другая вкладка — просто помечаем кэш устаревшим,
+                            // чтобы при следующем открытии «Заданий» данные обновились
+                            tasksLoaded = false;
+                        }
+                    }
+                )
+                .subscribe();
         }
     </script>
 
