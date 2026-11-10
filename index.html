@@ -3798,7 +3798,7 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 // ==========================================
         // 12. СПИСОК ЗАДАНИЙ В ПРОФИЛЕ (ЗАМЕТКИ)
         // ==========================================
-                                        // Флаг, чтобы не грузить данные каждый раз
+                                                // Флаг, чтобы не грузить данные каждый раз
         let tasksLoaded = false; 
         let isTasksLoading = false;
 
@@ -3815,13 +3815,13 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
 
             isTasksLoading = true;
             
-                        // Показываем лоадер только при первой загрузке, а при обновлении - нет
-            if (!tasksLoaded || forceReload === false) {
+            // Показываем лоадер ТОЛЬКО при самой первой загрузке
+            if (!tasksLoaded) {
                 loader.classList.remove('hidden');
+                emptyEl.classList.add('hidden');
+                emptyEl.style.display = 'none';
+                listEl.innerHTML = ''; 
             }
-            emptyEl.classList.add('hidden');
-            emptyEl.style.display = 'none';
-            listEl.innerHTML = ''; 
 
             if (!supabaseClient) {
                 isTasksLoading = false;
@@ -3860,6 +3860,7 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 isTasksLoading = false;
                 tasksLoaded = true; 
                 loader.classList.add('hidden');
+                listEl.innerHTML = '';
                 emptyEl.style.display = 'block';
                 emptyEl.textContent = 'У вас пока нет отмеченных заданий';
                 return;
@@ -3888,8 +3889,11 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 console.error('Ошибка загрузки CSV:', e);
             }
 
-            // Скрываем лоадер, т.к. данные готовы
+            // Скрываем лоадер
             loader.classList.add('hidden');
+            
+            // Очищаем список перед отрисовкой (важно для обновления)
+            listEl.innerHTML = '';
 
             // Отрисовываем плашки
             notes.forEach(note => {
@@ -3936,38 +3940,6 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
             isTasksLoading = false;
             tasksLoaded = true;
         }
-
-                // ==========================================
-        // 13. REALTIME ДЛЯ ЗАМЕТОК
-        // ==========================================
-        function initNotesRealtime() {
-            if (!supabaseClient) return;
-
-            supabaseClient
-                .channel('notes-realtime')
-                .on(
-                    'postgres_changes',
-                    { event: '*', schema: 'public', table: 'notes' },
-                    (payload) => {
-                        // Если мы сейчас в профиле и открыта вкладка "Задания"
-                        const profileModal = document.getElementById('profileModal');
-                        const tasksPanel = document.querySelector('.profile-panel[data-panel="tasks"]');
-                        
-                        if (profileModal && profileModal.classList.contains('active') && tasksPanel && tasksPanel.classList.contains('active')) {
-                            // Принудительно обновляем список, НО без показа лоадера
-                            // Для этого мы вызываем функцию загрузки
-                            loadSavedTasksIntoProfile(true);
-                        }
-                    }
-                )
-                .subscribe();
-        }
-
-        // Запускаем realtime после инициализации Supabase
-        window.addEventListener('load', () => {
-            // Небольшая задержка, чтобы Supabase точно успел подключиться
-            setTimeout(initNotesRealtime, 1000); 
-        });
     </script>
 
 <script>
