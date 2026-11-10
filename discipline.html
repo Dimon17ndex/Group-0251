@@ -157,13 +157,27 @@
             opacity: 0;
         }
 
-        .task-wrapper {
+                .task-wrapper {
             position: relative;
             width: 100%;
             margin-bottom: 24px;
             text-align: center;
             padding-top: 32px;
             opacity: 0;
+        }
+
+        /* Фон задания, отмеченного заметкой — от левой линии до правого края пунктира */
+        .task-wrapper.has-note::before {
+            content: "";
+            position: absolute;
+            left: var(--line-x);
+            top: -6px;
+            right: 0;
+            bottom: 6px;
+            background: rgba(229, 57, 53, 0.08);
+            border-radius: 12px;
+            pointer-events: none;
+            z-index: 0;
         }
 
         .task-wrapper.is-shown {
@@ -266,7 +280,7 @@
             position: absolute;
             top: calc(50% + 16px);
             transform: translateY(-50%);
-            right: 8px;
+            right: 40px;
             width: 22px;
             height: 22px;
             display: flex;
@@ -295,7 +309,7 @@
         @media (max-width: 700px) {
             .task-note-indicator {
                 top: calc(50% + 32px);
-                right: 4px;
+                right: 24px;
                 width: 18px;
                 height: 18px;
             }
@@ -930,8 +944,8 @@ tasks.sort((a, b) => {
                         </span>
                     ` : '';
 
-                    return `
-                        <div class="task-wrapper">
+                                        return `
+                        <div class="task-wrapper${hasNote ? ' has-note' : ''}">
                             ${dateHtml}
                             <div class="task-line-wrapper">
                                 <div class="task-dot-small" style="background-color: ${color}; box-shadow: 0 0 0 2px #fff;"></div>
@@ -1185,7 +1199,9 @@ tasks.sort((a, b) => {
                 const card = document.querySelector('.task-card[data-task-id="' + taskData.taskId + '"]');
                 if (card) {
                     const wrapper = card.closest('.task-wrapper');
-                    if (wrapper) {
+                                        if (wrapper) {
+                        wrapper.classList.toggle('has-note', noteBtn.classList.contains('active'));
+
                         let indicator = wrapper.querySelector('.task-note-indicator');
                         if (noteBtn.classList.contains('active')) {
                             if (!indicator) {
