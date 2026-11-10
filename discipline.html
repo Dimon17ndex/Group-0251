@@ -167,13 +167,13 @@
         }
 
         /* Фон задания, отмеченного заметкой — от левой линии до правого края пунктира */
-        .task-wrapper.has-note::before {
+                .task-wrapper.has-note::before {
             content: "";
             position: absolute;
             left: var(--line-x);
-            top: -6px;
+            top: -12px;    /* было -6px — выше */
             right: 0;
-            bottom: 6px;
+            bottom: 12px;  /* было 6px — ниже */
             background: rgba(229, 57, 53, 0.08);
             border-radius: 12px;
             pointer-events: none;
@@ -307,7 +307,7 @@
         }
 
         @media (max-width: 700px) {
-            .task-note-indicator {
+                        .task-note-indicator {
                 top: calc(50% + 32px);
                 right: 24px;
                 width: 18px;
@@ -316,6 +316,12 @@
             .task-note-indicator svg {
                 width: 11px;
                 height: 11px;
+            }
+
+            /* На мобилке фон задания сдвинут вниз: сверху ниже, снизу ниже */
+            .task-wrapper.has-note::before {
+                top: 6px;      /* было -6px — теперь ниже верхней границы */
+                bottom: -6px;  /* было 6px — теперь ниже нижней границы */
             }
         }
 
