@@ -2291,11 +2291,12 @@ const DISCIPLINES = {
         // ==========================================
         // 3. ЛОГИКА ЛАЙКОВ
         // ==========================================
-        async function initLikes() {
+                async function initLikes() {
             if (!supabaseClient) return;
             const { data: { session } } = await supabaseClient.auth.getSession();
             const userId = session ? session.user.id : null;
             currentUserId = userId;
+            initNotesRealtime();          // ← добавить эту строку
             const { data: allLikes, error } = await supabaseClient.from('likes').select('*');
             if (error) { console.error('Ошибка загрузки лайков:', error); return; }
 
