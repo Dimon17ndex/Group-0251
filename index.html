@@ -2067,14 +2067,15 @@
                         <span class="likes-loader-spinner"></span>
                     </div>
                     <div class="profile-panel-empty" id="tasksEmpty">У вас пока нет отмеченных заданий</div>
-                    <div id="tasksList" style="display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 4px 0;"></div>
-                </div>
+                                                            <div id="tasksList" style="display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 4px 0;"></div>
+                </div>          <!-- закрывает .profile-panel[data-panel="tasks"] -->
+            </div>              <!-- закрывает .profile-section-panels -->
 
             <div class="profile-divider"></div>
 
             <button class="profile-logout-btn" onclick="handleLogout()">Выйти из аккаунта</button>
-        </div>
-    </div>
+        </div>                  <!-- закрывает .profile-modal-content -->
+    </div>                      <!-- закрывает #profileModal -->
 
     <!-- Плашка «О сервисе расписания» -->
     <div id="scheduleInfoSheet" class="schedule-info-sheet" onclick="handleScheduleInfoBackdropClick(event)">
@@ -2140,66 +2141,63 @@
     <!-- Клон квадрата поверх блюра -->
     <div class="likes-mobile-floater" id="likesMobileFloater"></div>
 
-    <script>
+        <script>
+        // Глобальные флаги для списка заданий
+        let tasksLoaded = false;
+        let isTasksLoading = false;
+
         // ==========================================
         // 1. ЛОАДЕР
         // ==========================================
-                        function hideLoaderAndShowSite() {
-            const loader = document.getElementById('loader');
-            if(loader) loader.classList.add('hidden');
-            
-            setTimeout(() => {
-                document.body.classList.add('loaded');
-                if(loader) loader.style.display = 'none';
-                
-                const feedTitle = document.getElementById('feedTitle');
-                if(feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
-
-                // Логика онбординга (первый заход)
-                const localRole = localStorage.getItem('geo_role');
-                
-                // Если роли нет локально, проверяем, может быть мы авторизованы?
-                if (!localRole && typeof supabase !== 'undefined') {
-                    // Ждём инициализации Supabase (на случай если он еще грузится)
-                    const checkSession = async () => {
-                        if (!supabaseClient) {
-                            setTimeout(checkSession, 100); // Ждем, пока supabaseClient создастся
-                            return;
-                        }
-                        
-                        const { data: { session } } = await supabaseClient.auth.getSession();
-                        if (session) {
-                            // Если залогинены, идем в базу и ищем роль
-                            const { data } = await supabaseClient.from('profiles').select('role').eq('id', session.user.id).single();
-                            if (data && data.role) {
-                                localStorage.setItem('geo_role', data.role); // Запоминаем локально
-                            } else {
-                                // Если в базе пусто — показываем плашку
-                                document.getElementById('onboardingModal').classList.add('active');
-                                document.body.style.overflow = 'hidden';
-                            }
-                        } else {
-                            // Если не залогинены — показываем плашку
-                            document.getElementById('onboardingModal').classList.add('active');
-                            document.body.style.overflow = 'hidden';
-                        }
-                    };
-                    checkSession();
-                } else if (!localRole) {
-                    // Если Supabase вообще не загрузился, но роли нет — показываем плашку
-                    document.getElementById('onboardingModal').classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                }
-            }, 150);
+                        const checkSession = async (attempt = 0) => {
+    if (!supabaseClient) {
+        if (attempt > 30) {          // ~3 секунды
+            document.getElementById('onboardingModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            return;
         }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(hideLoaderAndShowSite, 250);
-            });
+        setTimeout(() => checkSession(attempt + 1), 100);
+        return;
+    }
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+        const { data } = await supabaseClient.from('profiles').select('role').eq('id', session.user.id).single();
+        if (data && data.role) {
+            localStorage.setItem('geo_role', data.role);
         } else {
-            setTimeout(hideLoaderAndShowSite, 250);
+            document.getElementById('onboardingModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
+    } else {
+        document.getElementById('onboardingModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+};
+function hideLoaderAndShowSite() {
+    const loader = document.getElementById('loader');
+    if (loader) loader.classList.add('hidden');
+
+    setTimeout(() => {
+        document.body.classList.add('loaded');
+        if (loader) loader.style.display = 'none';
+
+        const feedTitle = document.getElementById('feedTitle');
+        if (feedTitle) setTimeout(() => feedTitle.classList.add('hidden'), 1000);
+
+        const localRole = localStorage.getItem('geo_role');
+        if (!localRole) {
+            checkSession();
+        }
+    }, 150);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(hideLoaderAndShowSite, 250);
+    });
+} else {
+    setTimeout(hideLoaderAndShowSite, 250);
+}
 
         // ==========================================
         // 2. SUPABASE
@@ -2429,6 +2427,7 @@ const DISCIPLINES = {
 
             // === ЗАГРУЗКА СПИСКА ЗАМЕТОК ===
             if (section === 'tasks') {
+                tasksLoaded = false;
                 loadSavedTasksIntoProfile();
             }
             // ================================
@@ -2453,6 +2452,7 @@ const DISCIPLINES = {
 };
 
         function parseCSV(text) {
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
             const rows = [];
             let currentRow = [];
             let currentCell = '';
@@ -2568,27 +2568,6 @@ const DISCIPLINES = {
         overlay.remove();
     }, 3400);
 }
-
-                function waitForElementVisible(el, callback) {
-            const check = () => {
-                const rect = el.getBoundingClientRect();
-                const vh = window.innerHeight || document.documentElement.clientHeight;
-                const vw = window.innerWidth || document.documentElement.clientWidth;
-
-                // элемент в кадре по X и Y
-                const inViewport = rect.right > 0 && rect.left < vw && rect.bottom > 0 && rect.top < vh;
-
-                // и хотя бы половина элемента по вертикали видна
-                const enoughVisible = (Math.min(rect.bottom, vh) - Math.max(rect.top, 0)) >= rect.height * 0.5;
-
-                if (inViewport && enoughVisible) {
-                    callback();
-                    return;
-                }
-                requestAnimationFrame(check);
-            };
-            check();
-        }
 
                 async function loadLikedPostsIntoGrid() {
             const grid = document.getElementById('likesGrid');
@@ -2879,21 +2858,32 @@ item.appendChild(thumb);
             const fakeEmail = `${safeUsername}@example.com`;
             
             if (isLoginMode) {
-                const { data: loginData, error } = await supabaseClient.auth.signInWithPassword({ email: fakeEmail, password: password });
-                if (error) { 
-                    msg.textContent = 'Неверное имя или пароль'; msg.classList.add('error'); 
-                } else {
-                    msg.textContent = 'Вход выполнен!'; msg.classList.add('success');
-                    
-                    // Если в браузере сохранена роль, а в базе её нет — обновим базу
-                    const localRole = localStorage.getItem('geo_role');
-                    if (localRole && loginData.user) {
-                        await supabaseClient.from('profiles').update({ role: localRole }).eq('id', loginData.user.id);
-                    }
+    const { data: loginData, error } = await supabaseClient.auth.signInWithPassword({ email: fakeEmail, password: password });
+    if (error) { 
+        msg.textContent = 'Неверное имя или пароль'; msg.classList.add('error'); 
+    } else {
+        msg.textContent = 'Вход выполнен!'; msg.classList.add('success');
 
-                    setTimeout(() => { closeAuthModal(); window.location.reload(); }, 1000);
-                }
-            } else {
+        // Роль из localStorage заливаем в профиль ТОЛЬКО если в профиле её ещё нет.
+        // Иначе перезапишем настоящую роль (например, преподавателя) значением
+        // с чужого устройства/после онбординга.
+                const { data: prof } = await supabaseClient
+            .from('profiles')
+            .select('role')
+            .eq('id', loginData.user.id)
+            .maybeSingle();
+
+        const localRole = localStorage.getItem('geo_role');
+        if ((!prof || !prof.role) && localRole) {
+            await supabaseClient
+                .from('profiles')
+                .update({ role: localRole })
+                .eq('id', loginData.user.id);
+        }
+
+        setTimeout(() => { closeAuthModal(); window.location.reload(); }, 1000);
+    }
+} else {
                 const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email: fakeEmail, password: password, options: { data: { username: username } } });
                 if (authError) {
                     if (authError.message.includes('already registered')) { msg.textContent = 'Это имя уже занято'; }
@@ -3184,11 +3174,12 @@ try {
         const scheduleOpenBtn = document.getElementById('scheduleOpenBtn');
         if (scheduleOpenBtn) {
             scheduleOpenBtn.addEventListener('click', () => {
-                const iframeEl = document.querySelector('.schedule-iframe');
-                if (iframeEl && iframeEl.src) {
-                    window.open(iframeEl.src, '_blank', 'noopener');
-                }
-            });
+    const iframeEl = document.querySelector('.schedule-iframe');
+    const url = (iframeEl && iframeEl.src && iframeEl.src !== 'about:blank')
+        ? iframeEl.src
+        : 'https://rasp.melsu.ru/public/schedule?mode=groups&groupName=2611-0251.1&semester=1&week=1';
+    window.open(url, '_blank', 'noopener');
+});
         }
 
         // ==========================================
@@ -3212,14 +3203,14 @@ try {
         }
 
         function reloadSchedule() {
-            if (!scheduleIframe) return;
-            showScheduleLoader();
-            scheduleIframe.src = scheduleIframe.src;
-            clearTimeout(scheduleLoadTimeout);
-            scheduleLoadTimeout = setTimeout(() => {
-                showScheduleError();
-            }, 12000);
-        }
+    if (!scheduleIframe) return;
+    showScheduleLoader();
+    const src = scheduleIframe.src;
+    scheduleIframe.src = 'about:blank';
+    setTimeout(() => { scheduleIframe.src = src; }, 50);
+    clearTimeout(scheduleLoadTimeout);
+    scheduleLoadTimeout = setTimeout(showScheduleError, 12000);
+}
 
         if (scheduleIframe && scheduleLoader) {
             scheduleIframe.addEventListener('load', () => {
@@ -3764,44 +3755,31 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
         // 11. ОНБОРДИНГ (ПЕРВЫЙ ЗАХОД)
         // ==========================================
         async function chooseRole(role) {
-            // Сохраняем выбор локально в браузере (на случай если не залогинен)
-            localStorage.setItem('geo_role', role);
+    localStorage.setItem('geo_role', role);
+    const modal = document.getElementById('onboardingModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
 
-            // Скрываем плашку
-            const modal = document.getElementById('onboardingModal');
-            modal.classList.remove('active');
-            document.body.style.overflow = ''; 
-
-            // Если пользователь уже авторизован — сохраняем роль в его профиль в Supabase
-            if (supabaseClient) {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                if (session) {
-                    try {
-                        await supabaseClient
-                            .from('profiles')
-                            .update({ role: role })
-                            .eq('id', session.user.id);
-                    } catch (e) {
-                        console.error('Не удалось сохранить роль в базу:', e);
-                    }
-                }
-            }
-
-            // Если выбрали студента — открываем меню входа
-            if (role === 'student') {
-                setTimeout(() => {
-                    openAuthModal();
-                }, 300); 
+    try {
+        if (supabaseClient) {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                await supabaseClient.from('profiles').update({ role }).eq('id', session.user.id);
             }
         }
+    } catch (e) {
+        console.error('Не удалось сохранить роль:', e);
+    } finally {
+        document.body.style.overflow = '';   // страховка
+        if (role === 'student') {
+            setTimeout(() => openAuthModal(), 300);
+        }
+    }
+}
 
-                // ==========================================
+                        // ==========================================
         // 12. СПИСОК ЗАДАНИЙ В ПРОФИЛЕ (ЗАМЕТКИ)
         // ==========================================
-                                                // Флаг, чтобы не грузить данные каждый раз
-        let tasksLoaded = false; 
-        let isTasksLoading = false;
-
         async function loadSavedTasksIntoProfile(forceReload = false) {
             const listEl = document.getElementById('tasksList');
             const emptyEl = document.getElementById('tasksEmpty');
