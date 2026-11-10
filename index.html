@@ -3907,9 +3907,13 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 arrow.style.opacity = '0.7';
                 card.appendChild(arrow);
 
-                card.onclick = () => {
+                                card.onclick = () => {
                     closeProfileModal();
-                    window.open('discipline.html?id=' + encodeURIComponent(task.discipline_id), '_blank');
+                    window.open(
+                        'discipline.html?id=' + encodeURIComponent(task.discipline_id) +
+                        '&task=' + encodeURIComponent(task.taskId),
+                        '_blank'
+                    );
                 };
 
                 listEl.appendChild(card);
