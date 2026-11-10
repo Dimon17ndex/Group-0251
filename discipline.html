@@ -258,8 +258,52 @@
             z-index: 1;
         }
 
-        .task-card:hover { filter: brightness(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
+                .task-card:hover { filter: brightness(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
         .task-card:active { filter: brightness(0.94); transform: scale(0.995); }
+
+        /* Иконка заметки на пунктире справа от плашки задания */
+        .task-note-indicator {
+            position: absolute;
+            top: calc(50% + 16px);
+            transform: translateY(-50%);
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .task-note-indicator svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+        }
+
+        .task-note-indicator svg path {
+            fill: #0066ff;
+            stroke: #0066ff;
+            stroke-width: 1.5;
+            stroke-linejoin: round;
+        }
+
+        @media (max-width: 700px) {
+            .task-note-indicator {
+                top: calc(50% + 32px);
+                right: 4px;
+                width: 18px;
+                height: 18px;
+            }
+            .task-note-indicator svg {
+                width: 11px;
+                height: 11px;
+            }
+        }
 
         .discipline-empty {
             max-width: 760px;
@@ -835,6 +879,29 @@ tasks.sort((a, b) => {
                 console.error('Ошибка загрузки заданий:', e);
             }
 
+            // === Загружаем заметки текущего пользователя ===
+            let savedNoteTaskIds = new Set();
+            if (supabaseClient) {
+                if (!currentUserId) {
+                    const { data: { session } } = await supabaseClient.auth.getSession();
+                    currentUserId = session ? session.user.id : null;
+                }
+                if (currentUserId) {
+                    const { data: notesData } = await supabaseClient
+                        .from('notes')
+                        .select('task_id')
+                        .eq('user_id', currentUserId);
+                    if (notesData) {
+                        savedNoteTaskIds = new Set(notesData.map(n => n.task_id));
+                    }
+                }
+            } else {
+                try {
+                    const localNotes = JSON.parse(localStorage.getItem('saved_notes') || '[]');
+                    savedNoteTaskIds = new Set(localNotes);
+                } catch (e) {}
+            }
+
             let lastDateStr = null;
 
             const tasksHtml = (tasks.length > 0)
@@ -854,6 +921,15 @@ tasks.sort((a, b) => {
                     }
                     lastDateStr = currentDateText;
 
+                                        const hasNote = savedNoteTaskIds.has(t.taskId);
+                    const noteIconHtml = hasNote ? `
+                        <span class="task-note-indicator" title="Отмечено в заметках" aria-label="Отмечено в заметках">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                        </span>
+                    ` : '';
+
                     return `
                         <div class="task-wrapper">
                             ${dateHtml}
@@ -864,6 +940,7 @@ tasks.sort((a, b) => {
                             <button type="button" class="task-card" data-task-id="${escapeHtml(t.taskId || '')}" data-color="${color}" style="background:${color};">
                                 ${escapeHtml(t.title || 'Задание')}
                             </button>
+                            ${noteIconHtml}
                         </div>
                     `;
                 }).join('')
@@ -1063,7 +1140,7 @@ tasks.sort((a, b) => {
         };
         checkNote();
 
-        // Обработчик клика
+                // Обработчик клика
         noteBtn.onclick = async (e) => {
             e.stopPropagation();
             
@@ -1077,6 +1154,7 @@ tasks.sort((a, b) => {
             // Оптимистичное обновление UI (сразу меняем цвет)
             noteBtn.classList.toggle('active');
 
+            let ok = false;
             if (isSaved) {
                 // Удаляем из БД
                 const { error } = await supabaseClient
@@ -1086,6 +1164,8 @@ tasks.sort((a, b) => {
                 if (error) {
                     console.error('Ошибка удаления заметки:', error);
                     noteBtn.classList.add('active'); // Откат при ошибке
+                } else {
+                    ok = true;
                 }
             } else {
                 // Добавляем в БД
@@ -1095,6 +1175,31 @@ tasks.sort((a, b) => {
                 if (error) {
                     console.error('Ошибка добавления заметки:', error);
                     noteBtn.classList.remove('active'); // Откат при ошибке
+                } else {
+                    ok = true;
+                }
+            }
+
+            // === Обновляем иконку на карточке в списке ===
+            if (ok) {
+                const card = document.querySelector('.task-card[data-task-id="' + taskData.taskId + '"]');
+                if (card) {
+                    const wrapper = card.closest('.task-wrapper');
+                    if (wrapper) {
+                        let indicator = wrapper.querySelector('.task-note-indicator');
+                        if (noteBtn.classList.contains('active')) {
+                            if (!indicator) {
+                                indicator = document.createElement('span');
+                                indicator.className = 'task-note-indicator';
+                                indicator.title = 'Отмечено в заметках';
+                                indicator.setAttribute('aria-label', 'Отмечено в заметках');
+                                indicator.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>';
+                                wrapper.appendChild(indicator);
+                            }
+                        } else if (indicator) {
+                            indicator.remove();
+                        }
+                    }
                 }
             }
         };
