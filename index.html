@@ -3890,6 +3890,9 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 wrap.style.marginTop = '20px';   // отступ между заданиями (под шильдик)
                 wrap.style.flexShrink = '0';
 
+                                // Цвет шильдика — всегда цвет дисциплины, а не задания
+                const disciplineColor = disciplineData ? disciplineData.color : color;
+
                 // Шильдик с названием дисциплины
                 const badge = document.createElement('div');
                 badge.textContent = disciplineData ? disciplineData.title : 'Дисциплина';
@@ -3897,7 +3900,7 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 badge.style.top = '0';
                 badge.style.left = '50%';
                 badge.style.transform = 'translate(-50%, -50%)';
-                badge.style.backgroundColor = color;
+                badge.style.backgroundColor = disciplineColor;
                 badge.style.color = '#fff';
                 badge.style.fontSize = '0.7rem';
                 badge.style.fontWeight = '700';
