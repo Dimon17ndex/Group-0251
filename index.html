@@ -1108,11 +1108,10 @@
             z-index: 2;
         }
 
-                        .profile-section-panels {
+            .profile-section-panels {
             width: 100%;
             flex: 1 1 auto;
             min-height: 60px;
-            max-height: 45vh; /* Чтобы появился скролл на телефоне/ПК */
             overflow-y: auto;
             margin-bottom: 16px;
             scrollbar-width: none;
@@ -2063,7 +2062,10 @@
                     <div class="likes-grid" id="likesGrid"></div>
                 </div>
                 <div class="profile-panel" data-panel="posts">У вас пока нет постов</div>
-                                <div class="profile-panel" data-panel="tasks">
+                                                <div class="profile-panel" data-panel="tasks">
+                    <div class="likes-loader hidden" id="tasksLoader">
+                        <span class="likes-loader-spinner"></span>
+                    </div>
                     <div class="profile-panel-empty" id="tasksEmpty">У вас пока нет отмеченных заданий</div>
                     <div id="tasksList" style="display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 4px 0;"></div>
                 </div>
@@ -3796,27 +3798,32 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 // ==========================================
         // 12. СПИСОК ЗАДАНИЙ В ПРОФИЛЕ (ЗАМЕТКИ)
         // ==========================================
-                                // Флаг для защиты от дублирования и повторных запросов
+                                        // Флаг, чтобы не грузить данные каждый раз
+        let tasksLoaded = false; 
         let isTasksLoading = false;
 
-        async function loadSavedTasksIntoProfile() {
-            // Если данные уже загружаются — выходим, чтобы не дублировать
-            if (isTasksLoading) return;
-
+        async function loadSavedTasksIntoProfile(forceReload = false) {
             const listEl = document.getElementById('tasksList');
             const emptyEl = document.getElementById('tasksEmpty');
-            if (!listEl || !emptyEl) return;
+            const loader = document.getElementById('tasksLoader');
+            
+            if (!listEl || !emptyEl || !loader) return;
 
-            // Ставим "замок"
+            // Если данные уже загружены и мы не просим принудительно, ничего не делаем
+            if (tasksLoaded && !forceReload) return;
+            if (isTasksLoading) return;
+
             isTasksLoading = true;
-
-            listEl.innerHTML = ''; // Очищаем список
-            emptyEl.classList.remove('hidden');
-            emptyEl.style.display = 'block';
-            emptyEl.textContent = 'Загрузка заданий...'; // Показываем текст загрузки
+            
+            // Показываем лоадер, прячем заглушку
+            loader.classList.remove('hidden');
+            emptyEl.classList.add('hidden');
+            emptyEl.style.display = 'none';
+            listEl.innerHTML = ''; 
 
             if (!supabaseClient) {
                 isTasksLoading = false;
+                loader.classList.add('hidden');
                 return;
             }
 
@@ -3829,10 +3836,11 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
 
             if (!userId) {
                 isTasksLoading = false;
+                loader.classList.add('hidden');
                 return;
             }
 
-            // Получаем заметки из Supabase
+            // Запрашиваем заметки из базы
             const { data: notes, error } = await supabaseClient
                 .from('notes')
                 .select('task_id, created_at')
@@ -3842,20 +3850,20 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
             if (error) {
                 console.error('Ошибка загрузки заметок:', error);
                 isTasksLoading = false;
+                loader.classList.add('hidden');
                 return;
             }
 
-            // Если заметок нет — показываем заглушку
             if (!notes || notes.length === 0) {
-                emptyEl.textContent = 'У вас пока нет отмеченных заданий';
                 isTasksLoading = false;
+                tasksLoaded = true; 
+                loader.classList.add('hidden');
+                emptyEl.style.display = 'block';
+                emptyEl.textContent = 'У вас пока нет отмеченных заданий';
                 return;
             }
 
-            emptyEl.classList.add('hidden');
-            emptyEl.style.display = 'none';
-
-            // Загружаем CSV, чтобы узнать названия и цвета заданий
+            // Загружаем CSV, чтобы найти названия и цвета
             let allTasks = [];
             try {
                 const cacheBuster = '&t=' + new Date().getTime();
@@ -3878,12 +3886,14 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 console.error('Ошибка загрузки CSV:', e);
             }
 
-            // Выводим плашки
+            // Скрываем лоадер, т.к. данные готовы
+            loader.classList.add('hidden');
+
+            // Отрисовываем плашки
             notes.forEach(note => {
                 const task = allTasks.find(t => t.taskId === note.task_id);
-                if (!task) return; // Задание не найдено в таблице
+                if (!task) return;
 
-                // Цвет и стили
                 const disciplineData = DISCIPLINES[task.discipline_id];
                 let color = task.color || (disciplineData ? disciplineData.color : '#0066ff');
                 if (task.type === 'lecture') color = '#4a90e2';
@@ -3921,8 +3931,8 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 listEl.appendChild(card);
             });
 
-            // Снимаем "замок" после завершения
             isTasksLoading = false;
+            tasksLoaded = true;
         }
     </script>
 
