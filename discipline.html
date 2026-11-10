@@ -1806,7 +1806,24 @@ await openSheet(updatedTask, disciplineColor);
                 .subscribe();
         }
 
-        render().then(() => initNotesRealtime());
+                        render().then(() => {
+            initNotesRealtime();
+
+            // Если в URL есть &task=..., открыть шторку этого задания
+            const taskIdFromUrl = getParam('task');
+            if (taskIdFromUrl) {
+                const card = document.querySelector('.task-card[data-task-id="' + taskIdFromUrl.replace(/"/g, '\\"') + '"]');
+                if (card) {
+                    card.click();
+                    // Чистим URL, чтобы при F5 шторка не открылась повторно
+                    try {
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete('task');
+                        history.replaceState({ discipline: true }, '', url.toString());
+                    } catch (e) {}
+                }
+            }
+        });
     </script>
 </body>
 </html>
