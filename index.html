@@ -2062,12 +2062,13 @@
                     <div class="likes-grid" id="likesGrid"></div>
                 </div>
                 <div class="profile-panel" data-panel="posts">У вас пока нет постов</div>
-                                                <div class="profile-panel" data-panel="tasks">
+                                                                <div class="profile-panel" data-panel="tasks">
                     <div class="likes-loader hidden" id="tasksLoader">
                         <span class="likes-loader-spinner"></span>
                     </div>
                     <div class="profile-panel-empty" id="tasksEmpty">У вас пока нет отмеченных заданий</div>
-                                                            <div id="tasksList" style="display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 4px 0;"></div>
+                    <div id="tasksTitle" style="display: none; width: 100%; text-align: center; font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; color: #000; margin: 4px 0 12px;">Ваш ДЗ-лист</div>
+                    <div id="tasksList" style="display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 4px 0;"></div>
                 </div>          <!-- закрывает .profile-panel[data-panel="tasks"] -->
             </div>              <!-- закрывает .profile-section-panels -->
 
@@ -3780,10 +3781,16 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                         // ==========================================
         // 12. СПИСОК ЗАДАНИЙ В ПРОФИЛЕ (ЗАМЕТКИ)
         // ==========================================
-        async function loadSavedTasksIntoProfile(forceReload = false) {
+                async function loadSavedTasksIntoProfile(forceReload = false) {
             const listEl = document.getElementById('tasksList');
             const emptyEl = document.getElementById('tasksEmpty');
             const loader = document.getElementById('tasksLoader');
+            const titleEl = document.getElementById('tasksTitle');
+
+            const updateTitleVisibility = () => {
+                if (!titleEl || !listEl) return;
+                titleEl.style.display = (listEl.children.length > 0) ? 'block' : 'none';
+            };
             
             if (!listEl || !emptyEl || !loader) return;
 
@@ -3834,13 +3841,14 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                 return;
             }
 
-            if (!notes || notes.length === 0) {
+                        if (!notes || notes.length === 0) {
                 isTasksLoading = false;
                 tasksLoaded = true; 
                 loader.classList.add('hidden');
                 listEl.innerHTML = '';
                 emptyEl.style.display = 'block';
                 emptyEl.textContent = 'У вас пока нет отмеченных заданий';
+                updateTitleVisibility();
                 return;
             }
 
@@ -3984,15 +3992,19 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                         return;
                     }
 
-                    // Убираем блок из списка
+                                        // Убираем блок из списка
                     wrap.remove();
 
-                    // Если список опустел — показываем заглушку
+                    // Если список опустел — показываем заглушку и скрываем заголовок
                     const listEl = document.getElementById('tasksList');
                     const emptyEl = document.getElementById('tasksEmpty');
-                    if (listEl && emptyEl && listEl.children.length === 0) {
-                        emptyEl.style.display = 'block';
-                        emptyEl.textContent = 'У вас пока нет отмеченных заданий';
+                    const titleEl = document.getElementById('tasksTitle');
+                    if (listEl && listEl.children.length === 0) {
+                        if (emptyEl) {
+                            emptyEl.style.display = 'block';
+                            emptyEl.textContent = 'У вас пока нет отмеченных заданий';
+                        }
+                        if (titleEl) titleEl.style.display = 'none';
                     }
 
                     // Сбрасываем кэш, чтобы при следующем открытии «Заданий» перечиталось
@@ -4016,6 +4028,7 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
 
             isTasksLoading = false;
             tasksLoaded = true;
+            updateTitleVisibility();
         }
 
                 // ==========================================
