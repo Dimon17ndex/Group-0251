@@ -2407,24 +2407,34 @@ const DISCIPLINES = {
                 restoreProfileSection();
                 loadLikedPostsIntoGrid();
                 document.getElementById('profileModal').classList.add('active');
-            } else {
+                        } else {
                 document.getElementById('authModal').classList.add('active');
                 document.getElementById('authMessage').textContent = '';
 
-                // Подсказка над формой входа/регистрации — только при первом открытии
-                if (!localStorage.getItem('hint_auth_shown') && window.Hints) {
-                    localStorage.setItem('hint_auth_shown', '1');
-                    setTimeout(() => {
-                        Hints.show(
-                            '#authModal .auth-modal-content',
-                            'Введите имя и пароль. Если аккаунта нет — нажмите «Зарегистрироваться» ниже.',
-                            { position: 'top', padding: 8, radius: 16, closeOnBackdrop: true }
-                        );
-                    }, 400); // ждём, пока модалка выедет (0.35s анимация)
+                if (window.Hints) {
+                    setTimeout(() => showAuthHint(), 400);
                 }
             }
         }
-        function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
+
+                function showAuthHint() {
+            if (!window.Hints) return;
+
+            const hintText = isLoginMode
+                ? 'Введите имя и пароль от вашего аккаунта. Если аккаунта нет — нажмите «Нет аккаунта? Зарегистрироваться» ниже.'
+                : 'Коротко: имя — только латиница a–z и цифры 0–9, без пробелов и символов. Пароль — от 6 символов. Пример: ivan2024 / qwerty123.';
+
+            Hints.show(
+                '#authModal .auth-modal-content',
+                hintText,
+                { position: 'top', padding: 8, radius: 16, closeOnBackdrop: true }
+            );
+        }
+        
+                function closeAuthModal() {
+            if (window.Hints) Hints.hide();
+            document.getElementById('authModal').classList.remove('active');
+        }
         function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
         function openProfileSettings() { alert('Настройки профиля (в разработке)'); }
 
@@ -2851,12 +2861,18 @@ item.appendChild(thumb);
             });
         }
 
-        function toggleAuthMode() {
+                function toggleAuthMode() {
+            if (window.Hints) Hints.hide();
+
             isLoginMode = !isLoginMode;
             document.getElementById('authTitle').textContent = isLoginMode ? 'Вход' : 'Регистрация';
             document.getElementById('authSubmitBtn').textContent = isLoginMode ? 'Войти' : 'Зарегистрироваться';
             document.getElementById('authToggle').textContent = isLoginMode ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти';
             document.getElementById('authMessage').textContent = '';
+
+            if (window.Hints) {
+                setTimeout(() => showAuthHint(), 100);
+            }
         }
         async function handleLogout() {
             await supabaseClient.auth.signOut();
