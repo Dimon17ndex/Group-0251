@@ -2397,7 +2397,7 @@ const DISCIPLINES = {
         // 4. ЛОГИКА ОКОН
         // ==========================================
                 let isLoginMode = false;
-        async function openAuthModal() {
+                async function openAuthModal() {
             if (!supabaseClient) { alert('Ошибка: библиотека Supabase не загрузилась.'); return; }
             
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -2410,6 +2410,18 @@ const DISCIPLINES = {
             } else {
                 document.getElementById('authModal').classList.add('active');
                 document.getElementById('authMessage').textContent = '';
+
+                // Подсказка над формой входа/регистрации — только при первом открытии
+                if (!localStorage.getItem('hint_auth_shown') && window.Hints) {
+                    localStorage.setItem('hint_auth_shown', '1');
+                    setTimeout(() => {
+                        Hints.show(
+                            '#authModal .auth-modal-content',
+                            'Введите имя и пароль. Если аккаунта нет — нажмите «Зарегистрироваться» ниже.',
+                            { position: 'top', padding: 8, radius: 16, closeOnBackdrop: true }
+                        );
+                    }, 400); // ждём, пока модалка выедет (0.35s анимация)
+                }
             }
         }
         function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
@@ -4089,6 +4101,8 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
         });
     })();
 </script>
+
+<script src="hints.js"></script>
 
 </body>
 </html>
