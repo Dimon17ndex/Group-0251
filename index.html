@@ -2067,7 +2067,10 @@
                         <span class="likes-loader-spinner"></span>
                     </div>
                     <div class="profile-panel-empty" id="tasksEmpty">У вас пока нет отмеченных заданий</div>
-                                        <div id="tasksTitle" style="display: none; width: 100%; text-align: center; font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; color: #000; margin: 4px 0 12px;">Ваши отмеченные задания</div>
+                                                            <div id="tasksTitleWrap" style="display: none; width: 100%; margin: 4px 0 12px;">
+                        <div id="tasksTitle" style="text-align: center; font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; color: #000; margin-bottom: 10px;">Ваши отмеченные задания</div>
+                        <div style="width: 100%; height: 2px; background: #0066ff; border-radius: 1px;"></div>
+                    </div>
                     <div id="tasksList" style="display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 4px 0;"></div>
                 </div>          <!-- закрывает .profile-panel[data-panel="tasks"] -->
             </div>              <!-- закрывает .profile-section-panels -->
@@ -3785,11 +3788,11 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
             const listEl = document.getElementById('tasksList');
             const emptyEl = document.getElementById('tasksEmpty');
             const loader = document.getElementById('tasksLoader');
-            const titleEl = document.getElementById('tasksTitle');
+                        const titleWrapEl = document.getElementById('tasksTitleWrap');
 
             const updateTitleVisibility = () => {
-                if (!titleEl || !listEl) return;
-                titleEl.style.display = (listEl.children.length > 0) ? 'block' : 'none';
+                if (!titleWrapEl || !listEl) return;
+                titleWrapEl.style.display = (listEl.children.length > 0) ? 'block' : 'none';
             };
             
             if (!listEl || !emptyEl || !loader) return;
@@ -3998,13 +4001,13 @@ document.querySelectorAll('#disciplinesList .discipline-item').forEach(btn => {
                     // Если список опустел — показываем заглушку и скрываем заголовок
                     const listEl = document.getElementById('tasksList');
                     const emptyEl = document.getElementById('tasksEmpty');
-                    const titleEl = document.getElementById('tasksTitle');
+                                        const titleWrapEl = document.getElementById('tasksTitleWrap');
                     if (listEl && listEl.children.length === 0) {
                         if (emptyEl) {
                             emptyEl.style.display = 'block';
                             emptyEl.textContent = 'У вас пока нет отмеченных заданий';
                         }
-                        if (titleEl) titleEl.style.display = 'none';
+                        if (titleWrapEl) titleWrapEl.style.display = 'none';
                     }
 
                     // Сбрасываем кэш, чтобы при следующем открытии «Заданий» перечиталось
