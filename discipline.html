@@ -984,7 +984,7 @@
 
                                 const shapeEntry = { el, start, duration, distance, shape, rotateSpeed, rafId: null };
 
-                function frame(now) {
+                                function frame(now) {
                     const t = Math.min(1, (now - start) / duration);
                     const y = t * distance;
                     el.style.transform = `translateY(${y}px) rotate(${rotate + rotateSpeed * t}deg)`;
@@ -994,6 +994,9 @@
                         el.remove();
                         const idx = state.shapes.indexOf(shapeEntry);
                         if (idx !== -1) state.shapes.splice(idx, 1);
+                        if (!state.active && state.shapes.length === 0 && loadingRainState === state) {
+                            loadingRainState = null;
+                        }
                     }
                 }
                 shapeEntry.rafId = requestAnimationFrame(frame);
@@ -1007,7 +1010,7 @@
             spawn(); // первый сразу
         }
 
-                function stopLoadingRain() {
+                        function stopLoadingRain() {
             if (!loadingRainState) return;
             const state = loadingRainState;
             state.active = false;
@@ -1015,13 +1018,44 @@
                 clearTimeout(state.spawnTimer);
                 state.spawnTimer = null;
             }
-            // Отменяем RAF у всех уже летящих фигур и удаляем их
-            state.shapes.forEach(s => {
-                if (s.rafId) cancelAnimationFrame(s.rafId);
-                if (s.el && s.el.parentNode) s.el.remove();
-            });
-            state.shapes.length = 0;
+            // НЕ трогаем уже летящие фигуры — пусть долетят сами,
+            // их frame() удалит по завершении (t >= 1)
             loadingRainState = null;
+
+            // Когда все долетят — удалим контейнер (если он ещё в DOM)
+            const checkAllDone = () => {
+                if (state.shapes.length === 0) {
+                    if (state.container && state.container.parentNode) {
+                        state.container.remove();
+                    }
+                    return;
+                }
+                requestAnimationFrame(checkAllDone);
+            };
+            requestAnimationFrame(checkAllDone);
+        }
+
+                function waitForRainToFinish(timeoutMs = 4000) {
+            return new Promise(resolve => {
+                if (!loadingRainState || loadingRainState.shapes.length === 0) {
+                    resolve();
+                    return;
+                }
+                const state = loadingRainState;
+                const start = performance.now();
+                const check = () => {
+                    if (!loadingRainState || state.shapes.length === 0) {
+                        resolve();
+                        return;
+                    }
+                    if (performance.now() - start > timeoutMs) {
+                        resolve();
+                        return;
+                    }
+                    requestAnimationFrame(check);
+                };
+                check();
+            });
         }
 
         async function render() {
@@ -1082,9 +1116,10 @@
                 loadError = true;
             }
 
-            // Данные получены (или ошибка) — новые фигуры не спавним,
-            // уже летящие доигрывают
+                        // Данные получены (или ошибка) — новые фигуры не спавним,
+            // уже летящие доигрывают до низа
             stopLoadingRain();
+            await waitForRainToFinish();
 
             // === Загружаем заметки текущего пользователя ===
             let savedNoteTaskIds = new Set();
