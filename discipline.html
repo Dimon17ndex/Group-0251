@@ -325,6 +325,53 @@
             }
         }
 
+        .discipline-load-error {
+            max-width: 760px;
+            margin: 0 auto;
+            text-align: center;
+            color: #e53935;
+            font-size: 1rem;
+            line-height: 1.55;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 14px;
+            border: 1px solid #ffcdd2;
+            animation: taskIn 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) 0.2s both;
+        }
+        .discipline-load-error-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #b71c1c;
+            margin-bottom: 8px;
+        }
+        .discipline-load-error-text {
+            color: #666;
+            margin-bottom: 18px;
+        }
+        .discipline-retry-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            background: #0066ff;
+            color: #fff;
+            border: 2px solid #0066ff;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .discipline-retry-btn:hover {
+            background: #fff;
+            color: #0066ff;
+        }
+        .discipline-retry-btn:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+
         .discipline-empty {
             max-width: 760px;
             margin: 0 auto;
@@ -869,34 +916,34 @@
 
             root.innerHTML = `<div class="discipline-empty">Загрузка заданий...</div>`;
 
-            let tasks = [];
+                        let tasks = [];
+            let loadError = false;
             try {
                 const cacheBuster = '&t=' + new Date().getTime();
                 const response = await fetch(CSV_URL + cacheBuster, { cache: 'no-store' });
-                if (response.ok) {
-                    const csvText = await response.text();
-                    const rows = parseCSV(csvText);
-                    if (rows.length > 0) {
-                        const headers = rows[0];
-                        const allTasks = rows.slice(1).map(row => {
-                            const obj = {};
-                            headers.forEach((header, index) => {
-                                obj[header.trim()] = row[index] ? row[index].trim() : '';
-                            });
-                            return obj;
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const csvText = await response.text();
+                const rows = parseCSV(csvText);
+                if (rows.length > 0) {
+                    const headers = rows[0];
+                    const allTasks = rows.slice(1).map(row => {
+                        const obj = {};
+                        headers.forEach((header, index) => {
+                            obj[header.trim()] = row[index] ? row[index].trim() : '';
                         });
-                        tasks = allTasks.filter(t => t.discipline_id === id);
+                        return obj;
+                    });
+                    tasks = allTasks.filter(t => t.discipline_id === id);
 
-// Сортировка: сначала те, у которых дата больше (свежие сверху)
-tasks.sort((a, b) => {
-    const dateA = a.date ? new Date(a.date).getTime() : 0;
-    const dateB = b.date ? new Date(b.date).getTime() : 0;
-    return dateB - dateA; // Если нужны старые сверху, поменяйте на dateA - dateB
-});
-                    }
+                    tasks.sort((a, b) => {
+                        const dateA = a.date ? new Date(a.date).getTime() : 0;
+                        const dateB = b.date ? new Date(b.date).getTime() : 0;
+                        return dateB - dateA;
+                    });
                 }
             } catch (e) {
                 console.error('Ошибка загрузки заданий:', e);
+                loadError = true;
             }
 
             // === Загружаем заметки текущего пользователя ===
@@ -924,24 +971,33 @@ tasks.sort((a, b) => {
 
             let lastDateStr = null;
 
-            const tasksHtml = (tasks.length > 0)
-                ? tasks.map((t) => {
+                        let tasksHtml;
+            if (loadError) {
+                tasksHtml = `
+                    <div class="discipline-load-error">
+                        <div class="discipline-load-error-title">Не удалось загрузить задания</div>
+                        <div class="discipline-load-error-text">Проверьте интернет-соединение и попробуйте ещё раз.</div>
+                        <button type="button" class="discipline-retry-btn" id="disciplineRetryBtn">Повторить</button>
+                    </div>
+                `;
+            } else if (tasks.length > 0) {
+                tasksHtml = tasks.map((t) => {
                     let color = t.color || data.color || '#0066ff';
                     if (t.type === 'lecture') {
-                        color = '#4a90e2'; 
+                        color = '#4a90e2';
                     } else if (t.type === 'practice') {
-                        color = '#43a047'; 
+                        color = '#43a047';
                     }
 
                     const currentDateText = formatTaskDate(t.date);
-                    
+
                     let dateHtml = '';
                     if (currentDateText && currentDateText !== lastDateStr) {
                         dateHtml = `<div class="task-date">${currentDateText}</div>`;
                     }
                     lastDateStr = currentDateText;
 
-                                        const hasNote = savedNoteTaskIds.has(t.taskId);
+                    const hasNote = savedNoteTaskIds.has(t.taskId);
                     const noteIconHtml = hasNote ? `
                         <span class="task-note-indicator" title="Отмечено в заметках" aria-label="Отмечено в заметках">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -950,7 +1006,7 @@ tasks.sort((a, b) => {
                         </span>
                     ` : '';
 
-                                        return `
+                    return `
                         <div class="task-wrapper${hasNote ? ' has-note' : ''}">
                             ${dateHtml}
                             <div class="task-line-wrapper">
@@ -963,8 +1019,10 @@ tasks.sort((a, b) => {
                             ${noteIconHtml}
                         </div>
                     `;
-                }).join('')
-                : `<div class="discipline-empty">${escapeHtml(EMPTY_TEXT)}</div>`;
+                }).join('');
+            } else {
+                tasksHtml = `<div class="discipline-empty">${escapeHtml(EMPTY_TEXT)}</div>`;
+            }
 
             root.innerHTML = `
                 <div class="discipline-timeline-wrap">
@@ -984,11 +1042,21 @@ tasks.sort((a, b) => {
                 </div>
             `;
 
-            requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
                 requestAnimationFrame(syncTimelineAnimation);
             });
 
             bindTaskSheetEvents(tasks, id, data.color);
+
+            // Кнопка «Повторить» при ошибке загрузки
+            const retryBtn = document.getElementById('disciplineRetryBtn');
+            if (retryBtn) {
+                retryBtn.addEventListener('click', () => {
+                    retryBtn.disabled = true;
+                    retryBtn.textContent = 'Загрузка...';
+                    render();
+                });
+            }
         }
 
         function escapeHtml(str) {
@@ -1825,5 +1893,8 @@ await openSheet(updatedTask, disciplineColor);
             }
         });
     </script>
+
+    <script src="hints.js"></script>
+    
 </body>
 </html>
