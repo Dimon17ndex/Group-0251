@@ -325,40 +325,40 @@
             }
         }
 
-        .discipline-load-error {
-            max-width: 760px;
+                .discipline-load-error {
+            max-width: 420px;
             margin: 0 auto;
             text-align: center;
             color: #e53935;
-            font-size: 1rem;
-            line-height: 1.55;
-            padding: 40px 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 14px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            padding: 18px 16px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
             border: 1px solid #ffcdd2;
             animation: taskIn 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) 0.2s both;
         }
         .discipline-load-error-title {
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             color: #b71c1c;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         .discipline-load-error-text {
             color: #666;
-            margin-bottom: 18px;
+            margin-bottom: 12px;
         }
         .discipline-retry-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 12px 24px;
+            padding: 8px 18px;
             background: #0066ff;
             color: #fff;
             border: 2px solid #0066ff;
-            border-radius: 10px;
+            border-radius: 8px;
             font-family: inherit;
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s ease, color 0.2s ease;
@@ -416,6 +416,26 @@
         .discipline-fade-out { opacity: 0 !important; transition: opacity 0.3s ease !important; pointer-events: none !important; }
         .discipline-fade-veil { position: fixed; inset: 0; background: #fff; z-index: 100000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .discipline-fade-veil.active { opacity: 1; pointer-events: auto; }
+
+        @media (max-width: 700px) {
+            .discipline-load-error {
+                max-width: 100%;
+                padding: 14px 12px;
+                font-size: 0.8rem;
+                border-radius: 10px;
+                margin-top: 16px;
+            }
+            .discipline-load-error-title {
+                font-size: 0.9rem;
+            }
+            .discipline-load-error-text {
+                margin-bottom: 10px;
+            }
+            .discipline-retry-btn {
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+        }
 
         @media (max-width: 700px) {
             header { padding: 12px 12px; gap: 10px; }
