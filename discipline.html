@@ -372,6 +372,39 @@
             cursor: default;
         }
 
+        /* === Дождь из фигур при загрузке === */
+        .discipline-loading-rain {
+            position: relative;
+            width: 100%;
+            max-width: 760px;
+            margin: 20px auto 0;
+            height: 260px;              /* высота «сцены» под текстом */
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .rain-shape {
+            position: absolute;
+            top: -40px;                  /* стартуем чуть выше сцены */
+            will-change: transform;
+            opacity: 0.9;
+        }
+
+        .rain-shape.shape-circle {
+            border-radius: 50%;
+        }
+        .rain-shape.shape-square {
+            border-radius: 4px;
+        }
+        .rain-shape.shape-triangle {
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 20px solid #0066ff;   /* цвет подставится inline */
+        }
+
         .discipline-empty {
             max-width: 760px;
             margin: 0 auto;
@@ -894,6 +927,103 @@
             return rows;
         }
 
+        let loadingRainState = null;
+
+        function startLoadingRain() {
+            stopLoadingRain();
+
+            const container = document.getElementById('loadingRain');
+            if (!container) return;
+
+            const COLORS = Object.values(DISCIPLINES).map(d => d.color);
+            const SHAPES = ['circle', 'square', 'triangle'];
+
+            const state = {
+                container,
+                shapes: [],
+                spawnTimer: null,
+                rafId: null,
+                active: true,
+            };
+
+            function spawn() {
+                if (!state.active) return;
+
+                const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+                const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+
+                const el = document.createElement('div');
+                el.className = 'rain-shape shape-' + shape;
+
+                const size = 10 + Math.random() * 18;       // 10–28 px
+                const left = Math.random() * 100;           // 0–100 %
+                const duration = 1800 + Math.random() * 1600; // 1.8–3.4 s
+                const rotate = Math.random() * 360;
+                const rotateSpeed = (Math.random() - 0.5) * 720; // -360…360 deg
+
+                el.style.left = left + '%';
+
+                if (shape === 'triangle') {
+                    el.style.borderBottomColor = color;
+                    // размеры треугольника через border
+                    el.style.borderLeftWidth = (size / 2) + 'px';
+                    el.style.borderRightWidth = (size / 2) + 'px';
+                    el.style.borderBottomWidth = size + 'px';
+                } else {
+                    el.style.width = size + 'px';
+                    el.style.height = size + 'px';
+                    el.style.background = color;
+                    el.style.transform = `rotate(${rotate}deg)`;
+                }
+
+                container.appendChild(el);
+
+                const start = performance.now();
+                const sceneHeight = container.clientHeight || 260;
+                const distance = sceneHeight + 60; // пролёт чуть больше сцены
+
+                                const shapeEntry = { el, start, duration, distance, shape, rotateSpeed, rafId: null };
+
+                function frame(now) {
+                    const t = Math.min(1, (now - start) / duration);
+                    const y = t * distance;
+                    el.style.transform = `translateY(${y}px) rotate(${rotate + rotateSpeed * t}deg)`;
+                    if (t < 1) {
+                        shapeEntry.rafId = requestAnimationFrame(frame);
+                    } else {
+                        el.remove();
+                        const idx = state.shapes.indexOf(shapeEntry);
+                        if (idx !== -1) state.shapes.splice(idx, 1);
+                    }
+                }
+                shapeEntry.rafId = requestAnimationFrame(frame);
+                state.shapes.push(shapeEntry);
+
+                // Следующий спавн через 120–320 мс
+                state.spawnTimer = setTimeout(spawn, 120 + Math.random() * 200);
+            }
+
+            loadingRainState = state;
+            spawn(); // первый сразу
+        }
+
+                function stopLoadingRain() {
+            if (!loadingRainState) return;
+            const state = loadingRainState;
+            state.active = false;
+            if (state.spawnTimer) {
+                clearTimeout(state.spawnTimer);
+                state.spawnTimer = null;
+            }
+            // Отменяем RAF у всех уже летящих фигур и удаляем их
+            state.shapes.forEach(s => {
+                if (s.rafId) cancelAnimationFrame(s.rafId);
+                if (s.el && s.el.parentNode) s.el.remove();
+            });
+            state.shapes.length = 0;
+            loadingRainState = null;
+        }
+
         async function render() {
             const id = getParam('id') || 'history-geo';
             const root = document.getElementById('disciplineRoot');
@@ -914,7 +1044,13 @@
 
             document.title = data.title + ' — География 2611-0251.1';
 
-            root.innerHTML = `<div class="discipline-empty">Загрузка заданий...</div>`;
+                                    root.innerHTML = `
+                <div class="discipline-empty" style="animation: none;">
+                    Загрузка заданий...
+                    <div class="discipline-loading-rain" id="loadingRain"></div>
+                </div>
+            `;
+            startLoadingRain();
 
                         let tasks = [];
             let loadError = false;
@@ -941,10 +1077,14 @@
                         return dateB - dateA;
                     });
                 }
-            } catch (e) {
+                        } catch (e) {
                 console.error('Ошибка загрузки заданий:', e);
                 loadError = true;
             }
+
+            // Данные получены (или ошибка) — новые фигуры не спавним,
+            // уже летящие доигрывают
+            stopLoadingRain();
 
             // === Загружаем заметки текущего пользователя ===
             let savedNoteTaskIds = new Set();
@@ -1892,6 +2032,8 @@ await openSheet(updatedTask, disciplineColor);
                 }
             }
         });
+
+         window.addEventListener('pagehide', stopLoadingRain);
     </script>
 
     <script src="hints.js"></script>
