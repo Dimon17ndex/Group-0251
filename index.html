@@ -710,54 +710,6 @@
     gap: 12px;
 }
 
-                .discipline-item {
-            width: 100%;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 16px 20px;
-            font-family: inherit;
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            text-align: left;
-            color: #ffffff;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.25s ease;
-            line-height: 1.25;
-        }
-
-            .discipline-item .disc-icon {
-            width: 24px;
-            height: 24px;
-            flex-shrink: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            margin-top: 2px;    /* выравнивание по первой строке текста */
-        }
-
-        .discipline-item .disc-icon svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .discipline-item .disc-text {
-            flex: 1 1 auto;
-            min-width: 0;
-            white-space: normal;
-        }
-
 .discipline-item {
     width: 100%;
     display: block;
@@ -795,30 +747,7 @@
             header { padding: 12px 10px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; width: 100%; box-sizing: border-box; overflow: hidden; }
             .site-logo { position: static; transform: none; width: 36px; height: 36px; margin: 0; flex-shrink: 0; }
             .disciplines-title { font-size: 1.4rem; letter-spacing: 1px; margin: 0 0 16px; }
-                        .discipline-item {
-                gap: 8px;
-            }
-            .discipline-item .disc-icon {
-                width: 18px;
-                height: 18px;
-            }
-            .discipline-item {
-                padding: 14px 16px;
-                font-size: 0.95rem;
-                border-radius: 10px;
-                gap: 10px;
-            }
-                        .discipline-item {
-                padding: 14px 16px;
-                font-size: 0.95rem;
-                border-radius: 10px;
-                gap: 10px;
-            }
-            .discipline-item .disc-icon {
-                width: 20px;
-                height: 20px;
-                margin-top: 1px;
-            }
+.discipline-item { padding: 14px 16px; font-size: 0.95rem; border-radius: 10px; }
             .site-logo svg { width: 22px; height: 22px; }
             .header-text { display: flex; align-items: center; justify-content: flex-start; flex: 1 1 auto; min-width: 0; overflow: hidden; }
             h1 { font-size: 0.95rem; letter-spacing: 0.2px; line-height: 1.2; white-space: nowrap; text-align: left; color: transparent; position: relative; max-width: 100%; }
@@ -1980,121 +1909,18 @@
             <section class="tab-content" id="tab-disciplines">
     <div class="tab-platform" id="disciplinesPlatform">
         <h2 class="disciplines-title">Дисциплины</h2>
-                        <div class="disciplines-list" id="disciplinesList">
+        <div class="disciplines-list" id="disciplinesList">
 
-            <button type="button" class="discipline-item" data-discipline="history-geo">
-                <span class="disc-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="5" r="3"/>
-                        <line x1="12" y1="22" x2="12" y2="8"/>
-                        <path d="M5 12H2a10 10 0 0 0 20 0h-3"/>
-                    </svg>
-                </span>
-                <span class="disc-text">История географических открытий</span>
-            </button>
-
-            <button type="button" class="discipline-item" data-discipline="methods-geo">
-                <span class="disc-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 4-4 5-2"/>
-                        <path d="M17 3l4 4"/>
-                        <path d="M14 6l6 6-2 2-6-6z"/>
-                    </svg>
-                </span>
-                <span class="disc-text">Методы географических исследований</span>
-            </button>
-
-            <button type="button" class="discipline-item" data-discipline="meteorology">
-                <span class="disc-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/>
-                        <line x1="8" y1="20" x2="8" y2="22"/>
-                        <line x1="12" y1="20" x2="12" y2="22"/>
-                        <line x1="16" y1="20" x2="16" y2="22"/>
-                    </svg>
-                </span>
-                <span class="disc-text">Метеорология и климатология, гидрология</span>
-            </button>
-
-            <button type="button" class="discipline-item" data-discipline="geology">
-                <span class="disc-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L2 20h20L12 2z"/>
-                        <path d="M7 14h10"/>
-                    </svg>
-                </span>
-                <span class="disc-text">Геология и эволюционная география</span>
-            </button>
-
-            <button type="button" class="discipline-item" data-discipline="history-ru">
-                <span class="disc-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2z"/>
-                        <line x1="8" y1="6" x2="16" y2="6"/>
-                        <line x1="8" y1="10" x2="16" y2="10"/>
-                        <line x1="8" y1="14" x2="12" y2="14"/>
-                    </svg>
-                </span>
-                <span class="disc-text">История России</span>
-            </button>
-
-            <button type="button" class="discipline-item" data-discipline="russian-state">
-                <span class="disc-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        <path d="M9 12l2 2 4-4"/>
-                    </svg>
-                </span>
-                <span class="disc-text">Основы российской государственности</span>
-            </button>
-
-            <button type="button" class="discipline-item" data-discipline="russian-lang">
-                <span class="disc-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M8 8v8M16 8v8M8 12h8"/>
-                    </svg>
-                </span>
-                <span class="disc-text">Русский язык</span>
-            </button>
-
-            <button type="button" class="discipline-item" data-discipline="english-lang">
-                <span class="disc-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 22V6"/>
-                        <path d="M12 6L7 2M12 6l5-4"/>
-                        <rect x="8" y="10" width="8" height="6" rx="1"/>
-                        <line x1="12" y1="10" x2="12" y2="16"/>
-                        <line x1="8" y1="13" x2="16" y2="13"/>
-                    </svg>
-                </span>
-                <span class="disc-text">Английский язык</span>
-            </button>
-
-                        <button type="button" class="discipline-item" data-discipline="biogeocenology">
-                <span class="disc-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 21c0-2.5 1-4.5 3-5.5"/>
-                        <path d="M14 21c0-3 1-5 3.5-6.5"/>
-                        <path d="M8 15.5c-2.5-.5-4-2-4-4.5 0-2.5 1.5-4 3.5-4"/>
-                        <path d="M8 6.5c0-2.5 1.5-4 3.5-4s3.5 1.5 3.5 4c0 1-.3 1.8-.8 2.5"/>
-                        <path d="M14.2 9c1.8 0 3 1.5 3 3.5 0 2-1.2 3.5-3 3.5-1 0-1.8-.4-2.4-1"/>
-                        <circle cx="11.5" cy="5.5" r=".7"/>
-                        <path d="M9.8 8.5c-.8 0-1.5.7-1.5 1.5"/>
-                    </svg>
-                </span>
-                <span class="disc-text">Основы биогеоценологии</span>
-            </button>
-
-            <button type="button" class="discipline-item" data-discipline="medical-basics">
-                <span class="disc-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 3v18M3 12h18"/>
-                        <rect x="6" y="6" width="12" height="12" rx="2"/>
-                    </svg>
-                </span>
-                <span class="disc-text">Основы медицинских знаний</span>
-            </button>
+            <button type="button" class="discipline-item" data-discipline="history-geo">История географических открытий</button>
+            <button type="button" class="discipline-item" data-discipline="methods-geo">Методы географических исследований</button>
+            <button type="button" class="discipline-item" data-discipline="meteorology">Метеорология и климатология, гидрология</button>
+            <button type="button" class="discipline-item" data-discipline="geology">Геология и эволюционная география</button>
+            <button type="button" class="discipline-item" data-discipline="history-ru">История России</button>
+            <button type="button" class="discipline-item" data-discipline="russian-state">Основы российской государственности</button>
+            <button type="button" class="discipline-item" data-discipline="russian-lang">Русский язык</button>
+            <button type="button" class="discipline-item" data-discipline="english-lang">Английский язык</button>
+            <button type="button" class="discipline-item" data-discipline="biogeocenology">Основы биогеоценологии</button>
+            <button type="button" class="discipline-item" data-discipline="medical-basics">Основы медицинских знаний</button>
 
         </div>
     </div>
@@ -2594,9 +2420,9 @@ const DISCIPLINES = {
                 function showAuthHint() {
             if (!window.Hints) return;
 
-                        const hintText = isLoginMode
-                ? 'Подсказка: введите имя и пароль от вашего аккаунта. Если аккаунта нет — нажмите «Нет аккаунта? Зарегистрироваться» ниже.'
-                : 'Подсказка: имя — только латиница a–z и цифры 0–9, без пробелов и символов. Пароль — от 6 символов. Пример: ivan2024 / qwerty123.';
+            const hintText = isLoginMode
+                ? 'Введите имя и пароль от вашего аккаунта. Если аккаунта нет — нажмите «Нет аккаунта? Зарегистрироваться» ниже.'
+                : 'Коротко: имя — только латиница a–z и цифры 0–9, без пробелов и символов. Пароль — от 6 символов. Пример: ivan2024 / qwerty123.';
 
             Hints.show(
                 '#authModal .auth-modal-content',
