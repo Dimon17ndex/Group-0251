@@ -713,7 +713,7 @@
                 .discipline-item {
             width: 100%;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 12px;
             padding: 16px 20px;
             font-family: inherit;
@@ -730,7 +730,7 @@
             line-height: 1.25;
         }
 
-        .discipline-item .disc-icon {
+                .discipline-item .disc-icon {
             width: 24px;
             height: 24px;
             flex-shrink: 0;
@@ -738,6 +738,7 @@
             align-items: center;
             justify-content: center;
             color: #fff;
+            margin-top: 1px;    /* выравнивание по первой строке текста */
         }
 
         .discipline-item .disc-icon svg {
@@ -806,6 +807,17 @@
                 font-size: 0.95rem;
                 border-radius: 10px;
                 gap: 10px;
+            }
+                        .discipline-item {
+                padding: 14px 16px;
+                font-size: 0.95rem;
+                border-radius: 10px;
+                gap: 10px;
+            }
+            .discipline-item .disc-icon {
+                width: 20px;
+                height: 20px;
+                margin-top: 0;   /* на мобилке шрифт меньше — сдвиг не нужен */
             }
             .discipline-item .disc-icon {
                 width: 20px;
