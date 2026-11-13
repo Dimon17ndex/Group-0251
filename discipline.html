@@ -338,6 +338,20 @@
             border: 1px solid #ffcdd2;
             animation: taskIn 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) 0.2s both;
         }
+
+        .discipline-load-error-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b71c1c;
+            margin-bottom: 6px;
+        }
+        .discipline-load-error-icon svg {
+            width: 32px;
+            height: 32px;
+            display: block;
+        }
+
         .discipline-load-error-title {
             font-weight: 700;
             font-size: 0.95rem;
@@ -418,6 +432,13 @@
         .discipline-fade-veil.active { opacity: 1; pointer-events: auto; }
 
                 @media (max-width: 700px) {
+            .discipline-load-error-icon {
+                margin-bottom: 4px;
+            }
+            .discipline-load-error-icon svg {
+                width: 24px;
+                height: 24px;
+            }
             .discipline-load-error {
                 max-width: 260px;
                 padding: 10px 10px;
@@ -996,9 +1017,20 @@
             let lastDateStr = null;
 
                         let tasksHtml;
-            if (loadError) {
+                        if (loadError) {
                 tasksHtml = `
                     <div class="discipline-load-error">
+                        <div class="discipline-load-error-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 1l22 22"/>
+                                <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+                                <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+                                <path d="M10.71 5.05A16 16 0 0 1 22.58 9"/>
+                                <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+                                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                                <line x1="12" y1="20" x2="12.01" y2="20"/>
+                            </svg>
+                        </div>
                         <div class="discipline-load-error-title">Не удалось загрузить задания</div>
                         <div class="discipline-load-error-text">Проверьте интернет-соединение и попробуйте ещё раз.</div>
                         <button type="button" class="discipline-retry-btn" id="disciplineRetryBtn">Повторить</button>
